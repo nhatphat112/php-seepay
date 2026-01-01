@@ -1,0 +1,790 @@
+/* ==========================================
+   Silkroad Origin Mobile - Single Page
+   ========================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --gold: #d4a574;
+    --gold-dark: #8b6f47;
+    --black: #000000;
+    --dark-bg: #0a0e27;
+    --dark-card: #1a1f3a;
+}
+
+body {
+    font-family: 'Noto Serif', serif;
+    background: var(--black);
+    color: #fff;
+    overflow-x: hidden;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* ==========================================
+   Navigation
+   ========================================== */
+.main-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 50px;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(212, 165, 116, 0.3);
+}
+
+.nav-left, .nav-right {
+    display: flex;
+    gap: 35px;
+    align-items: center;
+}
+
+.nav-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.nav-center .logo {
+    width: 70px;
+    height: 70px;
+}
+
+.nav-link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: color 0.3s;
+}
+
+.nav-link:hover {
+    color: var(--gold);
+}
+
+.lang-switcher {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--gold);
+}
+
+.lang-icon {
+    font-size: 18px;
+}
+
+/* ==========================================
+   Section Headers
+   ========================================== */
+.section-header {
+    text-align: center;
+    padding: 60px 0 40px;
+}
+
+.section-title {
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    letter-spacing: 6px;
+}
+
+/* ==========================================
+   Hero Section
+   ========================================== */
+.hero-section {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    overflow: hidden;
+}
+
+.hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.5);
+}
+
+.awards-container {
+    display: flex;
+    gap: 100px;
+    margin-bottom: 50px;
+}
+
+.award-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.award-wreath {
+    width: 130px;
+    height: 130px;
+    border: 3px solid var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle, rgba(212,165,116,0.15), transparent);
+    position: relative;
+}
+
+.award-wreath::before {
+    content: '🏆';
+    font-size: 50px;
+}
+
+.award-text {
+    text-align: center;
+}
+
+.award-year {
+    font-size: 9px;
+    color: var(--gold);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.award-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    line-height: 1.3;
+    margin-bottom: 8px;
+}
+
+.award-category {
+    font-size: 13px;
+    color: #fff;
+}
+
+.hero-title {
+    font-size: 48px;
+    font-weight: 700;
+    text-align: center;
+    color: #fff;
+    margin-bottom: 40px;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 3px;
+    text-shadow: 0 0 30px rgba(212,165,116,0.6);
+    max-width: 1200px;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.action-hexagon {
+    width: 180px;
+    height: 60px;
+    background: linear-gradient(135deg, rgba(212,165,116,0.2), rgba(139,111,71,0.2));
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-hexagon:hover {
+    background: var(--gold);
+    color: #000;
+    transform: translateY(-5px);
+}
+
+.download-main-btn {
+    background: transparent;
+    color: var(--gold);
+    border: 3px solid var(--gold);
+    padding: 18px 90px;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 3px;
+    transition: all 0.3s;
+}
+
+.download-main-btn:hover {
+    background: var(--gold);
+    color: #000;
+    box-shadow: 0 10px 40px rgba(212,165,116,0.5);
+}
+
+/* ==========================================
+   News Section
+   ========================================== */
+.news-section {
+    background: linear-gradient(180deg, rgba(10,14,39,0.8), #000);
+    min-height: 100vh;
+    padding: 100px 0 80px;
+}
+
+.news-layout {
+    display: grid;
+    grid-template-columns: 350px 1fr 300px;
+    gap: 30px;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+/* Left Sidebar - Events */
+.news-sidebar-left {
+    background: rgba(26,31,58,0.8);
+    padding: 20px;
+    border: 1px solid var(--gold);
+}
+
+.event-banner {
+    position: relative;
+    margin-bottom: 25px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.event-banner img {
+    width: 100%;
+    display: block;
+}
+
+.event-overlay {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    right: 15px;
+}
+
+.event-overlay h3 {
+    font-size: 18px;
+    color: var(--gold);
+    margin-bottom: 5px;
+}
+
+.event-overlay p {
+    font-size: 12px;
+    color: #fff;
+}
+
+.schedule-box {
+    background: rgba(0,0,0,0.6);
+    padding: 20px;
+    border: 1px solid rgba(212,165,116,0.3);
+}
+
+.schedule-header {
+    color: var(--gold);
+    font-size: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.schedule-subtitle {
+    font-size: 10px;
+    color: #999;
+}
+
+.schedule-times {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.time-slot {
+    background: rgba(212,165,116,0.1);
+    padding: 12px;
+    text-align: center;
+}
+
+.time-slot .time {
+    font-size: 18px;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.time-slot .day {
+    font-size: 10px;
+    color: #fff;
+    line-height: 1.4;
+}
+
+.event-details {
+    font-size: 11px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    color: #ccc;
+}
+
+/* Main News Content */
+.news-main-content {
+    background: rgba(26,31,58,0.6);
+    padding: 30px;
+}
+
+.news-tabs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--gold);
+    padding-bottom: 15px;
+}
+
+.news-tab {
+    background: transparent;
+    border: none;
+    color: #999;
+    padding: 10px 20px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: color 0.3s;
+    font-weight: 600;
+}
+
+.news-tab.active,
+.news-tab:hover {
+    color: var(--gold);
+}
+
+.news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.news-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(212,165,116,0.2);
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.news-item:hover {
+    background: rgba(212,165,116,0.1);
+    border-color: var(--gold);
+}
+
+.news-title {
+    font-size: 16px;
+    color: #fff;
+}
+
+.news-date {
+    display: flex;
+    gap: 15px;
+    font-size: 11px;
+    color: var(--gold);
+    text-align: center;
+    line-height: 1.6;
+}
+
+.news-date strong {
+    font-size: 18px;
+    display: block;
+}
+
+/* Right Sidebar - Server Info */
+.news-sidebar-right {
+    background: rgba(26,31,58,0.8);
+    padding: 20px;
+    border: 1px solid var(--gold);
+    height: fit-content;
+}
+
+.server-info-box h3 {
+    color: var(--gold);
+    font-size: 14px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.server-info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.server-info-table td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 12px;
+}
+
+.server-info-table .value {
+    color: var(--gold);
+    text-align: right;
+    line-height: 1.6;
+}
+
+.social-box {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.social-box p {
+    font-size: 12px;
+    margin-bottom: 15px;
+    color: #999;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.social-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-size: 18px;
+}
+
+.social-icon:hover {
+    background: var(--gold);
+    color: #000;
+}
+
+/* Bottom Icons */
+.bottom-icons {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    padding: 50px 0 20px;
+}
+
+.bottom-icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: var(--gold);
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.bottom-icon-item:hover {
+    transform: translateY(-5px);
+}
+
+.bottom-icon-item .icon {
+    font-size: 36px;
+}
+
+.bottom-icon-item .label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ==========================================
+   Career Section
+   ========================================== */
+.career-section {
+    background: linear-gradient(180deg, #000, rgba(10,14,39,0.8));
+    padding: 100px 0 80px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.career-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 0;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+.career-character {
+    position: relative;
+    transition: transform 0.4s;
+}
+
+.career-character:hover {
+    transform: scale(1.05);
+    z-index: 10;
+}
+
+.character-img {
+    width: 600px;
+    height: auto;
+    display: block;
+}
+
+.character-name {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    letter-spacing: 3px;
+    background: rgba(0,0,0,0.8);
+    padding: 15px 50px;
+    border: 2px solid var(--gold);
+    clip-path: polygon(10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%, 0% 50%);
+}
+
+/* ==========================================
+   Gameplay Section
+   ========================================== */
+.gameplay-section {
+    background: linear-gradient(180deg, rgba(10,14,39,0.8), #000);
+    padding: 100px 40px 80px;
+    min-height: 100vh;
+}
+
+.gameplay-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.gameplay-card {
+    background: rgba(26,31,58,0.9);
+    border: 2px solid var(--gold);
+    overflow: hidden;
+    transition: all 0.4s;
+}
+
+.gameplay-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 60px rgba(212,165,116,0.4);
+}
+
+.gameplay-card img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    transition: transform 0.5s;
+}
+
+.gameplay-card:hover img {
+    transform: scale(1.1);
+}
+
+.gameplay-info {
+    padding: 30px;
+    text-align: center;
+}
+
+.gameplay-info h3 {
+    font-size: 24px;
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    margin-bottom: 15px;
+}
+
+.divider {
+    width: 60px;
+    height: 3px;
+    background: var(--gold);
+    margin: 0 auto 20px;
+}
+
+.gameplay-info p {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #ccc;
+}
+
+/* ==========================================
+   Sidebar Fixed
+   ========================================== */
+.sidebar-fixed {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    z-index: 999;
+}
+
+.sidebar-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.sidebar-logo img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+.sidebar-text {
+    font-size: 10px;
+    text-align: center;
+    color: var(--gold);
+    line-height: 1.4;
+    font-weight: 600;
+}
+
+.sidebar-btn {
+    background: rgba(212,165,116,0.2);
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 120px;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.sidebar-btn:hover {
+    background: var(--gold);
+    color: #000;
+}
+
+.btn-download {
+    background: var(--gold);
+    color: #000;
+}
+
+.sidebar-socials {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.sidebar-social {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-size: 18px;
+}
+
+.sidebar-social:hover {
+    background: var(--gold);
+    color: #000;
+}
+
+/* ==========================================
+   Responsive
+   ========================================== */
+@media (max-width: 1400px) {
+    .news-layout {
+        grid-template-columns: 300px 1fr 280px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .news-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .news-sidebar-left,
+    .news-sidebar-right {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-nav {
+        padding: 0 20px;
+    }
+    
+    .nav-left, .nav-right {
+        gap: 15px;
+    }
+    
+    .nav-link {
+        font-size: 12px;
+    }
+    
+    .hero-title {
+        font-size: 32px;
+    }
+    
+    .awards-container {
+        gap: 40px;
+    }
+    
+    .quick-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .career-container {
+        flex-direction: column;
+    }
+    
+    .character-img {
+        width: 100%;
+        max-width: 500px;
+    }
+    
+    .sidebar-fixed {
+        display: none;
+    }
+}
+

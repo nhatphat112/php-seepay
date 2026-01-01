@@ -1,0 +1,14 @@
+# Protect API directory
+# Only allow PHP files to be accessed
+
+<FilesMatch "\.(php)$">
+    Order allow,deny
+    Allow from all
+</FilesMatch>
+
+# Deny access to all other files
+<FilesMatch "\.(?!php$)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+

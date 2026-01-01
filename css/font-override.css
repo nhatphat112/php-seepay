@@ -1,0 +1,164 @@
+/* ===================================
+   FONT OVERRIDE - TAHOMA 9PT BOLD
+   =================================== */
+
+/* Import Tahoma font nếu cần */
+@font-face {
+    font-family: 'Tahoma';
+    src: local('Tahoma Bold'), local('Tahoma-Bold'),
+         url('../assets/fonts/tahomabold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Tahoma';
+    src: local('Tahoma'), 
+         url('../assets/fonts/tahoma.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Global font settings - Tahoma, 9pt (12px), Bold */
+* {
+    font-family: 'Tahoma', Arial, sans-serif !important;
+    font-size: 12px !important; /* 9pt ≈ 12px */
+    font-weight: bold !important;
+}
+
+/* Specific overrides for different elements */
+body {
+    font-family: 'Tahoma', Arial, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+}
+
+/* Headers - slightly larger but still Tahoma Bold */
+h1 {
+    font-size: 24px !important;
+    font-weight: bold !important;
+}
+
+h2 {
+    font-size: 20px !important;
+    font-weight: bold !important;
+}
+
+h3 {
+    font-size: 16px !important;
+    font-weight: bold !important;
+}
+
+h4 {
+    font-size: 14px !important;
+    font-weight: bold !important;
+}
+
+h5, h6 {
+    font-size: 12px !important;
+    font-weight: bold !important;
+}
+
+/* Paragraphs and text */
+p, span, div, a, li, td, th, label, input, textarea, select, button {
+    font-family: 'Tahoma', Arial, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+}
+
+/* Small text */
+small {
+    font-size: 10px !important;
+    font-weight: bold !important;
+}
+
+/* Buttons */
+.btn, button, input[type="submit"], input[type="button"] {
+    font-family: 'Tahoma', Arial, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+}
+
+/* Navigation */
+.navbar, .navbar-content, #menu, .menu {
+    font-family: 'Tahoma', Arial, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+}
+
+/* Forms */
+input, textarea, select {
+    font-family: 'Tahoma', Arial, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+}
+
+/* Special classes that might need font override */
+.f-utm_nyala,
+.f-cambria,
+.f-cambriaB,
+.f-calibri,
+.f-assassin {
+    font-family: 'Tahoma', Arial, sans-serif !important;
+    font-weight: bold !important;
+}
+
+/* Title and section headers */
+.section-title,
+.name-title,
+.title-frame,
+.auth-logo h1,
+.auth-header h2 {
+    font-family: 'Tahoma', Arial, sans-serif !important;
+    font-weight: bold !important;
+}
+
+/* News and content */
+.item-news,
+.title-news,
+.cat,
+.date-news {
+    font-family: 'Tahoma', Arial, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+}
+
+/* Job system */
+.name-job-cma,
+.des-gpl,
+.name-gpl {
+    font-family: 'Tahoma', Arial, sans-serif !important;
+    font-weight: bold !important;
+}
+
+/* Footer */
+.copyright-ft,
+.link-copyright,
+.footer,
+.foot-frame {
+    font-family: 'Tahoma', Arial, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+}
+
+/* Auth pages */
+.auth-form label,
+.auth-form input,
+.auth-form button,
+.alert {
+    font-family: 'Tahoma', Arial, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+}
+
+/* Icon fonts should not be affected */
+i.fa, i.fas, i.far, i.fab {
+    font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands' !important;
+    font-weight: 900 !important;
+}
+
+/* Preserve original size for icons */
+i {
+    font-size: inherit !important;
+}
+

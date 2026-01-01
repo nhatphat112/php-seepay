@@ -1,0 +1,278 @@
+/* Enhanced Auth Styles - Blue Ocean Theme */
+
+/* Auth Overlay - Enhanced visibility */
+.auth-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8) !important; /* Darker background for better visibility */
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Auth Box - Enhanced with blue ocean theme */
+.auth-box {
+    width: 100%;
+    max-width: 500px;
+    background: rgba(10, 20, 40, 0.95) !important; /* Darker blue background */
+    border: 2px solid #1e90ff !important; /* Blue ocean border */
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(30, 144, 255, 0.3), 
+                0 0 0 1px rgba(30, 144, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Blue glow effect */
+.auth-box::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #1e90ff, #00bfff, #1e90ff);
+    border-radius: 15px;
+    z-index: -1;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { opacity: 0.5; }
+    to { opacity: 0.8; }
+}
+
+/* Form elements with blue theme */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    color: #87ceeb !important; /* Light blue text */
+    font-weight: bold;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #4682b4 !important; /* Steel blue border */
+    border-radius: 8px;
+    background: rgba(20, 30, 50, 0.8) !important;
+    color: #ffffff !important;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #1e90ff !important;
+    box-shadow: 0 0 10px rgba(30, 144, 255, 0.5) !important;
+    outline: none;
+}
+
+/* Blue ocean buttons */
+.btn-primary {
+    background: linear-gradient(135deg, #1e90ff, #00bfff) !important;
+    border: 2px solid #1e90ff !important;
+    color: #ffffff !important;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #00bfff, #1e90ff) !important;
+    box-shadow: 0 5px 15px rgba(30, 144, 255, 0.4) !important;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: transparent !important;
+    border: 2px solid #4682b4 !important;
+    color: #87ceeb !important;
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: all 0.3s ease;
+    margin: 5px;
+}
+
+.btn-secondary:hover {
+    background: rgba(30, 144, 255, 0.1) !important;
+    border-color: #1e90ff !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+/* Ranking container */
+.ranking-container {
+    width: 100%;
+    max-width: 1200px;
+    background: rgba(10, 20, 40, 0.95) !important;
+    border: 2px solid #1e90ff !important;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(30, 144, 255, 0.3);
+}
+
+/* Download container */
+.download-container {
+    width: 100%;
+    max-width: 1000px;
+    background: rgba(10, 20, 40, 0.95) !important;
+    border: 2px solid #1e90ff !important;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(30, 144, 255, 0.3);
+}
+
+/* Dashboard container */
+.dashboard-container {
+    width: 100%;
+    max-width: 1200px;
+    background: rgba(10, 20, 40, 0.95) !important;
+    border: 2px solid #1e90ff !important;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(30, 144, 255, 0.3);
+}
+
+/* Tab buttons with blue theme */
+.tab-button {
+    background: rgba(20, 30, 50, 0.8) !important;
+    border: 2px solid #4682b4 !important;
+    color: #87ceeb !important;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-button.active {
+    background: linear-gradient(135deg, #1e90ff, #00bfff) !important;
+    border-color: #1e90ff !important;
+    color: #ffffff !important;
+}
+
+.tab-button:hover {
+    background: rgba(30, 144, 255, 0.2) !important;
+    border-color: #1e90ff !important;
+    color: #ffffff !important;
+}
+
+/* Table styling */
+.ranking-table {
+    width: 100%;
+    background: rgba(20, 30, 50, 0.8) !important;
+    border: 2px solid #4682b4 !important;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.ranking-table th {
+    background: linear-gradient(135deg, #1e90ff, #00bfff) !important;
+    color: #ffffff !important;
+    padding: 15px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.ranking-table td {
+    background: rgba(10, 20, 40, 0.9) !important;
+    color: #87ceeb !important;
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #4682b4;
+}
+
+.ranking-table tr:hover td {
+    background: rgba(30, 144, 255, 0.1) !important;
+}
+
+/* Action cards */
+.action-card {
+    background: rgba(20, 30, 50, 0.8) !important;
+    border: 2px solid #4682b4 !important;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: #87ceeb !important;
+    display: block;
+    margin: 10px;
+}
+
+.action-card:hover {
+    background: rgba(30, 144, 255, 0.1) !important;
+    border-color: #1e90ff !important;
+    color: #ffffff !important;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(30, 144, 255, 0.3);
+}
+
+/* Download buttons */
+.btn-download {
+    background: linear-gradient(135deg, #1e90ff, #00bfff) !important;
+    border: 2px solid #1e90ff !important;
+    color: #ffffff !important;
+    padding: 15px 25px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    margin: 10px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-download:hover {
+    background: linear-gradient(135deg, #00bfff, #1e90ff) !important;
+    box-shadow: 0 5px 15px rgba(30, 144, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+/* Character info cards */
+.character-card {
+    background: rgba(20, 30, 50, 0.8) !important;
+    border: 2px solid #4682b4 !important;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px 0;
+    color: #87ceeb !important;
+}
+
+.character-card:hover {
+    border-color: #1e90ff !important;
+    background: rgba(30, 144, 255, 0.1) !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .auth-box, .ranking-container, .download-container, .dashboard-container {
+        margin: 10px;
+        padding: 20px;
+    }
+    
+    .btn-primary, .btn-secondary, .btn-download {
+        width: 100%;
+        margin: 5px 0;
+    }
+}
