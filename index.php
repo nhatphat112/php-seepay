@@ -8,10 +8,8 @@
     <meta name="description" content="Trang web chính thức của Con Đường Tơ Lụa Mobile. MMORPG huyền thoại giờ đây đã có mặt trên di động."/>
     <meta name="keywords" content="Silkroad, MMORPG, Con đường tơ lụa, Game online, Free game"/>
     
-    <!-- Favicon -->
     <link rel="icon" href="images/favicon.ico"/>
     
-    <!-- CSS -->
     <link rel="stylesheet" href="assets/css/swiper-bundle.min.css" />
     <link rel="stylesheet" href="assets/css/vendor.css" />
     <link rel="stylesheet" href="assets/css/main1bce.css?v=6" />
@@ -19,7 +17,12 @@
     <link rel="stylesheet" href="css/font-override.css" />
     
     <style>
-        /* Job Menu Item - Push to left */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
         .job-menu-item {
             margin-left: 340px !important;
         }
@@ -30,7 +33,6 @@
             }
         }
         
-        /* Auth Buttons in Header */
         .auth-links {
             display: flex;
             gap: 10px;
@@ -85,13 +87,11 @@
         }
     </style>
     
-    <!-- jQuery -->
     <script type="text/javascript" src="assets/js/jquery-1.11.2.min.js"></script>
 </head>
 
 <body class="home-page">
 
-    <!-- Header -->
     <div class="header">
         <input id="toggle-hambuger" type="checkbox" style="display:none">
         <nav class="navbar clearfix">
@@ -156,45 +156,12 @@
         </nav>
     </div>
 
-    <!-- Hero Section -->
-    <div class="info-top">
-        <div class="slogan-link-to-top t-center">
-            <div class="list-bestgame d-flex a-center j-center">
-                <img src="assets/images/bestgame/b1.png" alt="" class="img-bestgame">
-                <img src="assets/images/bestgame/b2.png" alt="" class="img-bestgame">
-                <img src="assets/images/bestgame/b3.png" alt="" class="img-bestgame">
-            </div>
-
-            <div class="text-slogan t-upper t-center">Huyền Thoại Tái Sinh, Vinh Quang Trở Lại</div>
-            
-            <div class="list-link-top d-flex a-center j-center f-utm_nyala t-upper">
-                <a class="a-link-topinfo hover-zoom d-flex a-center j-center btn-top" href="#news">Tin Tức</a>
-                <img src="assets/images/infotop/img-x.png" alt="" class="img-xlinktop">
-                <a class="a-link-topinfo hover-zoom d-flex a-center j-center btn-top" href="#gameplay">Hướng Dẫn</a>
-                <img src="assets/images/infotop/img-x.png" alt="" class="img-xlinktop">
-                <a class="a-link-topinfo hover-zoom d-flex a-center j-center btn-top" href="#job">Hệ Thống Job</a>
-            </div>
-        </div>
-
-        <div class="download-link-preregister t-center" style="margin-top: 3%;">
-            <a href="download.php" class="link-to-dlnow t-upper">Tải Game Ngay</a>
-        </div>
-
-        <div class="wemademax t-upper f-calibri d-flex a-center j-center">
-            <span>-</span>
-            <span>Hợp tác với:</span>
-            <img src="assets/images/wemade_bk3860.png" class="logo-wemade" style="filter: brightness(0) invert(1);">
-            <span>-</span>
-        </div>
-    </div>
-
-    <!-- Hot News Section -->
-    <div class="new-home" id="news">
-        <div class="title-frame t-center t-upper d-flex a-center j-center">
+    <div class="new-home" id="job">
+        <!-- <div class="title-frame t-center t-upper d-flex a-center j-center">
             <img src="assets/images/title/img-title3860.png" alt="">
-            <div class="name-title vi">Tin Tức Nóng</div>
+            <div class="name-title vi">Hệ Thống Việc Làm</div>
             <img src="assets/images/title/img-title3860.png" style="transform: scaleX(-1);">
-        </div>
+        </div> -->
 
         <div class="slide-new-info-new-home m-auto">
             <div class="slide-hotevent p-relative">
@@ -209,213 +176,843 @@
                         <img src="images/image-3.jpg" alt="News 3">
                     </a>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <div class="list-hotevent d-flex a-center j-center">
-                    <div class="title-hotevent d-flex a-center">
-                        <img src="assets/images/box-new/img-hot-events.png" alt="">
-                        <div class="name-title-hotevent f-utm_nyala t-upper">
-                            <div>
-                                <div class="">Lịch Trình</div>
-                                <div class="">Sự Kiện</div>
-                            </div>
-                            <div style="font-size: clamp(6px, 1vw, 12px);">(GMT +7)</div>
-                        </div>
-                    </div>
-                    <div class="list-item-hotevent p-relative f-cambria d-flex a-center j-center t-center">
-                        <img src="assets/images/box-new/line-hotevents.png" class="line-hev p-absolute">
-                        
-                        <div class="item-hotevent">
-                            <div class="time-day-hev">
-                                <div class="time-hev">19:30</div>
-                                <div class="day-hev">Thứ 2-4-6</div>
-                            </div>
-                            <div class="dot-hev">
-                                <img src="assets/images/box-new/dot-hot-event.png" alt="">
-                            </div>
-                            <div class="title-hev">Boss Bang Hội</div>
-                        </div>
+    <div class="new-home" id="news">
+        <div class="title-frame t-center t-upper d-flex a-center j-center">
+            <img src="assets/images/title/img-title3860.png" alt="">
+            <div class="name-title vi">Sự Kiện Trong Tuần</div>
+            <img src="assets/images/title/img-title3860.png" style="transform: scaleX(-1);">
+        </div>
 
-                        <div class="item-hotevent">
-                            <div class="time-day-hev">
-                                <div class="time-hev">19:30</div>
-                                <div class="day-hev">Thứ 3-5-7</div>
+        <div class="slide-new-info-new-home">
+            <section class="event-schedule-section-new">
+                <div class="container">
+                    <div class="event-schedule-grid-new">
+                <div class="event-title-box-new">
+                    <div class="box-border-new event-labels-box">
+                        <div class="event-labels-content">
+                            <div class="label-time">THỜI GIAN</div>
+                            <div class="label-day">NGÀY</div>
+                            <div class="label-divider">
+                                <div class="divider-line"></div>
+                                <div class="divider-emblem"></div>
                             </div>
-                            <div class="dot-hev">
-                                <img src="assets/images/box-new/dot-hot-event.png" alt="">
-                            </div>
-                            <div class="title-hev">Đấu Trường Bang</div>
-                        </div>
-
-                        <div class="item-hotevent">
-                            <div class="time-day-hev">
-                                <div class="time-hev">11:00 - 21:00</div>
-                                <div class="day-hev">Hàng Ngày</div>
-                            </div>
-                            <div class="dot-hev">
-                                <img src="assets/images/box-new/dot-hot-event.png" alt="">
-                            </div>
-                            <div class="title-hev">Buôn Bán</div>
-                        </div>
-                        
-                        <div class="item-hotevent">
-                            <div class="time-day-hev">
-                                <div class="time-hev">15:30 - 19:00</div>
-                                <div class="day-hev">Hàng Ngày</div>
-                            </div>
-                            <div class="dot-hev">
-                                <img src="assets/images/box-new/dot-hot-event.png" alt="">
-                            </div>
-                            <div class="title-hev">Boss Độc Nhất</div>
-                        </div>
-
-                        <div class="item-hotevent">
-                            <div class="time-day-hev">
-                                <div class="time-hev">20:30</div>
-                                <div class="day-hev">Hàng Ngày</div>
-                            </div>
-                            <div class="dot-hev">
-                                <img src="assets/images/box-new/dot-hot-event.png" alt="">
-                            </div>
-                            <div class="title-hev">Chiến Trường</div>
+                            <div class="label-event-name">TÊN SỰ KIỆN</div>
                         </div>
                     </div>
                 </div>
+
+                <div class="event-banner-middle-new">
+                    <div class="slide-hotevent p-relative">
+                        <div class="list-hotevent d-flex a-center j-center">
+                            <div class="list-item-hotevent p-relative f-cambria d-flex a-center j-center t-center">
+                                <img src="assets/images/box-new/line-hotevents.png" class="line-hev p-absolute">
+                                
+                                <div class="item-hotevent">
+                                    <div class="time-day-hev">
+                                        <div class="time-hev">19:30</div>
+                                        <div class="day-hev">Thứ 2-4-6</div>
+                                    </div>
+                                    <div class="dot-hev">
+                                        <img src="assets/images/box-new/dot-hot-event.png" alt="">
+                                    </div>
+                                    <div class="title-hev">Boss Bang Hội</div>
+                                </div>
+
+                                <div class="item-hotevent">
+                                    <div class="time-day-hev">
+                                        <div class="time-hev">19:30</div>
+                                        <div class="day-hev">Thứ 3-5-7</div>
+                                    </div>
+                                    <div class="dot-hev">
+                                        <img src="assets/images/box-new/dot-hot-event.png" alt="">
+                                    </div>
+                                    <div class="title-hev">Đấu Trường Bang</div>
+                                </div>
+
+                                <div class="item-hotevent">
+                                    <div class="time-day-hev">
+                                        <div class="time-hev">11:00 - 21:00</div>
+                                        <div class="day-hev">Hàng Ngày</div>
+                                    </div>
+                                    <div class="dot-hev">
+                                        <img src="assets/images/box-new/dot-hot-event.png" alt="">
+                                    </div>
+                                    <div class="title-hev">Buôn Bán</div>
+                                </div>
+                                
+                                <div class="item-hotevent">
+                                    <div class="time-day-hev">
+                                        <div class="time-hev">15:30 - 19:00</div>
+                                        <div class="day-hev">Hàng Ngày</div>
+                                    </div>
+                                    <div class="dot-hev">
+                                        <img src="assets/images/box-new/dot-hot-event.png" alt="">
+                                    </div>
+                                    <div class="title-hev">Boss Độc Nhất</div>
+                                </div>
+
+                                <div class="item-hotevent">
+                                    <div class="time-day-hev">
+                                        <div class="time-hev">20:30</div>
+                                        <div class="day-hev">Hàng Ngày</div>
+                                    </div>
+                                    <div class="dot-hev">
+                                        <img src="assets/images/box-new/dot-hot-event.png" alt="">
+                                    </div>
+                                    <div class="title-hev">Chiến Trường</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="qr-code-box-new">
+                    <div class="box-border-new">
+                        <div class="qr-text-new">Quét code vào cộng đồng</div>
+                        <div class="qr-placeholder-new">
+                        </div>
+                    </div>
+                </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <style>
+        .event-schedule-section-new {
+            width: 100%;
+            padding: 60px 0;
+            background: transparent;
+        }
+
+        .event-schedule-section-new .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .server-and-news {
+            width: 100%;
+        }
+
+        .server-news-section-new .svinfo-right {
+            background: transparent;
+        }
+
+        .server-news-section-new .title-svinfo-right {
+            color: #e8c088;
+        }
+
+        .server-news-section-new .title-svinfo-right .t-upper {
+            color: #e8c088;
+        }
+
+        .server-news-section-new .list-svinfo {
+            background: transparent;
+        }
+
+        .server-news-section-new .item-svinfo {
+            color: #e8c088;
+        }
+
+        .server-news-section-new .if-left-svinfo {
+            color: rgba(232, 192, 136, 0.8);
+        }
+
+        .server-news-section-new .if-right-svinfo {
+            color: #e8c088;
+        }
+
+        .server-news-section-new .join-socialright {
+            background: transparent;
+        }
+
+        .server-news-section-new .title-jsocialright {
+            color: #e8c088;
+        }
+
+        .server-news-section-new .link-socialright {
+            transition: all 0.3s;
+        }
+
+        .server-news-section-new .link-socialright:hover {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+
+        .server-news-section-new .tab-new-nh {
+            background: transparent;
+        }
+
+        .server-news-section-new .item-tab-new-nh {
+            color: #e8c088;
+            background: transparent;
+            border-bottom: 2px solid transparent;
+        }
+
+        .server-news-section-new .item-tab-new-nh:hover {
+            background: rgba(232, 192, 136, 0.1);
+            border-bottom-color: rgba(232, 192, 136, 0.3);
+        }
+
+        .server-news-section-new .item-tab-new-nh.active {
+            background: rgba(232, 192, 136, 0.2);
+            border-bottom-color: #e8c088;
+            color: #e8c088;
+        }
+
+        .server-news-section-new .list-new-detail-nh {
+            background: transparent;
+        }
+
+        .server-news-section-new .item-news {
+            color: #e8c088;
+            border-bottom: 1px solid rgba(232, 192, 136, 0.2);
+        }
+
+        .server-news-section-new .item-news:hover {
+            background: rgba(232, 192, 136, 0.05);
+        }
+
+        .server-news-section-new .cat {
+            color: #e8c088;
+        }
+
+        .server-news-section-new .title-news {
+            color: #e8c088;
+        }
+
+        .server-news-section-new .date-news {
+            color: rgba(232, 192, 136, 0.7);
+        }
+
+        .event-schedule-grid-new {
+            display: grid;
+            grid-template-columns: 200px 1fr 200px;
+            gap: 30px;
+            align-items: stretch;
+        }
+
+        .event-title-box-new {
+            height: 100%;
+        }
+
+        .box-border-new {
+            border: 4px solid #000;
+            border-radius: 8px;
+            box-shadow: 0 0 0 2px #FFD700;
+            background: #fff;
+            padding: 15px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .event-labels-box {
+            background: #1a1a1a;
+            padding: 20px 15px;
+        }
+
+        .event-labels-content {
+            text-align: center;
+            width: 100%;
+        }
+
+        .label-time {
+            color: #D4AF37;
+            font-weight: 700;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            margin-bottom: 5px;
+            font-family: sans-serif;
+            text-transform: uppercase;
+        }
+
+        .label-day {
+            color: #D4AF37;
+            font-weight: 700;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            margin-bottom: 15px;
+            font-family: sans-serif;
+            text-transform: uppercase;
+        }
+
+        .label-divider {
+            position: relative;
+            margin: 15px 0;
+            height: 2px;
+        }
+
+        .divider-line {
+            width: 100%;
+            height: 2px;
+            background: #D4AF37;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .divider-emblem {
+            width: 16px;
+            height: 16px;
+            background: #D4AF37;
+            transform: rotate(45deg);
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+            border: 2px solid #1a1a1a;
+        }
+
+        .label-event-name {
+            color: #e8c088;
+            font-weight: 700;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            margin-top: 15px;
+            font-family: sans-serif;
+            text-transform: uppercase;
+        }
+
+        .event-banner-middle-new {
+            height: 200px;
+            position: relative;
+        }
+
+        .event-banner-middle-new .slide-hotevent {
+            height: 100%;
+            width: inherit;
+        }
+
+        .event-banner-middle-new .list-hotevent {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .event-banner-middle-new .list-item-hotevent {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            gap: 30px;
+            padding: 0 20px;
+        }
+
+        .event-banner-middle-new .item-hotevent {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .qr-code-box-new {
+            height: 100%;
+        }
+
+        .qr-text-new {
+            color: #000;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 10px;
+            font-family: sans-serif;
+        }
+
+        .qr-placeholder-new {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: rgba(0, 0, 0, 0.05);
+            border: 2px dashed rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .qr-placeholder-new::after {
+            content: "QR Code";
+            color: rgba(0, 0, 0, 0.3);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 1024px) {
+            .event-schedule-grid-new {
+                grid-template-columns: 180px 1fr 180px;
+                gap: 20px;
+            }
+
+            .event-banner-middle-new {
+                height: 180px; 
+            }
+        }
+
+        @media (max-width: 768px) {
+            .event-schedule-grid-new {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .event-title-box-new,
+            .qr-code-box-new,
+            .event-banner-middle-new {
+                height: auto;
+            }
+
+            .event-banner-middle-new {
+                min-height: 250px;
+            }
+
+            .box-border-new {
+                min-height: 150px;
+            }
+
+            .qr-placeholder-new {
+                max-width: 200px;
+                margin: 0 auto;
+            }
+        }
+
+        .server-news-section-new {
+            width: 100%;
+            padding: 60px 0;
+            background: transparent;
+        }
+
+        .server-news-section-new .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .server-news-section-new .new-tabhome-inforight {
+            display: grid;
+            grid-template-columns:50% 50%;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .final-section-new {
+            padding: 60px 0;
+            background: transparent;
+            width: 100%;
+        }
+
+        .final-section-new .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .final-section-grid-new {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .fanpage-box-new {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fanpage-header-new {
+            background: transparent; 
+            color: #e8c088;
+            padding: 15px 20px;
+            text-align: center;
+            border: none;
+        }
+
+        .fanpage-title-new {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #e8c088;
+        }
+
+        .fanpage-content-new {
+            background: transparent;
+            border: none;
+            padding: 30px;
+            flex: 1;
+        }
+
+        .fanpage-links-new {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px 0;
+        }
+
+        .fanpage-link-item-new {
+            padding: 12px 20px;
+            background: rgba(232, 192, 136, 0.1);
+            border: 1px solid rgba(232, 192, 136, 0.3);
+            border-radius: 5px;
+            text-decoration: none;
+            color: #e8c088;
+            transition: all 0.3s;
+        }
+
+        .fanpage-link-item-new:hover {
+            background: rgba(232, 192, 136, 0.2);
+            border-color: rgba(232, 192, 136, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .fanpage-link-item-new span {
+            color: #e8c088;
+            transition: color 0.3s;
+        }
+
+        .fanpage-link-item-new:hover span {
+            color: #e8c088;
+        }
+
+        .fanpage-link-item-new img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        .fanpage-link-item-new span {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .job-system-mini-new {
+            height: 100%;
+        }
+
+        .jobsystem-mini-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .bg-main-job-mini {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+        }
+
+        .img-job-behind-mini {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.3;
+        }
+
+        .main-job-chienma-mini {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            height: 80%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .it-job-cma-mini {
+            flex: 1;
+            max-width: 120px;
+            position: relative;
+            transition: transform 0.3s;
+        }
+
+        .it-job-cma-mini:hover {
+            transform: scale(1.05);
+        }
+
+        .img-cmald-mini {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .name-job-cma-mini {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem; 
+            color: #e8c088;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            white-space: nowrap;
+        }
+        .footer-session { 
+            margin-top: 26px ;
+        }
+        .right-news{
+            width: 100% !important;
+        }
+
+        @media (max-width: 968px) {
+            .final-section-grid-new {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .bg-main-job-mini {
+                height: 300px;
+            }
+
+            .it-job-cma-mini {
+                max-width: 100px;
+            }
+        }
+
+        @media (max-width: 968px) {
+            .server-news-grid-new {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .server-info-content-new {
+                min-height: 300px;
+            }
+        }
+    </style>
+
+    <div class="new-home" id="news">
+        <div class="title-frame t-center t-upper d-flex a-center j-center">
+            <img src="assets/images/title/img-title3860.png" alt="">
+            <div class="name-title vi">Máy Chủ Và Tin Tức</div>
+            <img src="assets/images/title/img-title3860.png" style="transform: scaleX(-1);">
+        </div>
+
+        <div class="slide-new-info-new-home">
+            <section class="server-news-section-new">
+                <div class="container">
+                    <div class="new-tabhome-inforight d-flex j-center p-relative">
+                        <div class="f-cambria server-and-news  p-relative">
+                            <div class="svinfo-right server-and-news t-center">
+                                <div class="title-svinfo-right p-relative f-utm_nyala d-flex a-center j-center">
+                                    <div class="dot-svinfo"></div>
+                                    <div class="t-upper">Thông Tin Máy Chủ</div>
+                                    <div class="dot-svinfo"></div>
+                                </div>
+                                <div class="list-svinfo server-and-news">
+                                    <div class="item-svinfo d-flex a-center j-center">
+                                        <div class="if-left-svinfo">Cấp Độ,</div>
+                                        <div class="if-right-svinfo p-relative">100</div>
+                                    </div>
+                                    <div class="item-svinfo d-flex a-center j-center">
+                                        <div class="if-left-svinfo">Chủng Tộc,</div>
+                                        <div class="if-right-svinfo p-relative">Á Châu - Âu Châu</div>
+                                    </div>
+                                    <div class="item-svinfo d-flex a-center j-center">
+                                        <div class="if-left-svinfo">Kỹ Năng</div>
+                                        <div class="if-right-svinfo p-relative">300</div>
+                                    </div>
+                                    <div class="item-svinfo d-flex a-center j-center">
+                                        <div class="if-left-svinfo">Trang Bị</div>
+                                        <div class="if-right-svinfo p-relative">10 Đẳng</div>
+                                    </div>
+                                    <div class="item-svinfo d-flex a-center j-center">
+                                        <div class="if-left-svinfo">Rare</div>
+                                        <div class="if-right-svinfo p-relative">SUN</div>
+                                    </div>
+                                    <div class="item-svinfo d-flex a-center j-center">
+                                        <div class="if-left-svinfo">Tơ Lụa</div>
+                                        <div class="if-right-svinfo p-relative">Có Thể Giao Dịch</div>
+                                    </div>
+                                    <div class="item-svinfo d-flex a-center j-center">
+                                        <div class="if-left-svinfo">Vàng</div>
+                                        <div class="if-right-svinfo p-relative">Có Thể Giao Dịch</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="join-socialright t-center">
+                                <div class="title-jsocialright">- Tham Gia Cùng Chúng Tôi -</div>
+                                <div class="list-social-right d-flex a-center j-center">
+                                    <a href="https://www.facebook.com/SROOriginMobile" target="_blank" class="link-socialright d-flex a-center j-center">
+                                        <img src="assets/images/icons/fb2.png" alt="">
+                                    </a>
+                                    <a href="https://discord.gg/vRzYDVcDvN" target="_blank" class="link-socialright d-flex a-center j-center">
+                                        <img src="assets/images/icons/discord2.png" alt="">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="new-tab-home p-relative right-news">
+                            <div class="tab-new-nh f-utm_nyala t-upper d-flex a-center">
+                                <div class="item-tab-new-nh c-pointer active" data-new="1">Tất Cả</div>
+                                <div class="item-tab-new-nh c-pointer" data-new="2">Tin Nóng</div>
+                                <div class="item-tab-new-nh c-pointer" data-new="3">Sự Kiện</div>
+                                <div class="item-tab-new-nh c-pointer" data-new="4">Cập Nhật</div>
+                            </div>
+                            <div class="list-new-detail-nh">
+                                <div class="dt-new-nh active" id="new1">
+                                    <div class="list-item-news">
+                                        <a href="#" class="item-news d-flex a-center f-cambria">
+                                            <div class="cat">[Sự Kiện]</div>
+                                            <div class="title-news">Sự Kiện Đăng Nhập Nhận Quà</div>
+                                            <div class="date-news hidden-1199">02/10</div>
+                                        </a>
+                                        <a href="#" class="item-news d-flex a-center f-cambria">
+                                            <div class="cat">[Cập Nhật]</div>
+                                            <div class="title-news">Cập Nhật Phiên Bản 2.1.0</div>
+                                            <div class="date-news hidden-1199">01/10</div>
+                                        </a>
+                                        <a href="#" class="item-news d-flex a-center f-cambria">
+                                            <div class="cat">[Tin Tức]</div>
+                                            <div class="title-news">Hướng Dẫn Tân Thủ</div>
+                                            <div class="date-news hidden-1199">30/09</div>
+                                        </a>
+                                        <a href="#" class="item-news d-flex a-center f-cambria">
+                                            <div class="cat">[Sự Kiện]</div>
+                                            <div class="title-news">Săn Boss Nhận Thưởng Lớn</div>
+                                            <div class="date-news hidden-1199">29/09</div>
+                                        </a>
+                                        <a href="#" class="item-news d-flex a-center f-cambria">
+                                            <div class="cat">[Cập Nhật]</div>
+                                            <div class="title-news">Tối Ưu Hệ Thống PvP</div>
+                                            <div class="date-news hidden-1199">28/09</div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="dt-new-nh" id="new2">
+                                    <div class="list-item-news">
+                                        <a href="#" class="item-news d-flex a-center f-cambria">
+                                            <div class="cat">[Tin Tức]</div>
+                                            <div class="title-news">Hướng Dẫn Tân Thủ</div>
+                                            <div class="date-news hidden-1199">30/09</div>
+                                        </a>
+                                        <a href="#" class="item-news d-flex a-center f-cambria">
+                                            <div class="cat">[Tin Tức]</div>
+                                            <div class="title-news">Top Game Hay Tháng 9</div>
+                                            <div class="date-news hidden-1199">25/09</div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="dt-new-nh" id="new3">
+                                    <div class="list-item-news">
+                                        <a href="#" class="item-news d-flex a-center f-cambria">
+                                            <div class="cat">[Sự Kiện]</div>
+                                            <div class="title-news">Sự Kiện Đăng Nhập Nhận Quà</div>
+                                            <div class="date-news hidden-1199">02/10</div>
+                                        </a>
+                                        <a href="#" class="item-news d-flex a-center f-cambria">
+                                            <div class="cat">[Sự Kiện]</div>
+                                            <div class="title-news">Săn Boss Nhận Thưởng Lớn</div>
+                                            <div class="date-news hidden-1199">29/09</div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="dt-new-nh" id="new4">
+                                    <div class="list-item-news">
+                                        <a href="#" class="item-news d-flex a-center f-cambria">
+                                            <div class="cat">[Cập Nhật]</div>
+                                            <div class="title-news">Cập Nhật Phiên Bản 2.1.0</div>
+                                            <div class="date-news hidden-1199">01/10</div>
+                                        </a>
+                                        <a href="#" class="item-news d-flex a-center f-cambria">
+                                            <div class="cat">[Cập Nhật]</div>
+                                            <div class="title-news">Tối Ưu Hệ Thống PvP</div>
+                                            <div class="date-news hidden-1199">28/09</div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="new-home">
+            <div class="title-frame t-center t-upper d-flex a-center j-center">
+                <img src="assets/images/title/img-title3860.png" alt="">
+                <div class="name-title vi">Fanpage</div>
+                <img src="assets/images/title/img-title3860.png" style="transform: scaleX(-1);">
             </div>
 
-            <div class="new-tabhome-inforight d-flex j-center p-relative">
-                <div class="new-tab-home p-relative">
-                    <div class="tab-new-nh f-utm_nyala t-upper d-flex a-center">
-                        <div class="item-tab-new-nh c-pointer active" data-new="1">Tất Cả</div>
-                        <div class="item-tab-new-nh c-pointer" data-new="2">Tin Nóng</div>
-                        <div class="item-tab-new-nh c-pointer" data-new="3">Sự Kiện</div>
-                        <div class="item-tab-new-nh c-pointer" data-new="4">Cập Nhật</div>
-                    </div>
-                    <div class="list-new-detail-nh">
-                        <div class="dt-new-nh active" id="new1">
-                            <div class="list-item-news">
-                                <a href="#" class="item-news d-flex a-center f-cambria">
-                                    <div class="cat">[Sự Kiện]</div>
-                                    <div class="title-news">Sự Kiện Đăng Nhập Nhận Quà</div>
-                                    <div class="date-news hidden-1199">02/10</div>
-                                </a>
-                                <a href="#" class="item-news d-flex a-center f-cambria">
-                                    <div class="cat">[Cập Nhật]</div>
-                                    <div class="title-news">Cập Nhật Phiên Bản 2.1.0</div>
-                                    <div class="date-news hidden-1199">01/10</div>
-                                </a>
-                                <a href="#" class="item-news d-flex a-center f-cambria">
-                                    <div class="cat">[Tin Tức]</div>
-                                    <div class="title-news">Hướng Dẫn Tân Thủ</div>
-                                    <div class="date-news hidden-1199">30/09</div>
-                                </a>
-                                <a href="#" class="item-news d-flex a-center f-cambria">
-                                    <div class="cat">[Sự Kiện]</div>
-                                    <div class="title-news">Săn Boss Nhận Thưởng Lớn</div>
-                                    <div class="date-news hidden-1199">29/09</div>
-                                </a>
-                                <a href="#" class="item-news d-flex a-center f-cambria">
-                                    <div class="cat">[Cập Nhật]</div>
-                                    <div class="title-news">Tối Ưu Hệ Thống PvP</div>
-                                    <div class="date-news hidden-1199">28/09</div>
-                                </a>
+            <div class="slide-new-info-new-home">
+                <section class="final-section-new">
+                    <div class="container">
+                <div class="final-section-grid-new">
+                    <div class="fanpage-box-new">
+                        <div class="fanpage-header-new">
+                            <div class="fanpage-title-new t-upper f-utm_nyala t-center">
+                                Fanpage Box
                             </div>
                         </div>
-                        <div class="dt-new-nh" id="new2">
-                            <div class="list-item-news">
-                                <a href="#" class="item-news d-flex a-center f-cambria">
-                                    <div class="cat">[Tin Tức]</div>
-                                    <div class="title-news">Hướng Dẫn Tân Thủ</div>
-                                    <div class="date-news hidden-1199">30/09</div>
+                        <div class="fanpage-content-new">
+                            <div class="fanpage-links-new">
+                                <a href="https://www.facebook.com/SROOriginMobile" target="_blank" class="fanpage-link-item-new d-flex a-center j-center">
+                                    <img src="assets/images/icons/fb2.png" alt="Facebook">
+                                    <span>Facebook Page</span>
                                 </a>
-                                <a href="#" class="item-news d-flex a-center f-cambria">
-                                    <div class="cat">[Tin Tức]</div>
-                                    <div class="title-news">Top Game Hay Tháng 9</div>
-                                    <div class="date-news hidden-1199">25/09</div>
+                                <a href="https://www.facebook.com/groups/srooriginm" target="_blank" class="fanpage-link-item-new d-flex a-center j-center">
+                                    <img src="assets/images/icons/fb2.png" alt="Facebook Group">
+                                    <span>Facebook Group</span>
                                 </a>
-                            </div>
-                        </div>
-                        <div class="dt-new-nh" id="new3">
-                            <div class="list-item-news">
-                                <a href="#" class="item-news d-flex a-center f-cambria">
-                                    <div class="cat">[Sự Kiện]</div>
-                                    <div class="title-news">Sự Kiện Đăng Nhập Nhận Quà</div>
-                                    <div class="date-news hidden-1199">02/10</div>
-                                </a>
-                                <a href="#" class="item-news d-flex a-center f-cambria">
-                                    <div class="cat">[Sự Kiện]</div>
-                                    <div class="title-news">Săn Boss Nhận Thưởng Lớn</div>
-                                    <div class="date-news hidden-1199">29/09</div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="dt-new-nh" id="new4">
-                            <div class="list-item-news">
-                                <a href="#" class="item-news d-flex a-center f-cambria">
-                                    <div class="cat">[Cập Nhật]</div>
-                                    <div class="title-news">Cập Nhật Phiên Bản 2.1.0</div>
-                                    <div class="date-news hidden-1199">01/10</div>
-                                </a>
-                                <a href="#" class="item-news d-flex a-center f-cambria">
-                                    <div class="cat">[Cập Nhật]</div>
-                                    <div class="title-news">Tối Ưu Hệ Thống PvP</div>
-                                    <div class="date-news hidden-1199">28/09</div>
+                                <a href="https://discord.gg/vRzYDVcDvN" target="_blank" class="fanpage-link-item-new d-flex a-center j-center">
+                                    <img src="assets/images/icons/discord2.png" alt="Discord">
+                                    <span>Discord</span>
                                 </a>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="sv-info-social-nh f-cambria p-relative">
-                    <div class="svinfo-right t-center">
-                        <div class="title-svinfo-right p-relative f-utm_nyala d-flex a-center j-center">
-                            <div class="dot-svinfo"></div>
-                            <div class="t-upper">Thông Tin Máy Chủ</div>
-                            <div class="dot-svinfo"></div>
-                        </div>
-                        <div class="list-svinfo">
-                            <div class="item-svinfo d-flex a-center j-center">
-                                <div class="if-left-svinfo">Cấp Độ,</div>
-                                <div class="if-right-svinfo p-relative">100</div>
-                            </div>
-                            <div class="item-svinfo d-flex a-center j-center">
-                                <div class="if-left-svinfo">Chủng Tộc,</div>
-                                <div class="if-right-svinfo p-relative">Á Châu - Âu Châu</div>
-                            </div>
-                            <div class="item-svinfo d-flex a-center j-center">
-                                <div class="if-left-svinfo">Kỹ Năng</div>
-                                <div class="if-right-svinfo p-relative">300</div>
-                            </div>
-                            <div class="item-svinfo d-flex a-center j-center">
-                                <div class="if-left-svinfo">Trang Bị</div>
-                                <div class="if-right-svinfo p-relative">10 Đẳng</div>
-                            </div>
-                            <div class="item-svinfo d-flex a-center j-center">
-                                <div class="if-left-svinfo">Rare</div>
-                                <div class="if-right-svinfo p-relative">SUN</div>
-                            </div>
-                            <div class="item-svinfo d-center j-center">
-                                <div class="if-left-svinfo">Tơ Lụa</div>
-                                <div class="if-right-svinfo p-relative">Có Thể Giao Dịch</div>
-                            </div>
-                            <div class="item-svinfo d-flex a-center j-center">
-                                <div class="if-left-svinfo">Vàng</div>
-                                <div class="if-right-svinfo p-relative">Có Thể Giao Dịch</div>
+                    <div class="job-system-mini-new">
+                        <div class="jobsystem-mini-wrapper">
+                            <div class="bg-main-job-mini p-relative t-center">
+                                <img src="assets/images/job/img-behind.png" class="img-job-behind-mini">
+                                <div class="main-job-chienma-mini f-assassin t-upper t-center d-flex a-center j-center p-absolute">
+                                    <div class="it-job-cma-mini it-job-cma1-mini c-pointer p-relative" data-speed="5"
+                                        data-src="assets/images/job/img-pop1.jpg" data-name="Thợ Săn"
+                                        data-des1="Người bảo vệ thương nhân, giữ họ an toàn khỏi kẻ trộm."
+                                        data-des2="Thợ săn kiếm điểm bằng cách tiêu diệt kẻ trộm và giúp đỡ thương nhân trong hành trình buôn bán. Thường bắt đầu nghề từ cấp 60 vì cần đủ mạnh để chiến đấu với kẻ trộm.">
+                                        <img src="assets/images/job/img-hunter.png" class="img-cmald-mini">
+                                        <div class="name-job-cma-mini d-flex a-center j-center p-absolute">Thợ Săn</div>
+                                    </div>
+                                    
+                                    <div class="it-job-cma-mini it-job-cma2-mini c-pointer p-relative" data-speed="12"
+                                        data-src="assets/images/job/img-trader.png" data-name="Thương Nhân"
+                                        data-des1="Kiếm lợi nhuận từ việc buôn bán hàng hóa trên Con Đường Tơ Lụa."
+                                        data-des2="Mục tiêu chính là tham gia buôn bán và thuê thợ săn để bảo vệ hàng hóa. Nếu thành công, cả thương nhân và thợ săn đều nhận phần thưởng lớn. Nếu bị kẻ trộm tấn công, có thể mất tất cả nhưng vẫn có cơ hội đoạt lại.">
+                                        <img src="assets/images/job/img-trader.png" class="img-cmald-mini">
+                                        <div class="name-job-cma-mini d-flex a-center j-center p-absolute">Thương Nhân</div>
+                                    </div>
+                                    
+                                    <div class="it-job-cma-mini it-job-cma3-mini c-pointer p-relative" data-speed="8"
+                                        data-src="assets/images/job/img-thief.png" data-name="Kẻ Trộm"
+                                        data-des1="Sử dụng vũ lực để đánh bại thợ săn và cướp hàng hóa từ thương nhân."
+                                        data-des2="Cướp đoàn buôn của thương nhân và lấy hàng hóa độc đáo. Phải cảnh giác với đòn phản công của thợ săn. Kẻ trộm có thể bán vật phẩm đặc biệt ở bất kỳ thành phố nào.">
+                                        <img src="assets/images/job/img-thief.png" class="img-cmald-mini">
+                                        <div class="name-job-cma-mini d-flex a-center j-center p-absolute">Kẻ Trộm</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="join-socialright t-center">
-                        <div class="title-jsocialright">- Tham Gia Cùng Chúng Tôi -</div>
-                        <div class="list-social-right d-flex a-center j-center">
-                            <a href="https://www.facebook.com/SROOriginMobile" target="_blank" class="link-socialright d-flex a-center j-center">
-                                <img src="assets/images/icons/fb2.png" alt="">
-                            </a>
-                            <a href="https://discord.gg/vRzYDVcDvN" target="_blank" class="link-socialright d-flex a-center j-center">
-                                <img src="assets/images/icons/discord2.png" alt="">
-                            </a>
                         </div>
                     </div>
-                </div>
+                </section>
             </div>
         </div>
 
@@ -463,134 +1060,7 @@
         </div>
     </div>
 
-    <!-- Gameplay Section -->
-    <div class="gameplay" id="gameplay">
-        <div class="title-frame t-center t-upper d-flex a-center j-center">
-            <img src="assets/images/title/img-title3860.png" alt="">
-            <div class="name-title vi">Gameplay</div>
-            <img src="assets/images/title/img-title3860.png" style="transform: scaleX(-1);">
-        </div>
-
-        <div class="main-gameplay-out p-relative">
-            <div class="prev-next-slide-gpl d-flex a-center j-center c-pointer prev-slide-gpjob prev-slide-gpl cursor-hover-item">
-                <img src="assets/images/prev-big.png" alt="">
-            </div>
-
-            <div class="main-gameplay list-gameplay list-gpl swiper d-flex a-center">
-                <div class="swiper-wrapper">
-                    <div class="it-gpimg swiper-slide it-gpimg1 f-calibri c-pointer" style="--bg:#181613">
-                        <div class="img-gpl">
-                            <img src="assets/images/gameplay/gp1.jpg" alt="Leveling">
-                        </div>
-                        <div class="name-des-gpl">
-                            <div class="name-gpl f-cambriaB">Lên Cấp</div>
-                            <div class="line-namedes-gpl">
-                                <img src="assets/images/gameplay/line.png" alt="">
-                            </div>
-                            <div class="des-gpl">Nhiệm vụ quan trọng nhất bạn cần làm trong MMORPG.</div>
-                        </div>
-                    </div>
-
-                    <div class="it-gpimg swiper-slide it-gpimg2 f-calibri c-pointer" style="--bg:#13191a">
-                        <div class="img-gpl">
-                            <img src="assets/images/gameplay/gp2.jpg" alt="Skill Mastery">
-                        </div>
-                        <div class="name-des-gpl">
-                            <div class="name-gpl f-cambriaB">Kỹ Năng</div>
-                            <div class="line-namedes-gpl">
-                                <img src="assets/images/gameplay/line.png" alt="">
-                            </div>
-                            <div class="des-gpl">Phát triển hệ thống kỹ năng trong giới hạn cấp độ kỹ năng.</div>
-                        </div>
-                    </div>
-
-                    <div class="it-gpimg swiper-slide it-gpimg3 f-calibri c-pointer" style="--bg:#181613">
-                        <div class="img-gpl">
-                            <img src="assets/images/gameplay/gp3.jpg" alt="Gear Up">
-                        </div>
-                        <div class="name-des-gpl">
-                            <div class="name-gpl f-cambriaB">Trang Bị</div>
-                            <div class="line-namedes-gpl">
-                                <img src="assets/images/gameplay/line.png" alt="">
-                            </div>
-                            <div class="des-gpl">Nâng cấp nhân vật và trang bị vật phẩm mới để tăng sức mạnh.</div>
-                        </div>
-                    </div>
-
-                    <div class="it-gpimg swiper-slide it-gpimg4 f-calibri c-pointer" style="--bg:#26221d">
-                        <div class="img-gpl">
-                            <img src="img/gp4.jpg" alt="Alchemy">
-                        </div>
-                        <div class="name-des-gpl">
-                            <div class="name-gpl f-cambriaB">Luyện Kim</div>
-                            <div class="line-namedes-gpl">
-                                <img src="assets/images/gameplay/line.png" alt="">
-                            </div>
-                            <div class="des-gpl">Chế tạo và nâng cấp trang bị để tăng sức mạnh chiến đấu.</div>
-                        </div>
-                    </div>
-
-                    <div class="it-gpimg swiper-slide it-gpimg5 f-calibri c-pointer" style="--bg:#200d0d">
-                        <div class="img-gpl">
-                            <img src="img/gp5.jpg" alt="Battle">
-                        </div>
-                        <div class="name-des-gpl">
-                            <div class="name-gpl f-cambriaB">Chiến Đấu</div>
-                            <div class="line-namedes-gpl">
-                                <img src="assets/images/gameplay/line.png" alt="">
-                            </div>
-                            <div class="des-gpl">Tham gia các sự kiện lịch sử trên Con Đường Tơ Lụa.</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="prev-next-slide-gpl d-flex a-center j-center c-pointer next-slide-gpjob next-slide-gpl cursor-hover-item">
-                <img src="assets/images/next-big.png" alt="">
-            </div>
-        </div>
-    </div>
-
-    <!-- Job System Section -->
-    <div class="jobsystem" id="job">
-        <div class="title-frame t-center t-upper d-flex a-center j-center">
-            <img src="assets/images/title/img-title3860.png" alt="">
-            <div class="name-title vi">Hệ Thống Việc Làm</div>
-            <img src="assets/images/title/img-title3860.png" style="transform: scaleX(-1);">
-        </div>
-
-        <div class="bg-main-job p-relative t-center">
-            <img src="assets/images/job/img-behind.png" class="img-job-behind">
-            <div class="main-job-chienma f-assassin t-upper t-center d-flex a-center j-center p-absolute">
-                <div class="it-job-cma it-job-cma1 c-pointer p-relative" data-speed="5"
-                    data-src="assets/images/job/img-pop1.jpg" data-name="Thợ Săn"
-                    data-des1="Người bảo vệ thương nhân, giữ họ an toàn khỏi kẻ trộm."
-                    data-des2="Thợ săn kiếm điểm bằng cách tiêu diệt kẻ trộm và giúp đỡ thương nhân trong hành trình buôn bán. Thường bắt đầu nghề từ cấp 60 vì cần đủ mạnh để chiến đấu với kẻ trộm.">
-                    <img src="assets/images/job/img-hunter.png" class="img-cmald">
-                    <div class="name-job-cma d-flex a-center j-center p-absolute">Thợ Săn</div>
-                </div>
-                
-                <div class="it-job-cma it-job-cma2 c-pointer p-relative" data-speed="12"
-                    data-src="assets/images/job/img-trader.png" data-name="Thương Nhân"
-                    data-des1="Kiếm lợi nhuận từ việc buôn bán hàng hóa trên Con Đường Tơ Lụa."
-                    data-des2="Mục tiêu chính là tham gia buôn bán và thuê thợ săn để bảo vệ hàng hóa. Nếu thành công, cả thương nhân và thợ săn đều nhận phần thưởng lớn. Nếu bị kẻ trộm tấn công, có thể mất tất cả nhưng vẫn có cơ hội đoạt lại.">
-                    <img src="assets/images/job/img-trader.png" class="img-cmald">
-                    <div class="name-job-cma d-flex a-center j-center p-absolute">Thương Nhân</div>
-                </div>
-                
-                <div class="it-job-cma it-job-cma3 c-pointer p-relative" data-speed="8"
-                    data-src="assets/images/job/img-thief.png" data-name="Kẻ Trộm"
-                    data-des1="Sử dụng vũ lực để đánh bại thợ săn và cướp hàng hóa từ thương nhân."
-                    data-des2="Cướp đoàn buôn của thương nhân và lấy hàng hóa độc đáo. Phải cảnh giác với đòn phản công của thợ săn. Kẻ trộm có thể bán vật phẩm đặc biệt ở bất kỳ thành phố nào.">
-                    <img src="assets/images/job/img-thief.png" class="img-cmald">
-                    <div class="name-job-cma d-flex a-center j-center p-absolute">Kẻ Trộm</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="foot-frame d-flex a-center j-center">
+    <div class="foot-frame footer-session d-flex a-center j-center">
         <div class="logo-wemade">
             <img src="assets/images/wemade_bk3860.png" alt="" style="filter: brightness(0) invert(1);">
         </div>
@@ -607,7 +1077,6 @@
         </div>
     </div>
 
-    <!-- Right Navigation (Mobile) -->
     <div class="nav-right hidden-1199 open">
         <div class="t-center">
             <img src="assets/images/icon-game.png" class="img-icongame" alt="">
@@ -635,7 +1104,6 @@
         </span>
     </div>
 
-    <!-- Popup Job Details -->
     <div class="popup" id="popup-job" style="display: none;">
         <a class="close-popup-full"></a>
         <div class="content-popup">
@@ -661,7 +1129,6 @@
         </div>
     </div>
 
-    <!-- JavaScript -->
     <script type="text/javascript" src="assets/js/swiper-bundle.min.js"></script>
     <script type="text/javascript" src="assets/js/vendor.js"></script>
     <script type="text/javascript" src="assets/js/app.js"></script>
