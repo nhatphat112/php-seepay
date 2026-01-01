@@ -6,9 +6,13 @@
 
 class DatabaseConfig {
     // Database Connection Settings
-    const SERVER_NAME = "DESKTOP-DRJ1CF4\\SQLEXPRESS";
-    const SERVER_USER = "Nguyenson";
-    const SERVER_PASS = "181190Son";
+    // const SERVER_NAME = "DESKTOP-DRJ1CF4\\SQLEXPRESS";
+    // const SERVER_USER = "Nguyenson";
+    // const SERVER_PASS = "181190Son";
+        // Database Connection Settings - Docker SQL Server
+    const SERVER_NAME = "localhost,1433";
+    const SERVER_USER = "sa";
+    const SERVER_PASS = "MyStrongPass123";
     
     // Database Names
     const DB_ACCOUNT = "SRO_VT_ACCOUNT";
@@ -71,8 +75,9 @@ class DatabaseConfig {
         
         // Skip security check if no referer (direct access or API call)
         if (!isset($_SERVER['HTTP_REFERER'])) {
-            // Allow if it's a GET request or API call
-            if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            // Allow if it's a GET request or API call, or CLI
+            $requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'CLI';
+            if ($requestMethod === 'GET' || $requestMethod === 'CLI') {
                 return true;
             }
         }
@@ -91,7 +96,8 @@ class DatabaseConfig {
         }
         
         // Check if request is POST and has CSRF token
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'CLI';
+        if ($requestMethod === 'POST') {
             if (!isset($_POST['csrf_token']) || !self::validateCSRFToken($_POST['csrf_token'])) {
                 return false;
             }

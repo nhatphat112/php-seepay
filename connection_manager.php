@@ -276,13 +276,13 @@ class ConnectionManager {
         foreach ($databases as $type) {
             try {
                 $conn = self::getConnection($type);
-                $stmt = $conn->query("SELECT @@VERSION as version, GETDATE() as current_time");
+                $stmt = $conn->query("SELECT @@VERSION as version, GETDATE() as [server_time]");
                 $result = $stmt->fetch();
                 
                 $results[$type] = [
                     'status' => 'success',
                     'version' => $result['version'],
-                    'server_time' => $result['current_time'],
+                    'server_time' => $result['server_time'],
                     'response_time' => microtime(true)
                 ];
             } catch (Exception $e) {
