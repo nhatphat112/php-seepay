@@ -47,7 +47,13 @@ class ConnectionManager {
             'shard' => DatabaseConfig::DB_SHARD
         ];
         
+        // Log available PDO drivers before attempting connections
+        $availableDrivers = PDO::getAvailableDrivers();
+        error_log("ConnectionManager: Available PDO drivers: " . implode(', ', $availableDrivers));
+        error_log("ConnectionManager: Attempting to connect to " . count($databases) . " databases");
+        
         foreach ($databases as $key => $dbName) {
+            error_log("ConnectionManager: Attempting to connect to $key database ($dbName)...");
             try {
                 self::createConnection($key, $dbName);
                 self::$connectionStatus[$key] = [
@@ -57,7 +63,7 @@ class ConnectionManager {
                     'error_count' => 0,
                     'last_error' => null
                 ];
-                error_log("ConnectionManager: Successfully connected to $key database ($dbName)");
+                error_log("ConnectionManager: ✅ Successfully connected to $key database ($dbName)");
             } catch (Exception $e) {
                 self::$connectionStatus[$key] = [
                     'status' => 'failed',
@@ -66,9 +72,22 @@ class ConnectionManager {
                     'error_count' => 1,
                     'last_error' => $e->getMessage()
                 ];
-                error_log("ConnectionManager: Failed to connect to $key database: " . $e->getMessage());
+                error_log("ConnectionManager: ❌ Failed to connect to $key database ($dbName): " . $e->getMessage());
+                error_log("ConnectionManager: Error details - Type: $key, Database: $dbName, Error: " . $e->getMessage());
             }
         }
+        
+        // Log summary
+        $successCount = 0;
+        $failedCount = 0;
+        foreach (self::$connectionStatus as $key => $status) {
+            if ($status['status'] === 'connected') {
+                $successCount++;
+            } else {
+                $failedCount++;
+            }
+        }
+        error_log("ConnectionManager: Initialization summary - Success: $successCount, Failed: $failedCount");
         
         // Register shutdown function to clean up connections
         register_shutdown_function([__CLASS__, 'cleanup']);
@@ -81,22 +100,102 @@ class ConnectionManager {
      */
     private static function createConnection($key, $database) {
         try {
-            // Use exact format that works in web_tet
-            $dsn = "sqlsrv:server=" . DatabaseConfig::SERVER_NAME . ";database=" . $database;
+            // Log connection attempt details
+            error_log("ConnectionManager::createConnection() - Key: $key, Database: $database");
+            error_log("  - Server: " . DatabaseConfig::SERVER_NAME);
+            error_log("  - User: " . DatabaseConfig::SERVER_USER);
+            
+            $availableDrivers = PDO::getAvailableDrivers();
+            error_log("  - Available PDO drivers: " . implode(', ', $availableDrivers));
+            
+            $dsn = null;
+            $driverUsed = null;
+            
+            // Try drivers in order of preference
+            // 1. sqlsrv (preferred for Windows/SQL Server)
+            if (in_array('sqlsrv', $availableDrivers)) {
+                $dsn = "sqlsrv:server=" . DatabaseConfig::SERVER_NAME . ";database=" . $database;
+                $driverUsed = 'sqlsrv';
+            }
+            // 2. dblib (for FreeTDS on Linux/macOS)
+            elseif (in_array('dblib', $availableDrivers)) {
+                // Convert server format: "localhost,1433" -> "localhost:1433"
+                $server = str_replace(',', ':', DatabaseConfig::SERVER_NAME);
+                $dsn = "dblib:host=$server;dbname=$database";
+                $driverUsed = 'dblib';
+            }
+            // 3. odbc (fallback, requires ODBC driver configuration)
+            elseif (in_array('odbc', $availableDrivers)) {
+                // Try ODBC with SQL Server driver
+                $server = DatabaseConfig::SERVER_NAME;
+                // Remove port if present for ODBC
+                $serverParts = explode(',', $server);
+                $host = $serverParts[0];
+                $port = isset($serverParts[1]) ? $serverParts[1] : '1433';
+                
+                // Try different ODBC driver names
+                $odbcDrivers = [
+                    'ODBC Driver 17 for SQL Server',
+                    'ODBC Driver 18 for SQL Server',
+                    'ODBC Driver 13 for SQL Server',
+                    'FreeTDS'
+                ];
+                
+                $odbcConnected = false;
+                foreach ($odbcDrivers as $odbcDriver) {
+                    try {
+                        $dsn = "odbc:Driver={$odbcDriver};Server=$host,$port;Database=$database;";
+                        error_log("  - Trying ODBC driver: $odbcDriver");
+                        $testConn = new PDO($dsn, DatabaseConfig::SERVER_USER, DatabaseConfig::SERVER_PASS);
+                        $testConn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                        $testConn->query("SELECT 1");
+                        $driverUsed = "odbc ($odbcDriver)";
+                        $odbcConnected = true;
+                        break;
+                    } catch (Exception $e) {
+                        error_log("  - ODBC driver $odbcDriver failed: " . $e->getMessage());
+                        continue;
+                    }
+                }
+                
+                if (!$odbcConnected) {
+                    throw new Exception("No working ODBC driver found. Tried: " . implode(', ', $odbcDrivers));
+                }
+            }
+            else {
+                throw new Exception("No suitable PDO driver found for SQL Server. Available drivers: " . implode(', ', $availableDrivers));
+            }
+            
+            error_log("  - Using driver: $driverUsed");
+            error_log("  - DSN: $dsn");
+            
             $conn = new PDO($dsn, DatabaseConfig::SERVER_USER, DatabaseConfig::SERVER_PASS);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             
             // Test the connection
+            error_log("  - Testing connection...");
             $stmt = $conn->query("SELECT 1");
             if (!$stmt) {
                 throw new Exception("Connection test failed for database: $database");
             }
             
             self::$connections[$key] = $conn;
+            error_log("ConnectionManager: ✅ Connection created successfully for $key ($database) using $driverUsed");
             return $conn;
         } catch (PDOException $e) {
-            error_log("Connection failed to $database: " . $e->getMessage());
+            $errorDetails = [
+                'key' => $key,
+                'database' => $database,
+                'server' => DatabaseConfig::SERVER_NAME,
+                'error_code' => $e->getCode(),
+                'error_message' => $e->getMessage(),
+                'available_drivers' => PDO::getAvailableDrivers()
+            ];
+            error_log("ConnectionManager: ❌ PDOException for $key ($database): " . json_encode($errorDetails, JSON_PRETTY_PRINT));
             throw new Exception("Connection failed to $database: " . $e->getMessage());
+        } catch (Exception $e) {
+            error_log("ConnectionManager: ❌ Exception for $key ($database): " . $e->getMessage());
+            throw $e;
         }
     }
     
@@ -110,8 +209,34 @@ class ConnectionManager {
         // Health check if needed
         self::performHealthCheck();
         
+        // Debug: Log current state
+        error_log("ConnectionManager::getConnection('$type') called");
+        error_log("  - Available connections: " . implode(', ', array_keys(self::$connections)));
+        error_log("  - Connection status for '$type': " . (isset(self::$connectionStatus[$type]) ? json_encode(self::$connectionStatus[$type]) : 'not set'));
+        
         if (!isset(self::$connections[$type])) {
-            throw new Exception("Database connection '$type' not available");
+            // Detailed error logging
+            $errorDetails = [
+                'type' => $type,
+                'available_connections' => array_keys(self::$connections),
+                'connection_status' => self::$connectionStatus[$type] ?? 'not initialized',
+                'available_pdo_drivers' => PDO::getAvailableDrivers(),
+                'initialized_at' => self::$initTime ? date('Y-m-d H:i:s', self::$initTime) : 'not initialized'
+            ];
+            error_log("ConnectionManager: Connection '$type' not available. Details: " . json_encode($errorDetails, JSON_PRETTY_PRINT));
+            
+            // Try to reconnect if status shows it was attempted
+            if (isset(self::$connectionStatus[$type]) && self::$connectionStatus[$type]['status'] === 'failed') {
+                error_log("ConnectionManager: Attempting to reconnect '$type' due to previous failure...");
+                try {
+                    return self::reconnect($type);
+                } catch (Exception $e) {
+                    error_log("ConnectionManager: Reconnection failed: " . $e->getMessage());
+                    throw new Exception("Database connection '$type' not available. Reason: " . $e->getMessage() . ". Available drivers: " . implode(', ', PDO::getAvailableDrivers()));
+                }
+            }
+            
+            throw new Exception("Database connection '$type' not available. Available connections: " . implode(', ', array_keys(self::$connections)) . ". Available PDO drivers: " . implode(', ', PDO::getAvailableDrivers()));
         }
         
         // Test connection before returning
@@ -121,11 +246,17 @@ class ConnectionManager {
             if (!$stmt) {
                 throw new Exception("Connection test failed");
             }
+            error_log("ConnectionManager: Successfully retrieved connection '$type'");
             return $conn;
         } catch (Exception $e) {
             // Connection is dead, try to reconnect
-            error_log("ConnectionManager: Connection '$type' is dead, attempting reconnection...");
-            return self::reconnect($type);
+            error_log("ConnectionManager: Connection '$type' is dead, attempting reconnection... Error: " . $e->getMessage());
+            try {
+                return self::reconnect($type);
+            } catch (Exception $reconnectError) {
+                error_log("ConnectionManager: Reconnection failed: " . $reconnectError->getMessage());
+                throw new Exception("Database connection '$type' not available. Reconnection failed: " . $reconnectError->getMessage());
+            }
         }
     }
     

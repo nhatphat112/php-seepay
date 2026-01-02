@@ -5,15 +5,10 @@
  */
 
 class DatabaseConfig {
-    // Database Connection Settings
-    // const SERVER_NAME = "DESKTOP-DRJ1CF4\\SQLEXPRESS";
-    // const SERVER_USER = "Nguyenson";
-    // const SERVER_PASS = "181190Son";
-        // Database Connection Settings - Docker SQL Server
-    const SERVER_NAME = "localhost,1433";
-    const SERVER_USER = "sa";
-    const SERVER_PASS = "MyStrongPass123";
-    
+   // Database Connection Settings
+    const SERVER_NAME = "DESKTOP-DRJ1CF4\\SQLEXPRESS";
+    const SERVER_USER = "Nguyenson";
+    const SERVER_PASS = "181190Son";
     // Database Names
     const DB_ACCOUNT = "SRO_VT_ACCOUNT";
     const DB_LOG = "SRO_VT_LOG";

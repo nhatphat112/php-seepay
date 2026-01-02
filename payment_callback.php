@@ -7,21 +7,6 @@ require_once 'payment_manager.php';
 $gateway = $_GET['gateway'] ?? '';
 $isNotify = isset($_GET['notify']) && $_GET['notify'] == '1';
 
-// Log all callback data for debugging
-error_log("Payment callback: Gateway=$gateway, Notify=" . ($isNotify ? 'Yes' : 'No'));
-error_log("GET data: " . print_r($_GET, true));
-error_log("POST data: " . print_r($_POST, true));
-
-// Log to file for debugging
-$logData = [
-    'timestamp' => date('Y-m-d H:i:s'),
-    'gateway' => $gateway,
-    'is_notify' => $isNotify,
-    'get_data' => $_GET,
-    'post_data' => $_POST,
-    'server_data' => $_SERVER
-];
-file_put_contents('payment_callback_log.txt', json_encode($logData, JSON_PRETTY_PRINT) . "\n\n", FILE_APPEND);
 
 try {
     switch ($gateway) {
@@ -38,8 +23,6 @@ try {
             throw new Exception("Gateway không được hỗ trợ: $gateway");
     }
 } catch (Exception $e) {
-    error_log("Payment callback error: " . $e->getMessage());
-    
     if (!$isNotify) {
         // Redirect to payment page with error
         header('Location: payment.php?error=' . urlencode($e->getMessage()));
@@ -52,9 +35,6 @@ try {
  */
 function handleVNPayCallback() {
     global $isNotify;
-    
-    // Log all VNPay parameters
-    error_log("VNPay callback data: " . print_r($_GET, true));
     
     $vnp_TxnRef = $_GET['vnp_TxnRef'] ?? '';
     $vnp_ResponseCode = $_GET['vnp_ResponseCode'] ?? '';
@@ -72,22 +52,17 @@ function handleVNPayCallback() {
         throw new Exception("Thiếu mã phản hồi (vnp_ResponseCode)");
     }
     
-    // Log transaction details
-    error_log("VNPay Transaction: TxnRef=$vnp_TxnRef, ResponseCode=$vnp_ResponseCode, Status=$vnp_TransactionStatus");
-    
     // Verify signature (simplified for demo)
     if ($vnp_ResponseCode == '00' && $vnp_TransactionStatus == '00') {
         // Payment successful
         $result = PaymentManager::completeTransaction($vnp_TxnRef, $vnp_TxnRef);
         
         if ($result['success']) {
-            error_log("VNPay transaction completed successfully: $vnp_TxnRef");
             if (!$isNotify) {
                 header('Location: payment.php?success=' . urlencode('Thanh toán thành công! Bạn đã nhận được ' . number_format($result['silk_amount']) . ' Silk.'));
                 exit();
             }
         } else {
-            error_log("VNPay transaction completion failed: " . $result['error']);
             if (!$isNotify) {
                 header('Location: payment.php?error=' . urlencode($result['error']));
                 exit();
@@ -99,8 +74,6 @@ function handleVNPayCallback() {
         if ($vnp_TransactionStatus != '00') {
             $errorMsg .= ", Trạng thái: $vnp_TransactionStatus";
         }
-        
-        error_log("VNPay payment failed: $errorMsg");
         
         if (!$isNotify) {
             header('Location: payment.php?error=' . urlencode($errorMsg));

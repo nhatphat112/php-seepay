@@ -1,0 +1,26 @@
+{
+    "name": "silkroad-origin/payment-system",
+    "description": "Silkroad Origin Mobile - Payment System with Sepay Integration",
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "sepay/sepay-pg": "^1.0",
+        "guzzlehttp/guzzle": "^7.0"
+    },
+    "require-dev": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "includes/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
+

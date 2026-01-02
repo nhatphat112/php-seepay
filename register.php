@@ -49,11 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     // Insert new user
                     $stmt = $db->prepare("
-                        INSERT INTO TB_User (StrUserID, password, Email, RegDate) 
-                        VALUES (?, ?, ?, GETDATE())
+                        INSERT INTO TB_User (StrUserID, password, Email, regtime, reg_ip) 
+                        VALUES (?, ?, ?, GETDATE(), ?)
                     ");
                     
-                    if ($stmt->execute([$username, $hashedPassword, $email])) {
+                    $regIp = $_SERVER['REMOTE_ADDR'] ?? '';
+                    if ($stmt->execute([$username, $hashedPassword, $email, $regIp])) {
                         $success = 'Đăng ký thành công! Bạn có thể đăng nhập ngay bây giờ.';
                         
                         // Log registration

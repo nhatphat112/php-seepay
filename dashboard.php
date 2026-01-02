@@ -647,7 +647,7 @@ function getClassName($refObjID) {
                         </div>
                     </a>
                     
-                    <a href="recharge.php" class="action-card">
+                    <!-- <a href="recharge.php" class="action-card">
                         <div class="action-icon">
                             <i class="fas fa-university"></i>
                         </div>
@@ -655,7 +655,7 @@ function getClassName($refObjID) {
                             <h3>Chuyển Khoản</h3>
                             <p>Nạp Silk qua ngân hàng</p>
                         </div>
-                    </a>
+                    </a> -->
                     
                     <a href="ranking.php" class="action-card">
                         <div class="action-icon">

@@ -24,7 +24,7 @@ class PaymentManager {
             self::$methods = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (Exception $e) {
-            error_log("PaymentManager init error: " . $e->getMessage());
+            // Silently fail initialization
         }
     }
     
@@ -103,7 +103,6 @@ class PaymentManager {
             ];
             
         } catch (Exception $e) {
-            error_log("Create transaction error: " . $e->getMessage());
             return [
                 'success' => false,
                 'error' => $e->getMessage()
@@ -146,7 +145,6 @@ class PaymentManager {
             }
             
         } catch (Exception $e) {
-            error_log("Process payment error: " . $e->getMessage());
             return [
                 'success' => false,
                 'error' => $e->getMessage()
@@ -374,8 +372,7 @@ class PaymentManager {
                 ]);
                 
             } catch (Exception $e) {
-                error_log("Log transaction error: " . $e->getMessage());
-                // Không throw exception vì log không quan trọng bằng việc hoàn thành giao dịch
+                // Silently fail logging
             }
             
             return [
@@ -385,7 +382,6 @@ class PaymentManager {
             ];
             
         } catch (Exception $e) {
-            error_log("Complete transaction error: " . $e->getMessage());
             return [
                 'success' => false,
                 'error' => $e->getMessage()
@@ -437,7 +433,6 @@ class PaymentManager {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (Exception $e) {
-            error_log("Get user transactions error: " . $e->getMessage());
             return [];
         }
     }
