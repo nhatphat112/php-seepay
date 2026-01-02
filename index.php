@@ -1,3 +1,19 @@
+<?php
+require_once __DIR__ . '/includes/home_content.php';
+
+// Load content from database
+$sliders = HomeContent::getSliders();
+$socialLinks = HomeContent::getSocialLinks();
+$serverInfo = HomeContent::getServerInfo();
+$weeklyEvents = HomeContent::getWeeklyEvents();
+$qrcode = HomeContent::getQRCode();
+$newsAll = HomeContent::getNews();
+$newsHot = HomeContent::getNews('Tin Nóng');
+$newsEvent = HomeContent::getNews('Sự Kiện');
+$newsUpdate = HomeContent::getNews('Cập Nhật');
+
+// Server info is just plain text, no parsing needed
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -121,9 +137,15 @@
                         <div class="link-hs icon-fp d-flex a-center j-center link-show-com-pc link-show-com-mb t-center p-relative">
                             <img src="assets/images/icons/com.png" alt="">
                             <div class="list-link-show-com p-absolute t-upper">
-                                <a target="_blank" href="https://www.facebook.com/SROOriginMobile">Facebook</a>
-                                <a target="_blank" href="https://www.facebook.com/groups/srooriginm">Group Facebook</a>
-                                <a target="_blank" href="https://discord.gg/vRzYDVcDvN">Discord</a>
+                                <?php if (isset($socialLinks['facebook'])): ?>
+                                <a target="_blank" href="<?php echo htmlspecialchars($socialLinks['facebook']['url']); ?>">Facebook</a>
+                                <?php endif; ?>
+                                <?php if (isset($socialLinks['facebook_group'])): ?>
+                                <a target="_blank" href="<?php echo htmlspecialchars($socialLinks['facebook_group']['url']); ?>">Group Facebook</a>
+                                <?php endif; ?>
+                                <?php if (isset($socialLinks['discord'])): ?>
+                                <a target="_blank" href="<?php echo htmlspecialchars($socialLinks['discord']['url']); ?>">Discord</a>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -145,9 +167,15 @@
                                 <div class="text-show-com-pc">Cộng Đồng</div>
                             </a>
                             <div class="list-link-show-com p-absolute">
-                                <a target="_blank" href="https://www.facebook.com/SROOriginMobile">Facebook</a>
-                                <a target="_blank" href="https://www.facebook.com/groups/srooriginm">Group Facebook</a>
-                                <a target="_blank" href="https://discord.gg/vRzYDVcDvN">Discord</a>
+                                <?php if (isset($socialLinks['facebook'])): ?>
+                                <a target="_blank" href="<?php echo htmlspecialchars($socialLinks['facebook']['url']); ?>">Facebook</a>
+                                <?php endif; ?>
+                                <?php if (isset($socialLinks['facebook_group'])): ?>
+                                <a target="_blank" href="<?php echo htmlspecialchars($socialLinks['facebook_group']['url']); ?>">Group Facebook</a>
+                                <?php endif; ?>
+                                <?php if (isset($socialLinks['discord'])): ?>
+                                <a target="_blank" href="<?php echo htmlspecialchars($socialLinks['discord']['url']); ?>">Discord</a>
+                                <?php endif; ?>
                             </div>
                         </li>
                     </ul>
@@ -166,15 +194,11 @@
         <div class="slide-new-info-new-home m-auto">
             <div class="slide-hotevent p-relative">
                 <div class="slide-new-home slick-custom-dots">
-                    <a href="#" class="item-slide-nh">
-                        <img src="images/image-1.jpg" alt="News 1">
+                    <?php foreach ($sliders as $slider): ?>
+                    <a href="<?php echo htmlspecialchars($slider['LinkURL'] ?: '#'); ?>" class="item-slide-nh">
+                        <img src="<?php echo htmlspecialchars($slider['ImagePath']); ?>" alt="Slider">
                     </a>
-                    <a href="#" class="item-slide-nh">
-                        <img src="images/image-2.jpg" alt="News 2">
-                    </a>
-                    <a href="#" class="item-slide-nh">
-                        <img src="images/image-3.jpg" alt="News 3">
-                    </a>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
@@ -208,72 +232,56 @@
                 <div class="event-banner-middle-new">
                     <div class="slide-hotevent p-relative">
                         <div class="list-hotevent d-flex a-center j-center">
-                            <div class="list-item-hotevent p-relative f-cambria d-flex a-center j-center t-center">
+                                <div class="list-item-hotevent p-relative f-cambria d-flex a-center j-center t-center">
                                 <img src="assets/images/box-new/line-hotevents.png" class="line-hev p-absolute">
                                 
+                                <?php foreach ($weeklyEvents as $event): ?>
                                 <div class="item-hotevent">
                                     <div class="time-day-hev">
-                                        <div class="time-hev">19:30</div>
-                                        <div class="day-hev">Thứ 2-4-6</div>
+                                        <div class="time-hev"><?php echo htmlspecialchars($event['EventTime']); ?></div>
+                                        <div class="day-hev"><?php echo htmlspecialchars($event['EventDay']); ?></div>
                                     </div>
                                     <div class="dot-hev">
                                         <img src="assets/images/box-new/dot-hot-event.png" alt="">
                                     </div>
-                                    <div class="title-hev">Boss Bang Hội</div>
+                                    <div class="title-hev"><?php echo htmlspecialchars($event['EventTitle']); ?></div>
                                 </div>
-
-                                <div class="item-hotevent">
-                                    <div class="time-day-hev">
-                                        <div class="time-hev">19:30</div>
-                                        <div class="day-hev">Thứ 3-5-7</div>
-                                    </div>
-                                    <div class="dot-hev">
-                                        <img src="assets/images/box-new/dot-hot-event.png" alt="">
-                                    </div>
-                                    <div class="title-hev">Đấu Trường Bang</div>
-                                </div>
-
-                                <div class="item-hotevent">
-                                    <div class="time-day-hev">
-                                        <div class="time-hev">11:00 - 21:00</div>
-                                        <div class="day-hev">Hàng Ngày</div>
-                                    </div>
-                                    <div class="dot-hev">
-                                        <img src="assets/images/box-new/dot-hot-event.png" alt="">
-                                    </div>
-                                    <div class="title-hev">Buôn Bán</div>
-                                </div>
-                                
-                                <div class="item-hotevent">
-                                    <div class="time-day-hev">
-                                        <div class="time-hev">15:30 - 19:00</div>
-                                        <div class="day-hev">Hàng Ngày</div>
-                                    </div>
-                                    <div class="dot-hev">
-                                        <img src="assets/images/box-new/dot-hot-event.png" alt="">
-                                    </div>
-                                    <div class="title-hev">Boss Độc Nhất</div>
-                                </div>
-
-                                <div class="item-hotevent">
-                                    <div class="time-day-hev">
-                                        <div class="time-hev">20:30</div>
-                                        <div class="day-hev">Hàng Ngày</div>
-                                    </div>
-                                    <div class="dot-hev">
-                                        <img src="assets/images/box-new/dot-hot-event.png" alt="">
-                                    </div>
-                                    <div class="title-hev">Chiến Trường</div>
-                                </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="qr-code-box-new">
-                    <div class="box-border-new">
-                        <div class="qr-text-new">Quét code vào cộng đồng</div>
-                        <div class="qr-placeholder-new">
+                    <div class="box-border-new qr-container-new">
+                        <div class="qr-text-new">
+                            <?php 
+                            $qrText = $qrcode ? $qrcode['Description'] : 'Quét QR để vào cộng đồng';
+                            // Split text into lines if too long
+                            $words = explode(' ', $qrText);
+                            $lines = [];
+                            $currentLine = '';
+                            foreach ($words as $word) {
+                                if (strlen($currentLine . ' ' . $word) <= 20) {
+                                    $currentLine = $currentLine ? $currentLine . ' ' . $word : $word;
+                                } else {
+                                    if ($currentLine) $lines[] = $currentLine;
+                                    $currentLine = $word;
+                                }
+                            }
+                            if ($currentLine) $lines[] = $currentLine;
+                            $displayText = implode('<br>', array_slice($lines, 0, 3)); // Max 3 lines
+                            ?>
+                            <div class="qr-title-text"><?php echo $displayText; ?></div>
+                        </div>
+                        <div class="qr-image-container-new">
+                            <?php if ($qrcode && $qrcode['ImagePath']): ?>
+                            <img src="<?php echo htmlspecialchars($qrcode['ImagePath']); ?>" alt="QR Code" class="qr-image-new">
+                            <?php else: ?>
+                            <div class="qr-placeholder-new">
+                                <span style="color: rgba(0, 0, 0, 0.3); font-size: 12px;">QR Code</span>
+                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -404,8 +412,8 @@
         .box-border-new {
             border: 4px solid #000;
             border-radius: 8px;
-            box-shadow: 0 0 0 2px #FFD700;
-            background: #fff;
+            background: #e8c88;            box-shadow: 0 0 0 2px #FFD700;
+            background: #transparent;
             padding: 15px;
             height: 100%;
             display: flex;
@@ -523,32 +531,65 @@
             height: 100%;
         }
 
+        .qr-container-new {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            gap: 8px;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
         .qr-text-new {
-            color: #000;
-            font-size: 12px;
-            font-weight: 500;
+            width: 100%;
             text-align: center;
-            margin-bottom: 10px;
+            flex-shrink: 0;
+        }
+
+        .qr-title-text {
+            color: #e8c088;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.4;
             font-family: sans-serif;
+            margin-bottom: 0;
+            min-height: 35px;
+            max-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .qr-image-container-new {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .qr-image-new {
+            max-width: 100%;
+            max-height: 110px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 8px;
         }
 
         .qr-placeholder-new {
-            width: 100%;
-            aspect-ratio: 1 / 1;
+            width: 110px;
+            height: 110px;
             background: rgba(0, 0, 0, 0.05);
             border: 2px dashed rgba(0, 0, 0, 0.2);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-        }
-
-        .qr-placeholder-new::after {
-            content: "QR Code";
-            color: rgba(0, 0, 0, 0.3);
-            font-size: 12px;
-            font-weight: 500;
         }
 
         @media (max-width: 1024px) {
@@ -559,6 +600,26 @@
 
             .event-banner-middle-new {
                 height: 180px; 
+            }
+
+            .qr-container-new {
+                padding: 10px;
+                gap: 6px;
+            }
+
+            .qr-title-text {
+                font-size: 10px;
+                min-height: 30px;
+                max-height: 35px;
+            }
+
+            .qr-image-new {
+                max-height: 100px;
+            }
+
+            .qr-placeholder-new {
+                width: 100px;
+                height: 100px;
             }
         }
 
@@ -813,48 +874,33 @@
                                     <div class="dot-svinfo"></div>
                                 </div>
                                 <div class="list-svinfo server-and-news">
-                                    <div class="item-svinfo d-flex a-center j-center">
-                                        <div class="if-left-svinfo">Cấp Độ,</div>
-                                        <div class="if-right-svinfo p-relative">100</div>
+                                    <?php if ($serverInfo): ?>
+                                    <div class="server-info-text t-center" style="white-space: pre-line; color: #e8c088; padding: 0px 20px; line-height: 1.8;">
+                                        <?php echo nl2br(htmlspecialchars($serverInfo)); ?>
                                     </div>
-                                    <div class="item-svinfo d-flex a-center j-center">
-                                        <div class="if-left-svinfo">Chủng Tộc,</div>
-                                        <div class="if-right-svinfo p-relative">Á Châu - Âu Châu</div>
+                                    <?php else: ?>
+                                    <div style="color: #87ceeb; padding: 20px; text-align: center;">
+                                        Chưa có thông tin server
                                     </div>
-                                    <div class="item-svinfo d-flex a-center j-center">
-                                        <div class="if-left-svinfo">Kỹ Năng</div>
-                                        <div class="if-right-svinfo p-relative">300</div>
-                                    </div>
-                                    <div class="item-svinfo d-flex a-center j-center">
-                                        <div class="if-left-svinfo">Trang Bị</div>
-                                        <div class="if-right-svinfo p-relative">10 Đẳng</div>
-                                    </div>
-                                    <div class="item-svinfo d-flex a-center j-center">
-                                        <div class="if-left-svinfo">Rare</div>
-                                        <div class="if-right-svinfo p-relative">SUN</div>
-                                    </div>
-                                    <div class="item-svinfo d-flex a-center j-center">
-                                        <div class="if-left-svinfo">Tơ Lụa</div>
-                                        <div class="if-right-svinfo p-relative">Có Thể Giao Dịch</div>
-                                    </div>
-                                    <div class="item-svinfo d-flex a-center j-center">
-                                        <div class="if-left-svinfo">Vàng</div>
-                                        <div class="if-right-svinfo p-relative">Có Thể Giao Dịch</div>
-                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             
-                            <div class="join-socialright t-center">
+                            <!-- <div class="join-socialright t-center">
                                 <div class="title-jsocialright">- Tham Gia Cùng Chúng Tôi -</div>
                                 <div class="list-social-right d-flex a-center j-center">
-                                    <a href="https://www.facebook.com/SROOriginMobile" target="_blank" class="link-socialright d-flex a-center j-center">
+                                    <?php if (isset($socialLinks['facebook'])): ?>
+                                    <a href="<?php echo htmlspecialchars($socialLinks['facebook']['url']); ?>" target="_blank" class="link-socialright d-flex a-center j-center">
                                         <img src="assets/images/icons/fb2.png" alt="">
                                     </a>
-                                    <a href="https://discord.gg/vRzYDVcDvN" target="_blank" class="link-socialright d-flex a-center j-center">
+                                    <?php endif; ?>
+                                    <?php if (isset($socialLinks['discord'])): ?>
+                                    <a href="<?php echo htmlspecialchars($socialLinks['discord']['url']); ?>" target="_blank" class="link-socialright d-flex a-center j-center">
                                         <img src="assets/images/icons/discord2.png" alt="">
                                     </a>
+                                    <?php endif; ?>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
 
                         <div class="new-tab-home p-relative right-news">
@@ -867,73 +913,46 @@
                             <div class="list-new-detail-nh">
                                 <div class="dt-new-nh active" id="new1">
                                     <div class="list-item-news">
-                                        <a href="#" class="item-news d-flex a-center f-cambria">
-                                            <div class="cat">[Sự Kiện]</div>
-                                            <div class="title-news">Sự Kiện Đăng Nhập Nhận Quà</div>
-                                            <div class="date-news hidden-1199">02/10</div>
+                                        <?php foreach ($newsAll as $news): ?>
+                                        <a href="<?php echo htmlspecialchars($news['LinkURL']); ?>" class="item-news d-flex a-center f-cambria">
+                                            <div class="cat">[<?php echo htmlspecialchars($news['Category']); ?>]</div>
+                                            <div class="title-news"><?php echo htmlspecialchars($news['Title']); ?></div>
+                                            <div class="date-news hidden-1199"><?php echo date('d/m', strtotime($news['CreatedDate'])); ?></div>
                                         </a>
-                                        <a href="#" class="item-news d-flex a-center f-cambria">
-                                            <div class="cat">[Cập Nhật]</div>
-                                            <div class="title-news">Cập Nhật Phiên Bản 2.1.0</div>
-                                            <div class="date-news hidden-1199">01/10</div>
-                                        </a>
-                                        <a href="#" class="item-news d-flex a-center f-cambria">
-                                            <div class="cat">[Tin Tức]</div>
-                                            <div class="title-news">Hướng Dẫn Tân Thủ</div>
-                                            <div class="date-news hidden-1199">30/09</div>
-                                        </a>
-                                        <a href="#" class="item-news d-flex a-center f-cambria">
-                                            <div class="cat">[Sự Kiện]</div>
-                                            <div class="title-news">Săn Boss Nhận Thưởng Lớn</div>
-                                            <div class="date-news hidden-1199">29/09</div>
-                                        </a>
-                                        <a href="#" class="item-news d-flex a-center f-cambria">
-                                            <div class="cat">[Cập Nhật]</div>
-                                            <div class="title-news">Tối Ưu Hệ Thống PvP</div>
-                                            <div class="date-news hidden-1199">28/09</div>
-                                        </a>
+                                        <?php endforeach; ?>
                                     </div>
                                 </div>
                                 <div class="dt-new-nh" id="new2">
                                     <div class="list-item-news">
-                                        <a href="#" class="item-news d-flex a-center f-cambria">
-                                            <div class="cat">[Tin Tức]</div>
-                                            <div class="title-news">Hướng Dẫn Tân Thủ</div>
-                                            <div class="date-news hidden-1199">30/09</div>
+                                        <?php foreach ($newsHot as $news): ?>
+                                        <a href="<?php echo htmlspecialchars($news['LinkURL']); ?>" class="item-news d-flex a-center f-cambria">
+                                            <div class="cat">[<?php echo htmlspecialchars($news['Category']); ?>]</div>
+                                            <div class="title-news"><?php echo htmlspecialchars($news['Title']); ?></div>
+                                            <div class="date-news hidden-1199"><?php echo date('d/m', strtotime($news['CreatedDate'])); ?></div>
                                         </a>
-                                        <a href="#" class="item-news d-flex a-center f-cambria">
-                                            <div class="cat">[Tin Tức]</div>
-                                            <div class="title-news">Top Game Hay Tháng 9</div>
-                                            <div class="date-news hidden-1199">25/09</div>
-                                        </a>
+                                        <?php endforeach; ?>
                                     </div>
                                 </div>
                                 <div class="dt-new-nh" id="new3">
                                     <div class="list-item-news">
-                                        <a href="#" class="item-news d-flex a-center f-cambria">
-                                            <div class="cat">[Sự Kiện]</div>
-                                            <div class="title-news">Sự Kiện Đăng Nhập Nhận Quà</div>
-                                            <div class="date-news hidden-1199">02/10</div>
+                                        <?php foreach ($newsEvent as $news): ?>
+                                        <a href="<?php echo htmlspecialchars($news['LinkURL']); ?>" class="item-news d-flex a-center f-cambria">
+                                            <div class="cat">[<?php echo htmlspecialchars($news['Category']); ?>]</div>
+                                            <div class="title-news"><?php echo htmlspecialchars($news['Title']); ?></div>
+                                            <div class="date-news hidden-1199"><?php echo date('d/m', strtotime($news['CreatedDate'])); ?></div>
                                         </a>
-                                        <a href="#" class="item-news d-flex a-center f-cambria">
-                                            <div class="cat">[Sự Kiện]</div>
-                                            <div class="title-news">Săn Boss Nhận Thưởng Lớn</div>
-                                            <div class="date-news hidden-1199">29/09</div>
-                                        </a>
+                                        <?php endforeach; ?>
                                     </div>
                                 </div>
                                 <div class="dt-new-nh" id="new4">
                                     <div class="list-item-news">
-                                        <a href="#" class="item-news d-flex a-center f-cambria">
-                                            <div class="cat">[Cập Nhật]</div>
-                                            <div class="title-news">Cập Nhật Phiên Bản 2.1.0</div>
-                                            <div class="date-news hidden-1199">01/10</div>
+                                        <?php foreach ($newsUpdate as $news): ?>
+                                        <a href="<?php echo htmlspecialchars($news['LinkURL']); ?>" class="item-news d-flex a-center f-cambria">
+                                            <div class="cat">[<?php echo htmlspecialchars($news['Category']); ?>]</div>
+                                            <div class="title-news"><?php echo htmlspecialchars($news['Title']); ?></div>
+                                            <div class="date-news hidden-1199"><?php echo date('d/m', strtotime($news['CreatedDate'])); ?></div>
                                         </a>
-                                        <a href="#" class="item-news d-flex a-center f-cambria">
-                                            <div class="cat">[Cập Nhật]</div>
-                                            <div class="title-news">Tối Ưu Hệ Thống PvP</div>
-                                            <div class="date-news hidden-1199">28/09</div>
-                                        </a>
+                                        <?php endforeach; ?>
                                     </div>
                                 </div>
                             </div>
@@ -962,18 +981,24 @@
                         </div>
                         <div class="fanpage-content-new">
                             <div class="fanpage-links-new">
-                                <a href="https://www.facebook.com/SROOriginMobile" target="_blank" class="fanpage-link-item-new d-flex a-center j-center">
+                                <?php if (isset($socialLinks['facebook'])): ?>
+                                <a href="<?php echo htmlspecialchars($socialLinks['facebook']['url']); ?>" target="_blank" class="fanpage-link-item-new d-flex a-center j-center">
                                     <img src="assets/images/icons/fb2.png" alt="Facebook">
-                                    <span>Facebook Page</span>
+                                    <span><?php echo htmlspecialchars($socialLinks['facebook']['name'] ?: 'Facebook Page'); ?></span>
                                 </a>
-                                <a href="https://www.facebook.com/groups/srooriginm" target="_blank" class="fanpage-link-item-new d-flex a-center j-center">
+                                <?php endif; ?>
+                                <?php if (isset($socialLinks['facebook_group'])): ?>
+                                <a href="<?php echo htmlspecialchars($socialLinks['facebook_group']['url']); ?>" target="_blank" class="fanpage-link-item-new d-flex a-center j-center">
                                     <img src="assets/images/icons/fb2.png" alt="Facebook Group">
-                                    <span>Facebook Group</span>
+                                    <span><?php echo htmlspecialchars($socialLinks['facebook_group']['name'] ?: 'Facebook Group'); ?></span>
                                 </a>
-                                <a href="https://discord.gg/vRzYDVcDvN" target="_blank" class="fanpage-link-item-new d-flex a-center j-center">
+                                <?php endif; ?>
+                                <?php if (isset($socialLinks['discord'])): ?>
+                                <a href="<?php echo htmlspecialchars($socialLinks['discord']['url']); ?>" target="_blank" class="fanpage-link-item-new d-flex a-center j-center">
                                     <img src="assets/images/icons/discord2.png" alt="Discord">
-                                    <span>Discord</span>
+                                    <span><?php echo htmlspecialchars($socialLinks['discord']['name'] ?: 'Discord'); ?></span>
                                 </a>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
