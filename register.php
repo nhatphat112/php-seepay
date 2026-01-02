@@ -166,6 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 70px;
             height: auto;
             margin-bottom: 10px;
+            border-radius: 50%;
         }
         
         .auth-logo h1 {
@@ -424,7 +425,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <i class="fas fa-arrow-left"></i> Quay lại trang chủ
                 </a>
                 <div class="auth-logo">
-                    <img src="assets/images/logo.png" alt="Logo" class="logo-img">
+                    <img src="assets/images/logo.png" style="border-radius: 50%" alt="Logo" class="logo-img">
                     <h1 class="f-utm_nyala t-upper">Con Đường Tơ Lụa</h1>
                 </div>
                 <h2 class="f-cambria">Đăng Ký Tài Khoản</h2>

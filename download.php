@@ -300,7 +300,7 @@
                     <i class="fas fa-arrow-left"></i> Quay lại trang chủ
                 </a>
                 <div class="download-logo">
-                    <img src="assets/images/logo.png" alt="Logo" class="logo-img">
+                    <img src="assets/images/logo.png" style="border-radius: 50%" alt="Logo" class="logo-img">
                     <h1 class="f-utm_nyala t-upper">Con Đường Tơ Lụa</h1>
                 </div>
                 <h2 class="f-cambria">Tải Game Ngay</h2>

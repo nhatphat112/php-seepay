@@ -149,6 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         .logo-img {
             width: 70px;
+            border-radius: 50%;
             height: auto;
             margin-bottom: 10px;
         }

@@ -95,6 +95,12 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
         .btn-auth i {
             font-size: 12px;
         }
+        .slide-new-info-new-home{
+            width: 100% !important;
+        }
+        .img-icongame{
+            border-radius: 50% !important;
+        }
         
         @media (max-width: 1199px) {
             .auth-links {
@@ -113,7 +119,7 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
         <nav class="navbar clearfix">
             <div class="container">
                 <a href="index.php">
-                    <img src="assets/images/logo.png" alt="Silkroad Logo" class="logo-top hidden-1199">
+                    <img src="assets/images/logo.png" style="border-radius: 50%" alt="Silkroad Logo" class="logo-top hidden-1199">
                 </a>
 
                 <a href="index.php" class="hidden-1200">
