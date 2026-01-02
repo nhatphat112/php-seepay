@@ -101,6 +101,9 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
         .img-icongame{
             border-radius: 50% !important;
         }
+        .home-page{
+            background: black !important;
+        }
         
         @media (max-width: 1199px) {
             .auth-links {
