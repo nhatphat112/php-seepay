@@ -3,7 +3,7 @@
         'name' => 'silkroad-origin/payment-system',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'e03e79189f06e31d2bdd3c03b18a7d708f97fe07',
+        'reference' => 'd39d2990069f6ba54fb16e12f1855db314aae095',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -112,7 +112,7 @@
         'silkroad-origin/payment-system' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'e03e79189f06e31d2bdd3c03b18a7d708f97fe07',
+            'reference' => 'd39d2990069f6ba54fb16e12f1855db314aae095',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
