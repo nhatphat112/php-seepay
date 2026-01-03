@@ -8,7 +8,6 @@
 
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../../includes/upload_config.php';
-require_once __DIR__ . '/../../includes/upload_logger.php';
 require_once __DIR__ . '/../../connection_manager.php';
 
 // Helper function to handle file upload
@@ -111,13 +110,6 @@ try {
         }
     } 
     elseif ($method === 'POST') {
-        // Log request start
-        UploadLogger::log('POST request received - Slider upload', [
-            'endpoint' => 'slider',
-            'has_files' => !empty($_FILES),
-            'has_post' => !empty($_POST)
-        ]);
-        
         $imagePath = null;
         $linkURL = null;
         $displayOrder = 0;
@@ -127,11 +119,6 @@ try {
         
         // Check if this is multipart/form-data (file upload)
         if (isset($_FILES['image'])) {
-            UploadLogger::log('File upload detected', [
-                'file_name' => $_FILES['image']['name'] ?? 'N/A',
-                'file_size' => $_FILES['image']['size'] ?? 0,
-                'file_error' => $_FILES['image']['error'] ?? 'N/A'
-            ]);
             $uploadError = $_FILES['image']['error'];
             $fileSize = $_FILES['image']['size'] ?? 0;
             
@@ -147,37 +134,18 @@ try {
                 ];
                 $errorMsg = isset($errorMessages[$uploadError]) ? $errorMessages[$uploadError] : 'Lỗi upload không xác định (error code: ' . $uploadError . ')';
                 
-                // Log error
-                UploadLogger::logError('Upload failed', $errorMsg, [
-                    'upload_error_code' => $uploadError,
-                    'file_size' => $fileSize,
-                    'file_size_mb' => round($fileSize / 1024 / 1024, 2),
-                    'upload_max_filesize' => ini_get('upload_max_filesize'),
-                    'post_max_size' => ini_get('post_max_size')
-                ]);
-                
                 http_response_code(400);
                 echo json_encode([
                     'success' => false,
-                    'error' => 'Upload file thất bại: ' . $errorMsg . '. File size: ' . round($fileSize / 1024 / 1024, 2) . 'MB. PHP limit: ' . ini_get('upload_max_filesize') . ', POST limit: ' . ini_get('post_max_size') . '. Vui lòng kiểm tra logs trong admin/view_upload_logs.php'
+                    'error' => 'Upload file thất bại: ' . $errorMsg . '. File size: ' . round($fileSize / 1024 / 1024, 2) . 'MB. PHP limit: ' . ini_get('upload_max_filesize') . ', POST limit: ' . ini_get('post_max_size') . '. Vui lòng tăng upload_max_filesize lên 10M trong .htaccess hoặc php.ini'
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
             }
             
             $uploadDir = __DIR__ . '/../../uploads/slider';
-            UploadLogger::log('Starting file upload processing', [
-                'upload_dir' => $uploadDir,
-                'dir_exists' => is_dir($uploadDir),
-                'dir_writable' => is_dir($uploadDir) && is_writable($uploadDir)
-            ]);
-            
             $uploadResult = handleImageUpload($_FILES['image'], $uploadDir);
             
             if (!$uploadResult['success']) {
-                UploadLogger::logError('File upload processing failed', $uploadResult['error'], [
-                    'upload_dir' => $uploadDir
-                ]);
-                
                 http_response_code(400);
                 echo json_encode([
                     'success' => false,
@@ -185,11 +153,6 @@ try {
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
             }
-            
-            UploadLogger::log('File uploaded successfully', [
-                'image_path' => $uploadResult['path'],
-                'upload_dir' => $uploadDir
-            ]);
             
             $imagePath = $uploadResult['path'];
             $isFileUpload = true;
@@ -371,8 +334,6 @@ try {
         ], JSON_UNESCAPED_UNICODE);
     }
 } catch (Exception $e) {
-    UploadLogger::logError('Exception in slider API', $e);
-    
     http_response_code(500);
     echo json_encode([
         'success' => false,

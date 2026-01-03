@@ -85,23 +85,11 @@ try {
         }
     } 
     elseif ($method === 'POST') {
-        // Log request start
-        UploadLogger::log('POST request received - QR Code upload', [
-            'endpoint' => 'qrcode',
-            'has_files' => !empty($_FILES),
-            'has_post' => !empty($_POST)
-        ]);
-        
         $imagePath = null;
         $description = null;
         
         // Check if this is multipart/form-data (file upload)
         if (isset($_FILES['image'])) {
-            UploadLogger::log('File upload detected', [
-                'file_name' => $_FILES['image']['name'] ?? 'N/A',
-                'file_size' => $_FILES['image']['size'] ?? 0,
-                'file_error' => $_FILES['image']['error'] ?? 'N/A'
-            ]);
             $uploadError = $_FILES['image']['error'];
             
             if ($uploadError !== UPLOAD_ERR_OK) {
