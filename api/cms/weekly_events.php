@@ -14,25 +14,57 @@ try {
     $method = $_SERVER['REQUEST_METHOD'];
     
     if ($method === 'GET') {
-        // Get all events
-        $stmt = $db->query("SELECT EventID, EventTime, EventDay, EventTitle, DisplayOrder, IsActive, CreatedDate, UpdatedDate FROM TB_WeeklyEvents ORDER BY DisplayOrder ASC, EventID ASC");
-        $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Get single event by ID or all events
+        $eventID = isset($_GET['event_id']) ? (int)$_GET['event_id'] : null;
         
-        echo json_encode([
-            'success' => true,
-            'data' => array_map(function($event) {
-                return [
-                    'event_id' => (int)$event['EventID'],
-                    'event_time' => $event['EventTime'],
-                    'event_day' => $event['EventDay'],
-                    'event_title' => $event['EventTitle'],
-                    'display_order' => (int)$event['DisplayOrder'],
-                    'is_active' => (bool)$event['IsActive'],
-                    'created_date' => $event['CreatedDate'],
-                    'updated_date' => $event['UpdatedDate']
-                ];
-            }, $events)
-        ], JSON_UNESCAPED_UNICODE);
+        if ($eventID) {
+            // Get single event
+            $stmt = $db->prepare("SELECT EventID, EventTime, EventDay, EventTitle, DisplayOrder, IsActive, CreatedDate, UpdatedDate FROM TB_WeeklyEvents WHERE EventID = ?");
+            $stmt->execute([$eventID]);
+            $event = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($event) {
+                echo json_encode([
+                    'success' => true,
+                    'data' => [
+                        'event_id' => (int)$event['EventID'],
+                        'event_time' => $event['EventTime'],
+                        'event_day' => $event['EventDay'],
+                        'event_title' => $event['EventTitle'],
+                        'display_order' => (int)$event['DisplayOrder'],
+                        'is_active' => (bool)$event['IsActive'],
+                        'created_date' => $event['CreatedDate'],
+                        'updated_date' => $event['UpdatedDate']
+                    ]
+                ], JSON_UNESCAPED_UNICODE);
+            } else {
+                http_response_code(404);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Event not found'
+                ], JSON_UNESCAPED_UNICODE);
+            }
+        } else {
+            // Get all events
+            $stmt = $db->query("SELECT EventID, EventTime, EventDay, EventTitle, DisplayOrder, IsActive, CreatedDate, UpdatedDate FROM TB_WeeklyEvents ORDER BY DisplayOrder ASC, EventID ASC");
+            $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            echo json_encode([
+                'success' => true,
+                'data' => array_map(function($event) {
+                    return [
+                        'event_id' => (int)$event['EventID'],
+                        'event_time' => $event['EventTime'],
+                        'event_day' => $event['EventDay'],
+                        'event_title' => $event['EventTitle'],
+                        'display_order' => (int)$event['DisplayOrder'],
+                        'is_active' => (bool)$event['IsActive'],
+                        'created_date' => $event['CreatedDate'],
+                        'updated_date' => $event['UpdatedDate']
+                    ];
+                }, $events)
+            ], JSON_UNESCAPED_UNICODE);
+        }
     } 
     elseif ($method === 'POST') {
         // Create or Update event

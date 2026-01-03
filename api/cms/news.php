@@ -14,33 +14,65 @@ try {
     $method = $_SERVER['REQUEST_METHOD'];
     
     if ($method === 'GET') {
-        // Get news with optional category filter
-        $category = isset($_GET['category']) ? trim($_GET['category']) : null;
+        // Get single news by ID or list with optional category filter
+        $newsID = isset($_GET['news_id']) ? (int)$_GET['news_id'] : null;
         
-        if ($category && $category !== 'Tất Cả') {
-            $stmt = $db->prepare("SELECT NewsID, Category, Title, LinkURL, DisplayOrder, IsActive, CreatedDate, UpdatedDate FROM TB_News WHERE Category = ? ORDER BY DisplayOrder ASC, CreatedDate DESC");
-            $stmt->execute([$category]);
+        if ($newsID) {
+            // Get single news item
+            $stmt = $db->prepare("SELECT NewsID, Category, Title, LinkURL, DisplayOrder, IsActive, CreatedDate, UpdatedDate FROM TB_News WHERE NewsID = ?");
+            $stmt->execute([$newsID]);
+            $item = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($item) {
+                echo json_encode([
+                    'success' => true,
+                    'data' => [
+                        'news_id' => (int)$item['NewsID'],
+                        'category' => $item['Category'],
+                        'title' => $item['Title'],
+                        'link_url' => $item['LinkURL'],
+                        'display_order' => (int)$item['DisplayOrder'],
+                        'is_active' => (bool)$item['IsActive'],
+                        'created_date' => $item['CreatedDate'],
+                        'updated_date' => $item['UpdatedDate']
+                    ]
+                ], JSON_UNESCAPED_UNICODE);
+            } else {
+                http_response_code(404);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'News not found'
+                ], JSON_UNESCAPED_UNICODE);
+            }
         } else {
-            $stmt = $db->query("SELECT NewsID, Category, Title, LinkURL, DisplayOrder, IsActive, CreatedDate, UpdatedDate FROM TB_News ORDER BY DisplayOrder ASC, CreatedDate DESC");
+            // Get news with optional category filter
+            $category = isset($_GET['category']) ? trim($_GET['category']) : null;
+            
+            if ($category && $category !== 'Tất Cả') {
+                $stmt = $db->prepare("SELECT NewsID, Category, Title, LinkURL, DisplayOrder, IsActive, CreatedDate, UpdatedDate FROM TB_News WHERE Category = ? ORDER BY DisplayOrder ASC, CreatedDate DESC");
+                $stmt->execute([$category]);
+            } else {
+                $stmt = $db->query("SELECT NewsID, Category, Title, LinkURL, DisplayOrder, IsActive, CreatedDate, UpdatedDate FROM TB_News ORDER BY DisplayOrder ASC, CreatedDate DESC");
+            }
+            
+            $news = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            echo json_encode([
+                'success' => true,
+                'data' => array_map(function($item) {
+                    return [
+                        'news_id' => (int)$item['NewsID'],
+                        'category' => $item['Category'],
+                        'title' => $item['Title'],
+                        'link_url' => $item['LinkURL'],
+                        'display_order' => (int)$item['DisplayOrder'],
+                        'is_active' => (bool)$item['IsActive'],
+                        'created_date' => $item['CreatedDate'],
+                        'updated_date' => $item['UpdatedDate']
+                    ];
+                }, $news)
+            ], JSON_UNESCAPED_UNICODE);
         }
-        
-        $news = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        echo json_encode([
-            'success' => true,
-            'data' => array_map(function($item) {
-                return [
-                    'news_id' => (int)$item['NewsID'],
-                    'category' => $item['Category'],
-                    'title' => $item['Title'],
-                    'link_url' => $item['LinkURL'],
-                    'display_order' => (int)$item['DisplayOrder'],
-                    'is_active' => (bool)$item['IsActive'],
-                    'created_date' => $item['CreatedDate'],
-                    'updated_date' => $item['UpdatedDate']
-                ];
-            }, $news)
-        ], JSON_UNESCAPED_UNICODE);
     } 
     elseif ($method === 'POST') {
         // Create or Update news
