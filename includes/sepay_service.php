@@ -161,11 +161,16 @@ class SepayService {
                 )
             ");
             
+            // Calculate Silk amount based on conversion rate
+            // Tỉ lệ: 100,000 VNĐ = 4,000 Silk (1 VNĐ = 0.04 Silk)
+            require_once __DIR__ . '/../database.php';
+            $silkAmount = (int)($amount * DatabaseConfig::SILK_RATE);
+            
             $stmt->execute([
                 $userJID,
                 $orderCode,
                 (int)$amount,
-                (int)$amount, // 1 VND = 1 Silk
+                $silkAmount, // Calculated: Amount × 0.04
                 $paymentMethod,
                 $_SERVER['REMOTE_ADDR'] ?? null,
                 $_SERVER['HTTP_USER_AGENT'] ?? null

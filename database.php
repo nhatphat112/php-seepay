@@ -6,13 +6,17 @@
 
 class DatabaseConfig {
     // Database Connection Settings
-    const SERVER_NAME = "DESKTOP-DRJ1CF4\\SQLEXPRESS";
-    const SERVER_USER = "Nguyenson";
-    const SERVER_PASS = "181190Son";
+    const SERVER_NAME = "103.2.227.134,49669";
+    const SERVER_USER = "sa";  
+    const SERVER_PASS = "251292Son";  
     // Database Names
     const DB_ACCOUNT = "SRO_VT_ACCOUNT";
     const DB_LOG = "SRO_VT_LOG";
     const DB_SHARD = "SRO_VT_SHARD";
+    
+    // Silk Conversion Rate
+    // Tỉ lệ chuyển đổi: 100,000 VNĐ = 4,000 Silk (1 VNĐ = 0.04 Silk)
+    const SILK_RATE = 0.04; // 1 VNĐ = 0.04 Silk
     
     // Security Settings
     const MAX_LOGIN_ATTEMPTS = 5;

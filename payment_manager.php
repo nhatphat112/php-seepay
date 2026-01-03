@@ -94,12 +94,17 @@ class PaymentManager {
             
             $rechargeID = $db->lastInsertId();
             
+            // Calculate Silk amount based on conversion rate
+            // Tỉ lệ: 100,000 VNĐ = 4,000 Silk (1 VNĐ = 0.04 Silk)
+            require_once __DIR__ . '/database.php';
+            $silkAmount = (int)($amount * DatabaseConfig::SILK_RATE);
+            
             return [
                 'success' => true,
                 'recharge_id' => $rechargeID,
                 'transaction_id' => $transactionID,
                 'amount' => $amount,
-                'silk_amount' => $amount
+                'silk_amount' => $silkAmount // Calculated: Amount × 0.04
             ];
             
         } catch (Exception $e) {

@@ -636,14 +636,37 @@ if (!empty($currentOrderCode) && $orderData === null) {
                     <label for="amount">Số Tiền Nạp (VNĐ)</label>
                     <input type="number" id="amount" name="amount" class="form-control" 
                            placeholder="Nhập số tiền..." min="10000" max="10000000" required>
+                    <div id="silk-preview" style="margin-top: 10px; padding: 10px; background: rgba(30, 144, 255, 0.1); border-radius: 5px; border: 1px solid #1e90ff; display: none;">
+                        <span style="color: #87ceeb; font-weight: bold;">Bạn sẽ nhận được: </span>
+                        <span id="silk-amount-preview" style="color: #1e90ff; font-weight: bold; font-size: 18px;">0</span>
+                        <span style="color: #87ceeb; font-weight: bold;"> Silk</span>
+                    </div>
                     
                     <div class="amount-options">
-                        <div class="amount-btn" data-amount="50000">50,000 VNĐ</div>
-                        <div class="amount-btn" data-amount="100000">100,000 VNĐ</div>
-                        <div class="amount-btn" data-amount="200000">200,000 VNĐ</div>
-                        <div class="amount-btn" data-amount="500000">500,000 VNĐ</div>
-                        <div class="amount-btn" data-amount="1000000">1,000,000 VNĐ</div>
-                        <div class="amount-btn" data-amount="2000000">2,000,000 VNĐ</div>
+                        <div class="amount-btn" data-amount="50000">
+                            <div>50,000 VNĐ</div>
+                            <div style="font-size: 12px; color: #87ceeb; margin-top: 5px;">= 2,000 Silk</div>
+                        </div>
+                        <div class="amount-btn" data-amount="100000">
+                            <div>100,000 VNĐ</div>
+                            <div style="font-size: 12px; color: #87ceeb; margin-top: 5px;">= 4,000 Silk</div>
+                        </div>
+                        <div class="amount-btn" data-amount="200000">
+                            <div>200,000 VNĐ</div>
+                            <div style="font-size: 12px; color: #87ceeb; margin-top: 5px;">= 8,000 Silk</div>
+                        </div>
+                        <div class="amount-btn" data-amount="500000">
+                            <div>500,000 VNĐ</div>
+                            <div style="font-size: 12px; color: #87ceeb; margin-top: 5px;">= 20,000 Silk</div>
+                        </div>
+                        <div class="amount-btn" data-amount="1000000">
+                            <div>1,000,000 VNĐ</div>
+                            <div style="font-size: 12px; color: #87ceeb; margin-top: 5px;">= 40,000 Silk</div>
+                        </div>
+                        <div class="amount-btn" data-amount="2000000">
+                            <div>2,000,000 VNĐ</div>
+                            <div style="font-size: 12px; color: #87ceeb; margin-top: 5px;">= 80,000 Silk</div>
+                        </div>
                     </div>
                 </div>
 
@@ -655,7 +678,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
             <!-- Payment Information -->
             <div class="payment-info">
                 <h4><i class="fas fa-info-circle"></i> Thông Tin Thanh Toán</h4>
-                <p><strong>Tỷ lệ quy đổi:</strong> 1 VNĐ = 1 Silk</p>
+                <p><strong>Tỷ lệ quy đổi:</strong> 100,000 VNĐ = 4,000 Silk (1 VNĐ = 0.04 Silk)</p>
                 <p><strong>Thời gian xử lý:</strong> Tức thì sau khi thanh toán thành công</p>
                 <p><strong>Phí giao dịch:</strong> Miễn phí</p>
                 <p><strong>Bảo mật:</strong> Được mã hóa SSL 256-bit</p>
@@ -679,12 +702,31 @@ if (!empty($currentOrderCode) && $orderData === null) {
         const ORDER_CODE = '<?php echo htmlspecialchars($currentOrderCode); ?>';
         const ORDER_STATUS = '<?php echo htmlspecialchars($orderData['Status'] ?? ''); ?>';
         
+        // Function to calculate and display Silk amount
+        function updateSilkPreview(amount) {
+            if (amount && amount >= 10000) {
+                const silkAmount = Math.floor(parseInt(amount) * 0.04);
+                $('#silk-amount-preview').text(silkAmount.toLocaleString());
+                $('#silk-preview').show();
+            } else {
+                $('#silk-preview').hide();
+            }
+        }
+        
         $(document).ready(function() {
             // Amount selection
             $('.amount-btn').on('click', function() {
                 $('.amount-btn').removeClass('active');
                 $(this).addClass('active');
-                $('#amount').val($(this).data('amount'));
+                const amount = $(this).data('amount');
+                $('#amount').val(amount);
+                updateSilkPreview(amount);
+            });
+            
+            // Update Silk preview when user types
+            $('#amount').on('input', function() {
+                const amount = $(this).val();
+                updateSilkPreview(amount);
             });
             
             // Copy button functionality
@@ -718,7 +760,9 @@ if (!empty($currentOrderCode) && $orderData === null) {
                     return false;
                 }
                 
-                const confirmMessage = `Xác nhận tạo đơn hàng ${parseInt(amount).toLocaleString()} VNĐ?\nBạn sẽ nhận được ${parseInt(amount).toLocaleString()} Silk.`;
+                // Calculate Silk amount (100,000 VNĐ = 4,000 Silk)
+                const silkAmount = Math.floor(parseInt(amount) * 0.04);
+                const confirmMessage = `Xác nhận tạo đơn hàng ${parseInt(amount).toLocaleString()} VNĐ?\nBạn sẽ nhận được ${silkAmount.toLocaleString()} Silk.`;
                 
                 if (!confirm(confirmMessage)) {
                     e.preventDefault();
