@@ -300,7 +300,7 @@
                     <i class="fas fa-arrow-left"></i> Quay lại trang chủ
                 </a>
                 <div class="download-logo">
-                    <img src="assets/images/logo.png" style="border-radius: 50%" alt="Logo" class="logo-img">
+                    <img src="assets/images/logo.png" alt="Logo" class="logo-img">
                     <h1 class="f-utm_nyala t-upper">Con Đường Tơ Lụa</h1>
                 </div>
                 <h2 class="f-cambria">Tải Game Ngay</h2>
@@ -319,76 +319,42 @@
                                 <i class="fas fa-desktop"></i>
                             </div>
                             <div class="download-item-text">
-                                <span class="name">Client Game - Full Version</span>
-                                <span class="desc">Phiên bản đầy đủ, cài đặt trực tiếp (~3.5 GB)</span>
+                                <span class="name">Sao chép liên kết</span>
+                                <span class="desc">https://drive.google.com/file/d/147t-q3iexbLszFjeeW9AKEW-d9VQ7rHu/view?usp=sharing</span>
                             </div>
                         </div>
-                        <a href="#" class="btn-download" onclick="alert('Link tải sẽ được cập nhật sớm!'); return false;">
-                            <i class="fas fa-download"></i> Tải Ngay
-                        </a>
-                    </div>
-                    
-                    <div class="download-item">
-                        <div class="download-item-info">
-                            <div class="download-item-icon">
-                                <i class="fas fa-cloud-download-alt"></i>
-                            </div>
-                            <div class="download-item-text">
-                                <span class="name">Client Game - Google Drive</span>
-                                <span class="desc">Tải từ Google Drive, tốc độ cao (~3.5 GB)</span>
-                            </div>
-                        </div>
-                        <a href="#" class="btn-download" onclick="alert('Link tải sẽ được cập nhật sớm!'); return false;">
-                            <i class="fab fa-google-drive"></i> Tải Ngay
-                        </a>
-                    </div>
-                    
-                    <div class="download-item">
-                        <div class="download-item-info">
-                            <div class="download-item-icon">
-                                <i class="fas fa-file-archive"></i>
-                            </div>
-                            <div class="download-item-text">
-                                <span class="name">Client Game - Mega.nz</span>
-                                <span class="desc">Mirror link dự phòng (~3.5 GB)</span>
-                            </div>
-                        </div>
-                        <a href="#" class="btn-download" onclick="alert('Link tải sẽ được cập nhật sớm!'); return false;">
-                            <i class="fas fa-download"></i> Tải Ngay
-                        </a>
                     </div>
                 </div>
             </div>
-
-
-            <!-- System Requirements -->
-            <div class="system-requirements">
-                <h3><i class="fas fa-info-circle"></i> Cấu Hình Khuyến Nghị</h3>
-                <div class="requirements-grid">
-                    <div class="requirement-item">
-                        <span class="label">OS</span>
-                        <span class="value">Win 10/11</span>
+            
+            <div class="new-home" id="downloads" style="padding: 60px 20px;">
+                <div class="title-frame t-center t-upper d-flex a-center j-center">
+                    <img src="assets/images/title/img-title3860.png" alt="">
+                    <div class="name-title vi">Tải Game Client</div>
+                    <img src="assets/images/title/img-title3860.png" style="transform: scaleX(-1);">
+                </div>
+                
+                <div class="download-section t-center" style="max-width: 800px; margin: 40px auto; padding: 40px; background: rgba(255, 255, 255, 0.03); border-radius: 15px;">
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="color: #ffd700; font-size: 24px; margin-bottom: 15px; font-weight: 600;">Tải Game Client</h3>
+                        <p style="color: #999; font-size: 16px; margin-bottom: 30px;">Tải xuống phiên bản mới nhất của game để bắt đầu hành trình của bạn</p>
                     </div>
-                    <div class="requirement-item">
-                        <span class="label">RAM</span>
-                        <span class="value">4 GB+</span>
-                    </div>
-                    <div class="requirement-item">
-                        <span class="label">CPU</span>
-                        <span class="value">Core i3+</span>
-                    </div>
-                    <div class="requirement-item">
-                        <span class="label">GPU</span>
-                        <span class="value">GT 730+</span>
-                    </div>
-                    <div class="requirement-item">
-                        <span class="label">Dung lượng</span>
-                        <span class="value">~5 GB</span>
-                    </div>
-                    <div class="requirement-item">
-                        <span class="label">Internet</span>
-                        <span class="value">Ổn định</span>
-                    </div>
+                    
+                    <a href="https://drive.google.com/file/d/147t-q3iexbLszFjeeW9AKEW-d9VQ7rHu/view?usp=sharing" 
+                       target="_blank" 
+                       class="download-btn" 
+                       style="display: inline-flex; align-items: center; gap: 12px; padding: 18px 40px; background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 18px; text-transform: uppercase; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);">
+                        <i class="fas fa-download" style="font-size: 20px;"></i>
+                        <span>Tải Game Client</span>
+                    </a>
+                    
+                    <style>
+                        .download-btn:hover {
+                            transform: translateY(-3px);
+                            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+                            background: linear-gradient(135deg, #ffed4e 0%, #ffd700 100%);
+                        }
+                    </style>
                 </div>
             </div>
         </div>
@@ -399,3 +365,4 @@
     </script>
 </body>
 </html>
+
