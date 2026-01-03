@@ -20,9 +20,9 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Con Đường Tơ Lụa - Silkroad Origin Mobile</title>
-    <meta name="description" content="Trang web chính thức của Con Đường Tơ Lụa Mobile. MMORPG huyền thoại giờ đây đã có mặt trên di động."/>
-    <meta name="keywords" content="Silkroad, MMORPG, Con đường tơ lụa, Game online, Free game"/>
+    <title>Trang chủ Song Long Tranh Bá - Game nhập vai huyền thoại 2006</title>
+    <meta name="description" content="Trang web chính thức của Song Long Tranh Bá. Game nhập vai huyền thoại 2006."/>
+    <meta name="keywords" content="Song Long Tranh Bá, Game nhập vai huyền thoại 2006, Game online, Free game"/>
     
     <link rel="icon" href="images/favicon.ico"/>
     
