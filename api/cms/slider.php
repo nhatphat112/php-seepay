@@ -7,6 +7,7 @@
  */
 
 header('Content-Type: application/json; charset=utf-8');
+require_once __DIR__ . '/../../includes/upload_config.php';
 require_once __DIR__ . '/../../connection_manager.php';
 
 // Helper function to handle file upload

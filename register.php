@@ -49,24 +49,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     // Insert new user
                     $stmt = $db->prepare("
-                        INSERT INTO TB_User (StrUserID, password, Email, regtime, reg_ip) 
-                        VALUES (?, ?, ?, GETDATE(), ?)
+                        INSERT INTO TB_User (StrUserID, password, Email, regtime) 
+                        VALUES (?, ?, ?, GETDATE())
                     ");
                     
-                    $regIp = $_SERVER['REMOTE_ADDR'] ?? '';
-                    if ($stmt->execute([$username, $hashedPassword, $email, $regIp])) {
+                    if ($stmt->execute([$username, $hashedPassword, $email])) {
+                        // Get JID after insert
+                        $jid = $db->lastInsertId();
+                        
+                        // If lastInsertId doesn't work, query to get JID
+                        if (!$jid || $jid == 0) {
+                            $stmtJID = $db->prepare("SELECT JID FROM TB_User WHERE StrUserID = ?");
+                            $stmtJID->execute([$username]);
+                            $userResult = $stmtJID->fetch(PDO::FETCH_ASSOC);
+                            $jid = $userResult['JID'] ?? 0;
+                        }
+                        
+                         // Thêm bản ghi vào _AccountJID
+                        if ($jid > 0) {
+                            try {
+                                $shardDb = ConnectionManager::getShardDB();
+                                $stmtAccountJID = $shardDb->prepare("INSERT INTO _AccountJID (AccountID, JID, gold) VALUES (?, ?, 0)");
+                                $stmtAccountJID->execute([$username, $jid]);
+                                error_log("Added _AccountJID record: AccountID=$username, JID=$jid");
+                            } catch (Exception $e) {
+                                // Log error but don't affect registration
+                                error_log("Error adding _AccountJID record: " . $e->getMessage());
+                            }
+                            
+                            // Thêm bản ghi vào SK_Silk
+                            try {
+                                $stmtSilk = $db->prepare("INSERT INTO SK_Silk (JID, silk_own, silk_gift, silk_point) VALUES (?, 0, 0, 0)");
+                                $stmtSilk->execute([$jid]);
+                                error_log("Added SK_Silk record: JID=$jid");
+                            } catch (Exception $e) {
+                                // Log error but don't affect registration
+                                error_log("Error adding SK_Silk record: " . $e->getMessage());
+                            }
+                        }
+                        
                         $success = 'Đăng ký thành công! Bạn có thể đăng nhập ngay bây giờ.';
                         
                         // Log registration
                         try {
                             $logDb = ConnectionManager::getLogDB();
                             $logStmt = $logDb->prepare("
-                                INSERT INTO _LogEventUser (UserJID, EventID, EventData, RegDate)
+                                INSERT INTO _LogEventUser (UserJID, EventID, EventData, regtime)
                                 VALUES (?, 1, ?, GETDATE())
                             ");
-                            $logStmt->execute([0, "Register: $username from IP: " . $_SERVER['REMOTE_ADDR']]);
+                            $logStmt->execute([$jid, "Register: $username from IP: " . $_SERVER['REMOTE_ADDR']]);
                         } catch (Exception $e) {
                             // Log error but don't affect registration
+                            error_log("Error logging registration: " . $e->getMessage());
                         }
                     } else {
                         $error = 'Đã xảy ra lỗi khi đăng ký. Vui lòng thử lại!';
@@ -166,7 +200,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 70px;
             height: auto;
             margin-bottom: 10px;
-            border-radius: 50%;
         }
         
         .auth-logo h1 {
@@ -425,7 +458,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <i class="fas fa-arrow-left"></i> Quay lại trang chủ
                 </a>
                 <div class="auth-logo">
-                    <img src="assets/images/logo.png" style="border-radius: 50%" alt="Logo" class="logo-img">
+                    <img src="assets/images/logo.png" alt="Logo" class="logo-img">
                     <h1 class="f-utm_nyala t-upper">Con Đường Tơ Lụa</h1>
                 </div>
                 <h2 class="f-cambria">Đăng Ký Tài Khoản</h2>
