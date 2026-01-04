@@ -45,25 +45,25 @@ try {
                 ], JSON_UNESCAPED_UNICODE);
             }
         } else {
-            // Get all events
-            $stmt = $db->query("SELECT EventID, EventTime, EventDay, EventTitle, DisplayOrder, IsActive, CreatedDate, UpdatedDate FROM TB_WeeklyEvents ORDER BY DisplayOrder ASC, EventID ASC");
-            $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            echo json_encode([
-                'success' => true,
-                'data' => array_map(function($event) {
-                    return [
-                        'event_id' => (int)$event['EventID'],
-                        'event_time' => $event['EventTime'],
-                        'event_day' => $event['EventDay'],
-                        'event_title' => $event['EventTitle'],
-                        'display_order' => (int)$event['DisplayOrder'],
-                        'is_active' => (bool)$event['IsActive'],
-                        'created_date' => $event['CreatedDate'],
-                        'updated_date' => $event['UpdatedDate']
-                    ];
-                }, $events)
-            ], JSON_UNESCAPED_UNICODE);
+        // Get all events
+        $stmt = $db->query("SELECT EventID, EventTime, EventDay, EventTitle, DisplayOrder, IsActive, CreatedDate, UpdatedDate FROM TB_WeeklyEvents ORDER BY DisplayOrder ASC, EventID ASC");
+        $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        echo json_encode([
+            'success' => true,
+            'data' => array_map(function($event) {
+                return [
+                    'event_id' => (int)$event['EventID'],
+                    'event_time' => $event['EventTime'],
+                    'event_day' => $event['EventDay'],
+                    'event_title' => $event['EventTitle'],
+                    'display_order' => (int)$event['DisplayOrder'],
+                    'is_active' => (bool)$event['IsActive'],
+                    'created_date' => $event['CreatedDate'],
+                    'updated_date' => $event['UpdatedDate']
+                ];
+            }, $events)
+        ], JSON_UNESCAPED_UNICODE);
         }
     } 
     elseif ($method === 'POST') {

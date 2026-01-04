@@ -168,25 +168,10 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
                 <div class="navbar-content t-upper vi">
                     <ul id="menu">
                         <li class=""><a href="index.php" class="a100 home-page">Trang Chủ</a></li>
-                        <li class=""><a href="#news" class="a100">Tin Tức</a></li>
-                        <li class=""><a href="#gameplay" class="a100">Gameplay</a></li>
-                        <li class="job-menu-item"><a href="#job" class="a100">Hệ Thống Việc Làm</a></li>
-                        <li class="hidden-1199 link-show-com-pc p-relative">
-                            <a class="a100" href="javascript:;">
-                                <div class="text-show-com-pc">Cộng Đồng</div>
-                            </a>
-                            <div class="list-link-show-com p-absolute">
-                                <?php if (isset($socialLinks['facebook'])): ?>
-                                <a target="_blank" href="<?php echo htmlspecialchars($socialLinks['facebook']['url']); ?>">Facebook</a>
-                                <?php endif; ?>
-                                <?php if (isset($socialLinks['facebook_group'])): ?>
-                                <a target="_blank" href="<?php echo htmlspecialchars($socialLinks['facebook_group']['url']); ?>">Group Facebook</a>
-                                <?php endif; ?>
-                                <?php if (isset($socialLinks['discord'])): ?>
-                                <a target="_blank" href="<?php echo htmlspecialchars($socialLinks['discord']['url']); ?>">Discord</a>
-                                <?php endif; ?>
-                            </div>
-                        </li>
+                        <li class=""><a href="#tin-tuc" class="a100">Tin Tức</a></li>
+                        <li class=""><a href="#social-links" class="a100">Facebook - Nhóm FB - Zalo</a></li>
+                        <li class=""><a href="#hoat-dong" class="a100">Hoạt Động</a></li>
+                        <li class=""><a href="payment.php" class="a100">MUA SILK</a></li>
                     </ul>
                 </div>
             </div>
@@ -200,7 +185,7 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
             <img src="assets/images/title/img-title3860.png" style="transform: scaleX(-1);">
         </div> -->
 
-        <div class="slide-new-info-new-home m-auto">
+        <div class="slide-new-info-new-home m-auto" style="zoom: 2.0;">
             <div class="slide-hotevent p-relative">
                 <div class="slide-new-home slick-custom-dots">
                     <?php foreach ($sliders as $slider): ?>
@@ -221,7 +206,7 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
         </div>
 
         <div class="slide-new-info-new-home">
-            <section class="event-schedule-section-new">
+            <section class="event-schedule-section-new" id="hoat-dong">
                 <div class="container">
                     <div class="event-schedule-grid-new">
                 <div class="event-title-box-new">
@@ -864,7 +849,7 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
         }
     </style>
 
-    <div class="new-home" id="news">
+    <div class="new-home" id="tin-tuc">
         <div class="title-frame t-center t-upper d-flex a-center j-center">
             <img src="assets/images/title/img-title3860.png" alt="">
             <div class="name-title vi">Máy Chủ Và Tin Tức</div>
@@ -981,7 +966,7 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
             <div class="slide-new-info-new-home">
                 <section class="final-section-new">
                     <div class="container">
-                <div class="final-section-grid-new">
+                <div class="final-section-grid-new" id="social-links">
                     <div class="fanpage-box-new">
                         <div class="fanpage-header-new">
                             <div class="fanpage-title-new t-upper f-utm_nyala t-center">
@@ -1027,7 +1012,7 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
                                     
                                     <div class="it-job-cma-mini it-job-cma2-mini c-pointer p-relative" data-speed="12"
                                         data-src="assets/images/job/img-trader.png" data-name="Thương Nhân"
-                                        data-des1="Kiếm lợi nhuận từ việc buôn bán hàng hóa trên Con Đường Tơ Lụa."
+                                        data-des1="Kiếm lợi nhuận từ việc buôn bán hàng hóa trên Song Long Tranh Bá."
                                         data-des2="Mục tiêu chính là tham gia buôn bán và thuê thợ săn để bảo vệ hàng hóa. Nếu thành công, cả thương nhân và thợ săn đều nhận phần thưởng lớn. Nếu bị kẻ trộm tấn công, có thể mất tất cả nhưng vẫn có cơ hội đoạt lại.">
                                         <img src="assets/images/job/img-trader.png" class="img-cmald-mini">
                                         <div class="name-job-cma-mini d-flex a-center j-center p-absolute">Thương Nhân</div>
@@ -1095,27 +1080,14 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
     </div>
 
     <div class="foot-frame footer-session d-flex a-center j-center">
-        <div class="logo-wemade">
-            <img src="assets/images/wemade_bk3860.png" alt="" style="filter: brightness(0) invert(1);">
-        </div>
-        <div class="term-copyright">
-            <div class="link-copyright d-flex a-center j-center t-upper">
-                <a target="_blank" href="#" class="link-term cursor-hover-item">Điều Khoản Sử Dụng</a>
-                <span style="margin: 0 10px;">•</span>
-                <a target="_blank" href="#" class="link-term cursor-hover-item">Chính Sách Bảo Mật</a>
-            </div>
-            <div class="copyright-ft t-center f-calibri">Copyright © Con Đường Tơ Lụa Mobile. All rights reserved.</div>
-        </div>
-        <div class="logo-gs-gh d-flex a-center j-center">
-            <img src="assets/images/wemade_bk3860.png" alt="" style="filter: brightness(0) invert(1); width: 100px;">
-        </div>
+    Bản Quyền Thuộc về Song Long Tranh Bá 
     </div>
 
     <div class="nav-right hidden-1199 open">
         <div class="t-center">
             <img src="assets/images/icon-game.png" class="img-icongame" alt="">
         </div>
-        <div class="name-game-nr f-utm_nyala t-center t-upper">CON ĐƯỜNG TƠ LỤA MOBILE</div>
+        <div class="name-game-nr f-utm_nyala t-center t-upper">Song Long Tranh Bá</div>
 
         <div class="link-sp-topup t-center t-upper">
             <a href="login.php" class="hover-zoom t-upper t-center d-flex a-center j-center m-auto btn-orange">Đăng Nhập</a>

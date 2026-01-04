@@ -45,33 +45,33 @@ try {
                 ], JSON_UNESCAPED_UNICODE);
             }
         } else {
-            // Get news with optional category filter
-            $category = isset($_GET['category']) ? trim($_GET['category']) : null;
-            
-            if ($category && $category !== 'Tất Cả') {
-                $stmt = $db->prepare("SELECT NewsID, Category, Title, LinkURL, DisplayOrder, IsActive, CreatedDate, UpdatedDate FROM TB_News WHERE Category = ? ORDER BY DisplayOrder ASC, CreatedDate DESC");
-                $stmt->execute([$category]);
-            } else {
-                $stmt = $db->query("SELECT NewsID, Category, Title, LinkURL, DisplayOrder, IsActive, CreatedDate, UpdatedDate FROM TB_News ORDER BY DisplayOrder ASC, CreatedDate DESC");
-            }
-            
-            $news = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            echo json_encode([
-                'success' => true,
-                'data' => array_map(function($item) {
-                    return [
-                        'news_id' => (int)$item['NewsID'],
-                        'category' => $item['Category'],
-                        'title' => $item['Title'],
-                        'link_url' => $item['LinkURL'],
-                        'display_order' => (int)$item['DisplayOrder'],
-                        'is_active' => (bool)$item['IsActive'],
-                        'created_date' => $item['CreatedDate'],
-                        'updated_date' => $item['UpdatedDate']
-                    ];
-                }, $news)
-            ], JSON_UNESCAPED_UNICODE);
+        // Get news with optional category filter
+        $category = isset($_GET['category']) ? trim($_GET['category']) : null;
+        
+        if ($category && $category !== 'Tất Cả') {
+            $stmt = $db->prepare("SELECT NewsID, Category, Title, LinkURL, DisplayOrder, IsActive, CreatedDate, UpdatedDate FROM TB_News WHERE Category = ? ORDER BY DisplayOrder ASC, CreatedDate DESC");
+            $stmt->execute([$category]);
+        } else {
+            $stmt = $db->query("SELECT NewsID, Category, Title, LinkURL, DisplayOrder, IsActive, CreatedDate, UpdatedDate FROM TB_News ORDER BY DisplayOrder ASC, CreatedDate DESC");
+        }
+        
+        $news = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        echo json_encode([
+            'success' => true,
+            'data' => array_map(function($item) {
+                return [
+                    'news_id' => (int)$item['NewsID'],
+                    'category' => $item['Category'],
+                    'title' => $item['Title'],
+                    'link_url' => $item['LinkURL'],
+                    'display_order' => (int)$item['DisplayOrder'],
+                    'is_active' => (bool)$item['IsActive'],
+                    'created_date' => $item['CreatedDate'],
+                    'updated_date' => $item['UpdatedDate']
+                ];
+            }, $news)
+        ], JSON_UNESCAPED_UNICODE);
         }
     } 
     elseif ($method === 'POST') {

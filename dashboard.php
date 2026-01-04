@@ -111,7 +111,7 @@ function getClassName($refObjID) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Cá Nhân - Con Đường Tơ Lụa Mobile</title>
+    <title>Trang Cá Nhân - Song Long Tranh Bá Mobile</title>
     
     <!-- Favicon -->
     <link rel="icon" href="images/favicon.ico"/>

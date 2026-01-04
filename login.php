@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng Nhập - Con Đường Tơ Lụa Mobile</title>
+    <title>Đăng Nhập - Song Long Tranh Bá Mobile</title>
     
     <!-- Favicon -->
     <link rel="icon" href="images/favicon.ico"/>
@@ -426,7 +426,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </a>
                     <div class="auth-logo">
                         <img src="assets/images/logo.png" alt="Logo" class="logo-img">
-                        <h1 class="f-utm_nyala t-upper">Con Đường Tơ Lụa</h1>
+                        <h1 class="f-utm_nyala t-upper">Song Long Tranh Bá</h1>
                     </div>
                     <h2 class="f-cambria">Đăng Nhập</h2>
                     <p class="f-calibri">Chào mừng trở lại, chiến binh!</p>
@@ -486,7 +486,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </button>
                 </form>
 
-                <div class="divider">
+                <!-- <div class="divider">
                     <span>hoặc đăng nhập với</span>
                 </div>
 
@@ -497,7 +497,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <button class="btn btn-social btn-google" onclick="alert('Tính năng đang phát triển')">
                         <i class="fab fa-google"></i> Google
                     </button>
-                </div>
+                </div> -->
 
             <div class="auth-footer">
                 <p>Chưa có tài khoản? <a href="register.php" class="link-highlight">Đăng ký ngay</a></p>

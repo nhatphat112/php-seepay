@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tải Game - Con Đường Tơ Lụa Mobile</title>
+    <title>Tải Game - Song Long Tranh Bá Mobile</title>
     
     <!-- Favicon -->
     <link rel="icon" href="images/favicon.ico"/>
@@ -301,7 +301,7 @@
                 </a>
                 <div class="download-logo">
                     <img src="assets/images/logo.png" alt="Logo" class="logo-img">
-                    <h1 class="f-utm_nyala t-upper">Con Đường Tơ Lụa</h1>
+                    <h1 class="f-utm_nyala t-upper">Song Long Tranh Bá</h1>
                 </div>
                 <h2 class="f-cambria">Tải Game Ngay</h2>
                 <p class="f-calibri">Chọn phiên bản phù hợp và bắt đầu hành trình huyền thoại</p>

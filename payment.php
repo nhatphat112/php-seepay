@@ -94,7 +94,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thanh Toán - Con Đường Tơ Lụa Mobile</title>
+    <title>Thanh Toán - Song Long Tranh Bá Mobile</title>
     
     <!-- Favicon -->
     <link rel="icon" href="images/favicon.ico"/>
@@ -184,7 +184,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: #87ceeb !important;
+            color: #e8c088 !important;
             text-decoration: none;
             font-size: 14px;
             margin-bottom: 20px;
@@ -192,7 +192,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
         }
         
         .back-link:hover {
-            color: #1e90ff !important;
+            color: #ffd700 !important;
             transform: translateX(-5px);
         }
         
@@ -212,19 +212,19 @@ if (!empty($currentOrderCode) && $orderData === null) {
         
         .payment-header h1 {
             font-size: 28px;
-            color: #1e90ff !important;
+            color: #e8c088 !important;
             margin: 10px 0;
-            text-shadow: 0 0 10px rgba(30, 144, 255, 0.3);
+            text-shadow: 0 0 10px rgba(232, 192, 136, 0.3);
         }
         
         .payment-header h2 {
             font-size: 24px;
-            color: #ffffff !important;
+            color: #e8c088 !important;
             margin: 15px 0 10px;
         }
         
         .payment-header p {
-            color: #87ceeb !important;
+            color: #e8c088 !important;
             font-size: 15px;
             line-height: 1.6;
         }
@@ -239,7 +239,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
         }
         
         .current-silk h3 {
-            color: #1e90ff !important;
+            color: #e8c088 !important;
             margin: 0 0 10px 0;
             font-size: 18px;
         }
@@ -247,7 +247,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
         .silk-amount {
             font-size: 24px;
             font-weight: bold;
-            color: #87ceeb !important;
+            color: #e8c088 !important;
         }
         
         .payment-form {
@@ -264,7 +264,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
         
         .form-group label {
             display: block;
-            color: #87ceeb !important;
+            color: #e8c088 !important;
             font-weight: bold;
             margin-bottom: 8px;
             font-size: 14px;
@@ -276,7 +276,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
             border: 2px solid #4682b4 !important;
             border-radius: 8px;
             background: rgba(10, 20, 40, 0.8) !important;
-            color: #ffffff !important;
+            color: #e8c088 !important;
             font-size: 14px;
             transition: all 0.3s ease;
         }
@@ -299,7 +299,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
             background: rgba(20, 30, 50, 0.8) !important;
             border: 2px solid #4682b4 !important;
             border-radius: 8px;
-            color: #87ceeb !important;
+            color: #e8c088 !important;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
@@ -308,9 +308,9 @@ if (!empty($currentOrderCode) && $orderData === null) {
         
         .amount-btn:hover,
         .amount-btn.active {
-            background: rgba(30, 144, 255, 0.1) !important;
-            border-color: #1e90ff !important;
-            color: #ffffff !important;
+            background: rgba(232, 192, 136, 0.1) !important;
+            border-color: #e8c088 !important;
+            color: #ffd700 !important;
         }
         
         .btn-primary {
@@ -337,7 +337,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
         .btn-secondary {
             background: transparent !important;
             border: 2px solid #4682b4 !important;
-            color: #87ceeb !important;
+            color: #e8c088 !important;
             padding: 10px 25px;
             border-radius: 8px;
             font-weight: bold;
@@ -349,9 +349,9 @@ if (!empty($currentOrderCode) && $orderData === null) {
         }
         
         .btn-secondary:hover {
-            background: rgba(30, 144, 255, 0.1) !important;
-            border-color: #1e90ff !important;
-            color: #ffffff !important;
+            background: rgba(232, 192, 136, 0.1) !important;
+            border-color: #e8c088 !important;
+            color: #ffd700 !important;
             transform: translateY(-1px);
         }
         
@@ -383,12 +383,12 @@ if (!empty($currentOrderCode) && $orderData === null) {
         }
         
         .payment-info h4 {
-            color: #1e90ff !important;
+            color: #e8c088 !important;
             margin: 0 0 15px 0;
         }
         
         .payment-info p {
-            color: #87ceeb !important;
+            color: #e8c088 !important;
             margin: 5px 0;
             font-size: 14px;
         }
@@ -442,7 +442,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
                 </a>
                 <div class="payment-logo">
                     <img src="assets/images/logo.png" alt="Logo" class="logo-img">
-                    <h1 class="f-utm_nyala t-upper">Con Đường Tơ Lụa</h1>
+                    <h1 class="f-utm_nyala t-upper">Song Long Tranh Bá</h1>
                 </div>
                 <h2 class="f-cambria">Thanh Toán</h2>
                 <p class="f-calibri">Nạp Silk qua QR Code và Chuyển Khoản Ngân Hàng</p>
@@ -471,44 +471,44 @@ if (!empty($currentOrderCode) && $orderData === null) {
             <?php if ($orderData && ($orderData['Status'] === 'pending' || $orderData['Status'] === 'processing')): ?>
                 <!-- Order Details Section -->
                 <div class="payment-form" id="orderDetailsSection">
-                    <h3 style="color: #1e90ff; margin-bottom: 20px;">
+                    <h3 style="color: #e8c088; margin-bottom: 20px;">
                         <i class="fas fa-receipt"></i> Chi Tiết Đơn Hàng #<?php echo htmlspecialchars($orderData['OrderCode']); ?>
                     </h3>
                     
                     <!-- Status Indicator with Realtime Updates -->
                     <div id="statusIndicator" style="background: rgba(255, 193, 7, 0.1); border: 2px solid #ffc107; border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center;">
-                        <div id="statusText" style="color: #ffc107; font-weight: bold; font-size: 16px;">
+                        <div id="statusText" style="color: #e8c088; font-weight: bold; font-size: 16px;">
                             <i class="fas fa-circle-notch fa-spin"></i> Đang chờ thanh toán...
                         </div>
                     </div>
                     
                     <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
                         <div style="display: flex; justify-content: space-between; padding-bottom: 5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
-                            <span style="color: #87ceeb; font-weight: bold;">Trạng thái:</span>
-                            <span style="color: #ffffff;">
+                            <span style="color: #e8c088; font-weight: bold;">Trạng thái:</span>
+                            <span style="color: #e8c088;">
                                 <span id="orderStatusBadge" style="font-weight: bold; padding: 5px 10px; border-radius: 5px; background: #ffc107; color: #333;">
                                     <?php echo htmlspecialchars(ucfirst($orderData['Status'])); ?>
                                 </span>
                             </span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding-bottom: 5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
-                            <span style="color: #87ceeb; font-weight: bold;">Số tiền:</span>
-                            <span style="color: #ffffff;"><?php echo number_format($orderData['Amount']); ?> VNĐ</span>
+                            <span style="color: #e8c088; font-weight: bold;">Số tiền:</span>
+                            <span style="color: #e8c088;"><?php echo number_format($orderData['Amount']); ?> VNĐ</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding-bottom: 5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
-                            <span style="color: #87ceeb; font-weight: bold;">Số Silk nhận:</span>
-                            <span style="color: #ffffff;"><?php echo number_format($orderData['SilkAmount']); ?> Silk</span>
+                            <span style="color: #e8c088; font-weight: bold;">Số Silk nhận:</span>
+                            <span style="color: #e8c088;"><?php echo number_format($orderData['SilkAmount']); ?> Silk</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding-bottom: 5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
-                            <span style="color: #87ceeb; font-weight: bold;">Thời gian tạo:</span>
-                            <span style="color: #ffffff;"><?php echo date('H:i:s d-m-Y', strtotime($orderData['CreatedDate'])); ?></span>
+                            <span style="color: #e8c088; font-weight: bold;">Thời gian tạo:</span>
+                            <span style="color: #e8c088;"><?php echo date('H:i:s d-m-Y', strtotime($orderData['CreatedDate'])); ?></span>
                         </div>
                     </div>
 
                     <?php
                     if (!empty($orderData['QRCode'])): ?>
                         <div style="text-align: center; margin-top: 20px; padding: 20px; background: rgba(10, 20, 40, 0.8); border-radius: 10px; border: 1px solid #4682b4;">
-                            <h4 style="color: #1e90ff; margin: 0 0 15px 0; font-size: 16px;">
+                            <h4 style="color: #e8c088; margin: 0 0 15px 0; font-size: 16px;">
                                 <i class="fas fa-qrcode"></i> Mã QR Thanh Toán
                             </h4>
                             <div style="display: inline-block; padding: 15px; background: #ffffff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);">
@@ -520,8 +520,8 @@ if (!empty($currentOrderCode) && $orderData === null) {
                                     onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'250\' height=\'250\'%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23ccc\'%3EQR Code không tải được%3C/text%3E%3C/svg%3E';"
                                 >
                             </div>
-                            <p style="color: #87ceeb; font-size: 14px; margin: 15px 0 10px 0; font-weight: bold;">Quét mã QR để thanh toán</p>
-                            <p style="color: #87ceeb; font-size: 12px; margin: 0;">Hoặc chuyển khoản theo thông tin bên dưới</p>
+                            <p style="color: #e8c088; font-size: 14px; margin: 15px 0 10px 0; font-weight: bold;">Quét mã QR để thanh toán</p>
+                            <p style="color: #e8c088; font-size: 12px; margin: 0;">Hoặc chuyển khoản theo thông tin bên dưới</p>
                         </div>
                     <?php else: ?>
                         <div style="text-align: center; margin-top: 20px; padding: 20px; background: rgba(255, 193, 7, 0.1); border-radius: 10px; border: 1px solid #ffc107;">
@@ -535,20 +535,20 @@ if (!empty($currentOrderCode) && $orderData === null) {
                         <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
                             <thead>
                                 <tr>
-                                    <th style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); text-align: left; background: rgba(30, 144, 255, 0.2); color: #1e90ff;">Thông tin chuyển khoản</th>
-                                    <th style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); text-align: left; background: rgba(30, 144, 255, 0.2); color: #1e90ff;">Chi tiết</th>
+                                    <th style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); text-align: left; background: rgba(30, 144, 255, 0.2); color: #e8c088;">Thông tin chuyển khoản</th>
+                                    <th style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); text-align: left; background: rgba(30, 144, 255, 0.2); color: #e8c088;">Chi tiết</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (!empty($orderData['BankName'])): ?>
                                 <tr>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #ffffff;">Ngân hàng</td>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #ffffff;"><?php echo htmlspecialchars($orderData['BankName']); ?></td>
+                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;">Ngân hàng</td>
+                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;"><?php echo htmlspecialchars($orderData['BankName']); ?></td>
                                 </tr>
                                 <?php endif; ?>
                                 <tr>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #ffffff;">Số tài khoản</td>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #ffffff;">
+                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;">Số tài khoản</td>
+                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;">
                                         <span id="bankAccountNum"><?php echo htmlspecialchars($orderData['BankAccount']); ?></span>
                                         <button class="copy-btn" data-target="bankAccountNum" style="background: #1e90ff; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; margin-left: 10px;">
                                             <i class="fas fa-copy"></i> Copy
@@ -557,14 +557,14 @@ if (!empty($currentOrderCode) && $orderData === null) {
                                 </tr>
                                 <?php if (!empty($orderData['AccountName'])): ?>
                                 <tr>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #ffffff;">Tên tài khoản</td>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #ffffff;"><?php echo htmlspecialchars($orderData['AccountName']); ?></td>
+                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;">Tên tài khoản</td>
+                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;"><?php echo htmlspecialchars($orderData['AccountName']); ?></td>
                                 </tr>
                                 <?php endif; ?>
                                 <?php if (!empty($orderData['Content'])): ?>
                                 <tr>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #ffffff;">Nội dung chuyển khoản</td>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #ffffff;">
+                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;">Nội dung chuyển khoản</td>
+                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;">
                                         <span id="transferContent"><?php echo htmlspecialchars($orderData['Content']); ?></span>
                                         <button class="copy-btn" data-target="transferContent" style="background: #1e90ff; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; margin-left: 10px;">
                                             <i class="fas fa-copy"></i> Copy
@@ -573,8 +573,8 @@ if (!empty($currentOrderCode) && $orderData === null) {
                                 </tr>
                                 <?php endif; ?>
                                 <tr>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #ffffff;">Số tiền</td>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #ffffff;">
+                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;">Số tiền</td>
+                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;">
                                         <span id="transferAmount"><?php echo number_format($orderData['Amount']); ?></span> VNĐ
                                         <button class="copy-btn" data-target="transferAmount" style="background: #1e90ff; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; margin-left: 10px;">
                                             <i class="fas fa-copy"></i> Copy
@@ -586,23 +586,23 @@ if (!empty($currentOrderCode) && $orderData === null) {
                     <?php endif; ?>
 
                     <div style="background: rgba(30, 144, 255, 0.1); border: 2px solid #1e90ff; border-radius: 10px; padding: 20px; margin-top: 30px;">
-                        <h4 style="color: #1e90ff; margin: 0 0 15px 0;">
+                        <h4 style="color: #e8c088; margin: 0 0 15px 0;">
                             <i class="fas fa-exclamation-triangle"></i> Lưu ý quan trọng
                         </h4>
-                        <p style="color: #87ceeb; margin: 5px 0; font-size: 14px;">- Vui lòng chuyển khoản đúng số tiền và nội dung để giao dịch được xử lý tự động.</p>
-                        <p style="color: #87ceeb; margin: 5px 0; font-size: 14px;">- Nếu chuyển sai nội dung hoặc số tiền, giao dịch có thể bị treo và cần liên hệ hỗ trợ.</p>
-                        <p style="color: #87ceeb; margin: 5px 0; font-size: 14px;">- Đơn hàng sẽ hết hạn sau 15 phút. Vui lòng hoàn tất thanh toán trong thời gian này.</p>
+                        <p style="color: #e8c088; margin: 5px 0; font-size: 14px;">- Vui lòng chuyển khoản đúng số tiền và nội dung để giao dịch được xử lý tự động.</p>
+                        <p style="color: #e8c088; margin: 5px 0; font-size: 14px;">- Nếu chuyển sai nội dung hoặc số tiền, giao dịch có thể bị treo và cần liên hệ hỗ trợ.</p>
+                        <p style="color: #e8c088; margin: 5px 0; font-size: 14px;">- Đơn hàng sẽ hết hạn sau 15 phút. Vui lòng hoàn tất thanh toán trong thời gian này.</p>
                     </div>
                 </div>
             <?php elseif ($orderData && ($orderData['Status'] === 'completed' || $orderData['Status'] === 'failed' || $orderData['Status'] === 'expired')): ?>
                 <!-- Final Status Display -->
                 <div class="payment-form">
-                    <h3 style="color: #1e90ff; margin-bottom: 20px;">
+                    <h3 style="color: #e8c088; margin-bottom: 20px;">
                         <i class="fas fa-info-circle"></i> Trạng Thái Đơn Hàng #<?php echo htmlspecialchars($orderData['OrderCode']); ?>
                     </h3>
                     <div style="display: flex; flex-direction: column; gap: 15px;">
                         <div style="display: flex; justify-content: space-between; padding-bottom: 5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
-                            <span style="color: #87ceeb; font-weight: bold;">Trạng thái:</span>
+                            <span style="color: #e8c088; font-weight: bold;">Trạng thái:</span>
                             <span style="font-weight: bold; padding: 5px 10px; border-radius: 5px; 
                                 <?php 
                                 $statusColor = $orderData['Status'] === 'completed' ? 'background: #28a745; color: #fff;' : 
@@ -614,17 +614,17 @@ if (!empty($currentOrderCode) && $orderData === null) {
                             </span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding-bottom: 5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
-                            <span style="color: #87ceeb; font-weight: bold;">Số tiền:</span>
-                            <span style="color: #ffffff;"><?php echo number_format($orderData['Amount']); ?> VNĐ</span>
+                            <span style="color: #e8c088; font-weight: bold;">Số tiền:</span>
+                            <span style="color: #e8c088;"><?php echo number_format($orderData['Amount']); ?> VNĐ</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding-bottom: 5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
-                            <span style="color: #87ceeb; font-weight: bold;">Số Silk nhận:</span>
-                            <span style="color: #ffffff;"><?php echo number_format($orderData['SilkAmount']); ?> Silk</span>
+                            <span style="color: #e8c088; font-weight: bold;">Số Silk nhận:</span>
+                            <span style="color: #e8c088;"><?php echo number_format($orderData['SilkAmount']); ?> Silk</span>
                         </div>
                         <?php if (!empty($orderData['CompletedDate'])): ?>
                         <div style="display: flex; justify-content: space-between; padding-bottom: 5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
-                            <span style="color: #87ceeb; font-weight: bold;">Thời gian hoàn tất:</span>
-                            <span style="color: #ffffff;"><?php echo date('H:i:s d-m-Y', strtotime($orderData['CompletedDate'])); ?></span>
+                            <span style="color: #e8c088; font-weight: bold;">Thời gian hoàn tất:</span>
+                            <span style="color: #e8c088;"><?php echo date('H:i:s d-m-Y', strtotime($orderData['CompletedDate'])); ?></span>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -637,35 +637,35 @@ if (!empty($currentOrderCode) && $orderData === null) {
                     <input type="number" id="amount" name="amount" class="form-control" 
                            placeholder="Nhập số tiền..." min="10000" max="10000000" required>
                     <div id="silk-preview" style="margin-top: 10px; padding: 10px; background: rgba(30, 144, 255, 0.1); border-radius: 5px; border: 1px solid #1e90ff; display: none;">
-                        <span style="color: #87ceeb; font-weight: bold;">Bạn sẽ nhận được: </span>
-                        <span id="silk-amount-preview" style="color: #1e90ff; font-weight: bold; font-size: 18px;">0</span>
-                        <span style="color: #87ceeb; font-weight: bold;"> Silk</span>
+                        <span style="color: #e8c088; font-weight: bold;">Bạn sẽ nhận được: </span>
+                        <span id="silk-amount-preview" style="color: #e8c088; font-weight: bold; font-size: 18px;">0</span>
+                        <span style="color: #e8c088; font-weight: bold;"> Silk</span>
                     </div>
                     
                     <div class="amount-options">
                         <div class="amount-btn" data-amount="50000">
                             <div>50,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #87ceeb; margin-top: 5px;">= 2,000 Silk</div>
+                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 2,000 Silk</div>
                         </div>
                         <div class="amount-btn" data-amount="100000">
                             <div>100,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #87ceeb; margin-top: 5px;">= 4,000 Silk</div>
+                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 4,000 Silk</div>
                         </div>
                         <div class="amount-btn" data-amount="200000">
                             <div>200,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #87ceeb; margin-top: 5px;">= 8,000 Silk</div>
+                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 8,000 Silk</div>
                         </div>
                         <div class="amount-btn" data-amount="500000">
                             <div>500,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #87ceeb; margin-top: 5px;">= 20,000 Silk</div>
+                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 20,000 Silk</div>
                         </div>
                         <div class="amount-btn" data-amount="1000000">
                             <div>1,000,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #87ceeb; margin-top: 5px;">= 40,000 Silk</div>
+                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 40,000 Silk</div>
                         </div>
                         <div class="amount-btn" data-amount="2000000">
                             <div>2,000,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #87ceeb; margin-top: 5px;">= 80,000 Silk</div>
+                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 80,000 Silk</div>
                         </div>
                     </div>
                 </div>
