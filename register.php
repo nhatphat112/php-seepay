@@ -47,10 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Hash password (MD5 for Silkroad compatibility)
                     $hashedPassword = md5($password);
                     
-                    // Insert new user
+                    // Insert new user (mặc định role = 'user')
                     $stmt = $db->prepare("
-                        INSERT INTO TB_User (StrUserID, password, Email, regtime) 
-                        VALUES (?, ?, ?, GETDATE())
+                        INSERT INTO TB_User (StrUserID, password, Email, role, regtime) 
+                        VALUES (?, ?, ?, 'user', GETDATE())
                     ");
                     
                     if ($stmt->execute([$username, $hashedPassword, $email])) {

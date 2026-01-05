@@ -3,6 +3,7 @@
  * CMS Admin - Orders Management
  * Xem và tìm kiếm lịch sử giao dịch
  */
+require_once __DIR__ . '/auth_check.php';
 ?>
 <!DOCTYPE html>
 <html lang="vi">

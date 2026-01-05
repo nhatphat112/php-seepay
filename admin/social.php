@@ -3,6 +3,7 @@
  * CMS Admin - Social Links Management
  * Quản lý link FB, Zalo, Group FB, Discord
  */
+require_once __DIR__ . '/auth_check.php';
 ?>
 <!DOCTYPE html>
 <html lang="vi">

@@ -3,6 +3,7 @@
  * CMS Admin - QR Code Management
  * Upload ảnh QR code
  */
+require_once __DIR__ . '/auth_check.php';
 ?>
 <!DOCTYPE html>
 <html lang="vi">

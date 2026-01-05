@@ -1,8 +1,8 @@
 <?php
 /**
  * CMS Dashboard - Trang chính quản lý CMS
- * TODO: Thêm authentication sau
  */
+require_once __DIR__ . '/../auth_check.php';
 ?>
 <!DOCTYPE html>
 <html lang="vi">

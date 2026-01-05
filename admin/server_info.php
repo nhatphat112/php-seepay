@@ -3,6 +3,7 @@
  * CMS Admin - Server Info
  * Quản lý thông tin server (text area)
  */
+require_once __DIR__ . '/auth_check.php';
 ?>
 <!DOCTYPE html>
 <html lang="vi">

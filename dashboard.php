@@ -7,9 +7,12 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+require_once 'includes/auth_helper.php';
+
 $username = $_SESSION['username'] ?? 'Player';
 $email = $_SESSION['email'] ?? '';
 $user_id = $_SESSION['user_id'] ?? 0;
+$user_role = getUserRole();
 
 // Get user stats
 require_once 'connection_manager.php';
@@ -627,6 +630,18 @@ function getClassName($refObjID) {
                     <i class="fas fa-bolt"></i> Thao Tác Nhanh
                 </h3>
                 <div class="action-grid">
+                    <?php if (isAdmin()): ?>
+                    <a href="admin/cms/index.php" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="action-text">
+                            <h3>CMS Admin</h3>
+                            <p>Quản lý nội dung hệ thống</p>
+                        </div>
+                    </a>
+                    <?php endif; ?>
+                    
                     <a href="download.php" class="action-card">
                         <div class="action-icon">
                             <i class="fas fa-download"></i>

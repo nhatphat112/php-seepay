@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Check user credentials
             $stmt = $db->prepare("
-                SELECT JID, StrUserID, Email 
+                SELECT JID, StrUserID, Email, ISNULL(role, 'user') as role
                 FROM TB_User 
                 WHERE StrUserID = ? AND password = ?
             ");
@@ -37,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_id'] = $user['JID'];
                 $_SESSION['username'] = $user['StrUserID'];
                 $_SESSION['email'] = $user['Email'];
+                $_SESSION['role'] = $user['role'] ?? 'user';
                 $_SESSION['login_time'] = time();
                 
                 // Log login
@@ -51,8 +52,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Log error but don't affect login
                 }
                 
-                // Redirect to dashboard
-                header('Location: dashboard.php');
+                // Redirect based on role
+                if (($user['role'] ?? 'user') === 'admin') {
+                    header('Location: admin/cms/index.php');
+                } else {
+                    header('Location: dashboard.php');
+                }
                 exit();
             } else {
                 $error = 'Tên đăng nhập hoặc mật khẩu không chính xác!';

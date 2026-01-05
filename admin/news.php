@@ -3,6 +3,7 @@
  * CMS Admin - News Management
  * Quản lý tin bài (copy link từ FB)
  */
+require_once __DIR__ . '/auth_check.php';
 ?>
 <!DOCTYPE html>
 <html lang="vi">

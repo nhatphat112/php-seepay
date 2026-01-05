@@ -3,6 +3,7 @@
  * CMS Admin - Slider Management
  * Quản lý 5 ảnh slide
  */
+require_once __DIR__ . '/auth_check.php';
 ?>
 <!DOCTYPE html>
 <html lang="vi">
