@@ -23,7 +23,7 @@ function isAdmin() {
 /**
  * Kiểm tra và redirect nếu chưa đăng nhập
  */
-function requireLogin($redirectTo = 'login.php') {
+function requireLogin($redirectTo = '/login.php') {
     if (!isLoggedIn()) {
         header('Location: ' . $redirectTo);
         exit();
