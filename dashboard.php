@@ -17,6 +17,63 @@ $user_role = getUserRole();
 // Get user stats
 require_once 'connection_manager.php';
 
+// Handle password change
+$passwordChangeError = '';
+$passwordChangeSuccess = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
+    $oldPassword = $_POST['old_password'] ?? '';
+    $newPassword = $_POST['new_password'] ?? '';
+    $confirmPassword = $_POST['confirm_password'] ?? '';
+    
+    if (empty($oldPassword) || empty($newPassword) || empty($confirmPassword)) {
+        $passwordChangeError = 'Vui lòng điền đầy đủ thông tin!';
+    } elseif (strlen($newPassword) < 6) {
+        $passwordChangeError = 'Mật khẩu mới phải có ít nhất 6 ký tự!';
+    } elseif ($newPassword !== $confirmPassword) {
+        $passwordChangeError = 'Mật khẩu xác nhận không khớp!';
+    } else {
+        try {
+            $db = ConnectionManager::getAccountDB();
+            
+            // Verify old password
+            $hashedOldPassword = md5($oldPassword);
+            $stmt = $db->prepare("SELECT JID FROM TB_User WHERE JID = ? AND password = ?");
+            $stmt->execute([$user_id, $hashedOldPassword]);
+            $user = $stmt->fetch();
+            
+            if (!$user) {
+                $passwordChangeError = 'Mật khẩu cũ không chính xác!';
+            } else {
+                // Update password
+                $hashedNewPassword = md5($newPassword);
+                $stmt = $db->prepare("UPDATE TB_User SET password = ? WHERE JID = ?");
+                $stmt->execute([$hashedNewPassword, $user_id]);
+                
+                if ($stmt->rowCount() > 0) {
+                    $passwordChangeSuccess = 'Đổi mật khẩu thành công!';
+                    
+                    // Log password change
+                    try {
+                        $logDb = ConnectionManager::getLogDB();
+                        $logStmt = $logDb->prepare("
+                            INSERT INTO _LogEventUser (UserJID, EventID, EventData, RegDate)
+                            VALUES (?, 3, ?, GETDATE())
+                        ");
+                        $logStmt->execute([$user_id, "Password changed from IP: " . $_SERVER['REMOTE_ADDR']]);
+                    } catch (Exception $e) {
+                        // Log error but don't affect password change
+                    }
+                } else {
+                    $passwordChangeError = 'Không thể cập nhật mật khẩu. Vui lòng thử lại!';
+                }
+            }
+        } catch (Exception $e) {
+            $passwordChangeError = 'Lỗi hệ thống: ' . $e->getMessage();
+        }
+    }
+}
+
 $userStats = [
     'level' => 1,
     'silk' => 0,
@@ -552,9 +609,14 @@ function getClassName($refObjID) {
                         <p><?php echo htmlspecialchars($email); ?></p>
                     </div>
                 </div>
-                <a href="logout.php" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Đăng Xuất
-                </a>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button onclick="document.getElementById('changePasswordModal').style.display='flex'" class="change-password-btn" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: rgba(30, 144, 255, 0.2); border: 1px solid rgba(30, 144, 255, 0.4); color: #87ceeb; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 600; transition: all 0.3s; cursor: pointer;">
+                        <i class="fas fa-key"></i> Đổi Mật Khẩu
+                    </button>
+                    <a href="logout.php" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Đăng Xuất
+                    </a>
+                </div>
             </div>
 
             <!-- Stats -->
@@ -703,7 +765,342 @@ function getClassName($refObjID) {
         </div>
     </div>
 
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal-overlay" style="display: <?php echo ($passwordChangeError || $passwordChangeSuccess) ? 'flex' : 'none'; ?>;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3><i class="fas fa-key"></i> Đổi Mật Khẩu</h3>
+                <button onclick="closePasswordModal()" class="modal-close">&times;</button>
+            </div>
+            
+            <?php if ($passwordChangeError): ?>
+                <div class="alert alert-error" style="margin: 15px;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span><?php echo htmlspecialchars($passwordChangeError); ?></span>
+                </div>
+            <?php endif; ?>
+            
+            <?php if ($passwordChangeSuccess): ?>
+                <div class="alert alert-success" style="margin: 15px; background: rgba(40, 167, 69, 0.15); border: 1px solid rgba(40, 167, 69, 0.3); color: #51cf66; animation: slideDown 0.3s ease-out;">
+                    <i class="fas fa-check-circle"></i>
+                    <span><?php echo htmlspecialchars($passwordChangeSuccess); ?></span>
+                </div>
+            <?php endif; ?>
+            
+            <form method="POST" class="password-form">
+                <input type="hidden" name="change_password" value="1">
+                
+                <div class="form-group">
+                    <label for="old_password">
+                        <i class="fas fa-lock"></i> Mật khẩu cũ
+                    </label>
+                    <input 
+                        type="password" 
+                        id="old_password" 
+                        name="old_password" 
+                        placeholder="Nhập mật khẩu hiện tại"
+                        required
+                        autocomplete="current-password"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_password">
+                        <i class="fas fa-key"></i> Mật khẩu mới
+                    </label>
+                    <input 
+                        type="password" 
+                        id="new_password" 
+                        name="new_password" 
+                        placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)"
+                        required
+                        minlength="6"
+                        autocomplete="new-password"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm_password">
+                        <i class="fas fa-check"></i> Xác nhận mật khẩu mới
+                    </label>
+                    <input 
+                        type="password" 
+                        id="confirm_password" 
+                        name="confirm_password" 
+                        placeholder="Nhập lại mật khẩu mới"
+                        required
+                        minlength="6"
+                        autocomplete="new-password"
+                    >
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="closePasswordModal()" class="btn-cancel">
+                        Hủy
+                    </button>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-save"></i> Đổi Mật Khẩu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .change-password-btn:hover {
+            background: rgba(30, 144, 255, 0.3) !important;
+            transform: translateY(-2px);
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+        
+        .modal-container {
+            background: rgba(10, 20, 40, 0.95);
+            border: 2px solid #1e90ff;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(30, 144, 255, 0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #1e90ff;
+        }
+        
+        .modal-header h3 {
+            font-size: 22px;
+            color: #1e90ff;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #87ceeb;
+            font-size: 32px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s;
+        }
+        
+        .modal-close:hover {
+            color: #ff6b6b;
+        }
+        
+        .password-form .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .password-form label {
+            display: block;
+            color: #87ceeb;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .password-form label i {
+            color: #1e90ff;
+            margin-right: 5px;
+        }
+        
+        .password-form input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: all 0.3s;
+        }
+        
+        .password-form input:focus {
+            outline: none;
+            border-color: #1e90ff;
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        .btn-cancel,
+        .btn-submit {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: #87ceeb;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #1e90ff 0%, #00bfff 100%);
+            color: #fff;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(30, 144, 255, 0.4);
+        }
+        
+        .alert-success {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(40, 167, 69, 0.95);
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 10001;
+            animation: slideInRight 0.3s ease-out;
+            min-width: 300px;
+        }
+        
+        .toast-notification i {
+            font-size: 20px;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+
+    <!-- Toast Notification -->
+    <?php if ($passwordChangeSuccess): ?>
+    <div id="successToast" class="toast-notification">
+        <i class="fas fa-check-circle"></i>
+        <span><?php echo htmlspecialchars($passwordChangeSuccess); ?></span>
+    </div>
+    <?php endif; ?>
+
     <script>
+        function closePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'none';
+            // Reset form
+            document.querySelector('.password-form').reset();
+            // Clear alerts after closing
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    alert.remove();
+                });
+            }, 100);
+        }
+        
+        // Auto close modal after success
+        <?php if ($passwordChangeSuccess): ?>
+        setTimeout(function() {
+            closePasswordModal();
+        }, 2000);
+        
+        // Auto hide toast notification
+        setTimeout(function() {
+            var toast = document.getElementById('successToast');
+            if (toast) {
+                toast.style.animation = 'slideInRight 0.3s ease-out reverse';
+                setTimeout(function() {
+                    toast.remove();
+                }, 300);
+            }
+        }, 3000);
+        <?php endif; ?>
+        
+        // Close modal when clicking outside
+        document.getElementById('changePasswordModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePasswordModal();
+            }
+        });
+        
+        // Close modal with ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePasswordModal();
+            }
+        });
+        
         console.log('Dashboard loaded');
         console.log('User: <?php echo htmlspecialchars($username); ?>');
         console.log('Characters: <?php echo $userStats['characters']; ?>');
