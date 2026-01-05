@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (($user['role'] ?? 'user') === 'admin') {
                     header('Location: admin/cms/index.php');
                 } else {
-                    header('Location: dashboard.php');
+                header('Location: dashboard.php');
                 }
                 exit();
             } else {
