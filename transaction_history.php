@@ -33,15 +33,21 @@ $user_role = getUserRole();
     <link rel="stylesheet" href="css/auth-enhanced.css" />
     
     <style>
-        /* Override auth-enhanced.css */
-        .auth-overlay {
-            display: none !important;
+        /* Fix scroll - allow scrolling when content is longer */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        
+        body.home-page {
+            overflow: hidden;
         }
         
         /* Dashboard layout with sidebar */
         .dashboard-wrapper {
-            display: flex !important;
-            position: fixed !important;
+            display: flex;
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
@@ -52,8 +58,6 @@ $user_role = getUserRole();
             overflow-y: auto;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
-            align-items: flex-start !important;
-            justify-content: flex-start !important;
         }
         
         /* Sidebar */
@@ -67,6 +71,7 @@ $user_role = getUserRole();
             overflow-x: hidden;
             border-right: 2px solid #1e90ff;
             z-index: 10000;
+            -webkit-overflow-scrolling: touch;
         }
         
         .sidebar-header {
@@ -144,11 +149,11 @@ $user_role = getUserRole();
         
         /* Main content */
         .page-container {
-            flex: 1 !important;
-            margin-left: 260px !important;
-            width: calc(100% - 260px) !important;
-            max-width: calc(100% - 260px) !important;
-            background: rgba(10, 20, 40, 0.95) !important;
+            flex: 1;
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            max-width: calc(100% - 260px);
+            background: rgba(10, 20, 40, 0.95);
             backdrop-filter: blur(20px);
             padding: 40px;
             position: relative;
@@ -156,10 +161,6 @@ $user_role = getUserRole();
             overflow-y: visible;
             min-height: 100vh;
             box-sizing: border-box;
-            border: none !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            margin: 0 !important;
         }
         
         @keyframes slideIn {

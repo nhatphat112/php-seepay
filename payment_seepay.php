@@ -84,15 +84,21 @@ if (!empty($currentOrderCode) && $orderData === null) {
     <link rel="stylesheet" href="css/auth-enhanced.css" />
     
     <style>
-        /* Override auth-enhanced.css */
-        .auth-overlay {
-            display: none !important;
+        /* Fix scroll - allow scrolling when content is longer */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        
+        body.home-page {
+            overflow: hidden;
         }
         
         /* Dashboard layout with sidebar */
         .dashboard-wrapper {
-            display: flex !important;
-            position: fixed !important;
+            display: flex;
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
@@ -103,8 +109,6 @@ if (!empty($currentOrderCode) && $orderData === null) {
             overflow-y: auto;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
-            align-items: flex-start !important;
-            justify-content: flex-start !important;
         }
         
         /* Sidebar */
@@ -118,6 +122,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
             overflow-x: hidden;
             border-right: 2px solid #1e90ff;
             z-index: 10000;
+            -webkit-overflow-scrolling: touch;
         }
         
         .sidebar-header {
@@ -195,10 +200,10 @@ if (!empty($currentOrderCode) && $orderData === null) {
         
         /* Main content */
         .payment-container {
-            flex: 1 !important;
-            margin-left: 260px !important;
-            width: calc(100% - 260px) !important;
-            max-width: calc(100% - 260px) !important;
+            flex: 1;
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            max-width: calc(100% - 260px);
             background: rgba(10, 20, 40, 0.95) !important;
             backdrop-filter: blur(20px);
             padding: 40px;
@@ -207,6 +212,10 @@ if (!empty($currentOrderCode) && $orderData === null) {
             overflow-y: visible;
             min-height: 100vh;
             box-sizing: border-box;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            margin: 0;
             border: none !important;
             border-radius: 0 !important;
             box-shadow: none !important;

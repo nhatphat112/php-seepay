@@ -30,6 +30,12 @@ $user_role = getUserRole();
             box-sizing: border-box;
         }
         
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #1a1a2e;
@@ -38,15 +44,14 @@ $user_role = getUserRole();
             margin: 0;
         }
         
-        /* Override auth-enhanced.css */
-        .auth-overlay {
-            display: none !important;
+        body.home-page {
+            overflow: hidden;
         }
         
         /* Dashboard layout with sidebar */
         .dashboard-wrapper {
-            display: flex !important;
-            position: fixed !important;
+            display: flex;
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
@@ -57,8 +62,6 @@ $user_role = getUserRole();
             overflow-y: auto;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
-            align-items: flex-start !important;
-            justify-content: flex-start !important;
         }
         
         /* Sidebar */
@@ -72,6 +75,7 @@ $user_role = getUserRole();
             overflow-x: hidden;
             border-right: 2px solid #1e90ff;
             z-index: 10000;
+            -webkit-overflow-scrolling: touch;
         }
         
         .sidebar-header {
@@ -148,21 +152,17 @@ $user_role = getUserRole();
         }
         
         .container {
-            flex: 1 !important;
-            margin-left: 260px !important;
-            width: calc(100% - 260px) !important;
-            max-width: calc(100% - 260px) !important;
+            flex: 1;
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            max-width: calc(100% - 260px);
             padding: 40px;
             position: relative;
             overflow-x: hidden;
             overflow-y: visible;
             min-height: 100vh;
             box-sizing: border-box;
-            background: transparent !important;
-            border: none !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            margin: 0 !important;
+            background: transparent;
         }
         
         h1 {
