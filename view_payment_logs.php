@@ -6,10 +6,15 @@
 
 session_start();
 require_once __DIR__ . '/includes/payment_logger.php';
+require_once __DIR__ . '/includes/auth_helper.php';
 
 $orderCode = $_GET['order_code'] ?? null;
 $limit = intval($_GET['limit'] ?? 100);
 $level = $_GET['level'] ?? null;
+
+$username = $_SESSION['username'] ?? 'Player';
+$user_id = $_SESSION['user_id'] ?? 0;
+$user_role = getUserRole();
 
 ?>
 <!DOCTYPE html>
@@ -29,12 +34,124 @@ $level = $_GET['level'] ?? null;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #1a1a2e;
             color: #fff;
+            padding: 0;
+            margin: 0;
+        }
+        
+        /* Dashboard layout with sidebar */
+        .dashboard-wrapper {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(15px);
+            z-index: 9999;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        /* Sidebar */
+        .dashboard-sidebar {
+            width: 260px;
+            background: rgba(22, 33, 62, 0.95);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border-right: 2px solid #1e90ff;
+            z-index: 10000;
+        }
+        
+        .sidebar-header {
             padding: 20px;
+            border-bottom: 1px solid rgba(30, 144, 255, 0.3);
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            color: #ffd700;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.85rem;
+            color: #87ceeb;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .nav-menu li {
+            margin: 5px 0;
+        }
+        
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #87ceeb;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: rgba(30, 144, 255, 0.1);
+            border-left-color: #1e90ff;
+            color: #ffd700;
+        }
+        
+        .nav-menu a i {
+            margin-right: 10px;
+            width: 20px;
+            font-size: 18px;
+        }
+        
+        /* Mobile menu toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10001;
+            background: rgba(30, 144, 255, 0.2);
+            border: 1px solid #1e90ff;
+            color: #87ceeb;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        
+        .menu-toggle:hover {
+            background: rgba(30, 144, 255, 0.3);
         }
         
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
+            flex: 1;
+            margin-left: 260px;
+            width: 100%;
+            max-width: calc(100% - 260px);
+            padding: 40px;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: visible;
+            min-height: calc(100vh - 0px);
         }
         
         h1 {
@@ -215,10 +332,60 @@ $level = $_GET['level'] ?? null;
             font-weight: bold;
             color: #e8c088;
         }
+        
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+            
+            .dashboard-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .dashboard-sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .container {
+                margin-left: 0;
+                max-width: 100%;
+                padding: 60px 15px 30px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Dashboard Wrapper -->
+    <div class="dashboard-wrapper">
+        <!-- Menu Toggle for Mobile -->
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar" id="dashboardSidebar">
+            <div class="sidebar-header">
+                <h1><i class="fas fa-user-circle"></i> Dashboard</h1>
+                <p><?php echo htmlspecialchars($username); ?></p>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.php"><i class="fas fa-home"></i> Trang Chủ</a></li>
+                <li><a href="transaction_history.php"><i class="fas fa-history"></i> Lịch Sử Giao Dịch</a></li>
+                <li><a href="payment.php"><i class="fas fa-credit-card"></i> Thanh Toán</a></li>
+                <li><a href="download.php"><i class="fas fa-download"></i> Tải Game</a></li>
+                <li><a href="ranking.php"><i class="fas fa-trophy"></i> Xếp Hạng</a></li>
+                <li><a href="view_payment_logs.php" class="active"><i class="fas fa-file-alt"></i> Payment Logs</a></li>
+                <?php if (isAdmin()): ?>
+                <li><a href="admin/cms/index.php"><i class="fas fa-cog"></i> CMS Admin</a></li>
+                <?php endif; ?>
+                <li><a href="index.php"><i class="fas fa-globe"></i> Trang Chủ Website</a></li>
+                <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Đăng Xuất</a></li>
+            </ul>
+        </aside>
+        
+        <!-- Main Content -->
+        <div class="container">
         <h1>📋 Payment Logs Viewer</h1>
         
         <div class="filters">
@@ -360,6 +527,24 @@ $level = $_GET['level'] ?? null;
         <?php if ($orderCode || $level): ?>
         window.addEventListener('DOMContentLoaded', loadLogs);
         <?php endif; ?>
+        
+        // Toggle sidebar on mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('dashboardSidebar');
+            sidebar.classList.toggle('open');
+        }
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('dashboardSidebar');
+            const menuToggle = document.querySelector('.menu-toggle');
+            
+            if (window.innerWidth <= 768) {
+                if (sidebar && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
     </script>
 </body>
 </html>

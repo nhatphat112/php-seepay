@@ -10,8 +10,11 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+require_once 'includes/auth_helper.php';
+
 $username = $_SESSION['username'];
 $user_id = $_SESSION['user_id'];
+$user_role = getUserRole();
 $error = '';
 $success = '';
 $orderData = null;
@@ -81,33 +84,127 @@ if (!empty($currentOrderCode) && $orderData === null) {
     <link rel="stylesheet" href="css/auth-enhanced.css" />
     
     <style>
-        .auth-overlay {
+        /* Dashboard layout with sidebar */
+        .dashboard-wrapper {
+            display: flex;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.9) !important;
-            backdrop-filter: blur(15px) !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(15px);
             z-index: 9999;
-            padding: 20px;
             overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
         
+        /* Sidebar */
+        .dashboard-sidebar {
+            width: 260px;
+            background: rgba(22, 33, 62, 0.95);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border-right: 2px solid #1e90ff;
+            z-index: 10000;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(30, 144, 255, 0.3);
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            color: #ffd700;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.85rem;
+            color: #87ceeb;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .nav-menu li {
+            margin: 5px 0;
+        }
+        
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #87ceeb;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: rgba(30, 144, 255, 0.1);
+            border-left-color: #1e90ff;
+            color: #ffd700;
+        }
+        
+        .nav-menu a i {
+            margin-right: 10px;
+            width: 20px;
+            font-size: 18px;
+        }
+        
+        /* Mobile menu toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10001;
+            background: rgba(30, 144, 255, 0.2);
+            border: 1px solid #1e90ff;
+            color: #87ceeb;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        
+        .menu-toggle:hover {
+            background: rgba(30, 144, 255, 0.3);
+        }
+        
+        /* Main content */
         .payment-container {
+            flex: 1;
+            margin-left: 260px;
             width: 100%;
-            max-width: 900px;
+            max-width: calc(100% - 260px);
             background: rgba(10, 20, 40, 0.95) !important;
             backdrop-filter: blur(20px);
-            border-radius: 20px;
             padding: 40px;
-            border: 2px solid #1e90ff !important;
-            box-shadow: 0 20px 60px rgba(30, 144, 255, 0.3);
-            animation: slideIn 0.4s ease-out;
-            margin: 20px auto;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: visible;
+            min-height: calc(100vh - 0px);
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            margin: 0;
         }
         
         @keyframes slideIn {
@@ -438,12 +535,36 @@ if (!empty($currentOrderCode) && $orderData === null) {
     </style>
 </head>
 <body class="home-page">
-    <div class="auth-overlay">
+    <!-- Dashboard Wrapper -->
+    <div class="dashboard-wrapper">
+        <!-- Menu Toggle for Mobile -->
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar" id="dashboardSidebar">
+            <div class="sidebar-header">
+                <h1><i class="fas fa-user-circle"></i> Dashboard</h1>
+                <p><?php echo htmlspecialchars($username); ?></p>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.php"><i class="fas fa-home"></i> Trang Chủ</a></li>
+                <li><a href="transaction_history.php"><i class="fas fa-history"></i> Lịch Sử Giao Dịch</a></li>
+                <li><a href="payment.php" class="active"><i class="fas fa-credit-card"></i> Thanh Toán</a></li>
+                <li><a href="download.php"><i class="fas fa-download"></i> Tải Game</a></li>
+                <li><a href="ranking.php"><i class="fas fa-trophy"></i> Xếp Hạng</a></li>
+                <?php if (isAdmin()): ?>
+                <li><a href="admin/cms/index.php"><i class="fas fa-cog"></i> CMS Admin</a></li>
+                <?php endif; ?>
+                <li><a href="index.php"><i class="fas fa-globe"></i> Trang Chủ Website</a></li>
+                <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Đăng Xuất</a></li>
+            </ul>
+        </aside>
+        
+        <!-- Main Content -->
         <div class="payment-container">
             <div class="payment-header">
-                <a href="dashboard.php" class="back-link">
-                    <i class="fas fa-arrow-left"></i> Quay lại Dashboard
-                </a>
                 <h1 class="f-utm_nyala t-upper" style="color: #1e90ff !important;">Thanh Toán</h1>
                 <p class="f-calibri" style="color: #87ceeb !important;">Nạp Silk qua QR Code và Chuyển Khoản</p>
             </div>
@@ -662,7 +783,48 @@ if (!empty($currentOrderCode) && $orderData === null) {
                 alert('Không thể copy. Vui lòng copy thủ công: ' + text);
             });
         }
+        
+        // Toggle sidebar on mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('dashboardSidebar');
+            sidebar.classList.toggle('open');
+        }
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('dashboardSidebar');
+            const menuToggle = document.querySelector('.menu-toggle');
+            
+            if (window.innerWidth <= 768) {
+                if (sidebar && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
     </script>
+    
+    <style>
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+            
+            .dashboard-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .dashboard-sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .payment-container {
+                margin-left: 0;
+                max-width: 100%;
+                padding: 60px 15px 30px;
+            }
+        }
+    </style>
 </body>
 </html>
 
