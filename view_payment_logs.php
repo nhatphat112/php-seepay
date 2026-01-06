@@ -163,6 +163,7 @@ $user_role = getUserRole();
             min-height: 100vh;
             box-sizing: border-box;
             background: transparent;
+            z-index: 1;
         }
         
         h1 {

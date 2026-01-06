@@ -243,6 +243,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
             box-shadow: none;
             margin: 0;
             box-sizing: border-box;
+            z-index: 1;
         }
         
         /* Blue glow effect */

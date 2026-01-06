@@ -157,6 +157,7 @@ $user_role = getUserRole();
             box-shadow: none;
             margin: 0;
             border: none !important;
+            z-index: 1;
         }
         
         @keyframes slideIn {

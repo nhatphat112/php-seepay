@@ -216,7 +216,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
             border-radius: 0;
             box-shadow: none;
             margin: 0;
-            border: none !important;
+            z-index: 1;
             border-radius: 0 !important;
             box-shadow: none !important;
             margin: 0 !important;
