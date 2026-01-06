@@ -217,7 +217,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
         .payment-container {
             flex: 1;
             margin-left: 260px;
-            width: 100%;
+            width: calc(100% - 260px);
             max-width: calc(100% - 260px);
             background: rgba(10, 20, 40, 0.95) !important;
             backdrop-filter: blur(20px);
@@ -225,11 +225,12 @@ if (!empty($currentOrderCode) && $orderData === null) {
             position: relative;
             overflow-x: hidden;
             overflow-y: visible;
-            min-height: calc(100vh - 0px);
+            min-height: 100vh;
             border: none;
             border-radius: 0;
             box-shadow: none;
             margin: 0;
+            box-sizing: border-box;
         }
         
         /* Blue glow effect */

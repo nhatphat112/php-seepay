@@ -139,7 +139,7 @@ $user_role = getUserRole();
         .page-container {
             flex: 1;
             margin-left: 260px;
-            width: 100%;
+            width: calc(100% - 260px);
             max-width: calc(100% - 260px);
             background: rgba(10, 20, 40, 0.95);
             backdrop-filter: blur(20px);
@@ -147,7 +147,8 @@ $user_role = getUserRole();
             position: relative;
             overflow-x: hidden;
             overflow-y: visible;
-            min-height: calc(100vh - 0px);
+            min-height: 100vh;
+            box-sizing: border-box;
         }
         
         @keyframes slideIn {
