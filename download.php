@@ -1,3 +1,11 @@
+<?php
+session_start();
+require_once 'includes/auth_helper.php';
+
+$username = $_SESSION['username'] ?? 'Player';
+$user_id = $_SESSION['user_id'] ?? 0;
+$user_role = getUserRole();
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -17,38 +25,133 @@
     <link rel="stylesheet" href="css/auth-enhanced.css" />
     
     <style>
-        /* Auth overlay - Form nổi trên nền trang chính */
-        .auth-overlay {
+        /* Fix scroll - allow scrolling when content is longer */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        
+        body.home-page {
+            overflow: hidden;
+        }
+        
+        /* Dashboard layout with sidebar */
+        .dashboard-wrapper {
+            display: flex;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(15px);
             z-index: 9999;
-            padding: 20px;
             overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
         
+        /* Sidebar */
+        .dashboard-sidebar {
+            width: 260px;
+            background: rgba(22, 33, 62, 0.95);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border-right: 2px solid #1e90ff;
+            z-index: 10000;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(30, 144, 255, 0.3);
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            color: #ffd700;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.85rem;
+            color: #87ceeb;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .nav-menu li {
+            margin: 5px 0;
+        }
+        
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #87ceeb;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: rgba(30, 144, 255, 0.1);
+            border-left-color: #1e90ff;
+            color: #ffd700;
+        }
+        
+        .nav-menu a i {
+            margin-right: 10px;
+            width: 20px;
+            font-size: 18px;
+        }
+        
+        /* Mobile menu toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10001;
+            background: rgba(30, 144, 255, 0.2);
+            border: 1px solid #1e90ff;
+            color: #87ceeb;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        
+        .menu-toggle:hover {
+            background: rgba(30, 144, 255, 0.3);
+        }
+        
+        /* Main content */
         .download-box {
-            width: 100%;
-            max-width: 700px;
-            background: rgba(10, 20, 40, 0.95) !important; /* Nền xanh tối */
+            flex: 1;
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            background: rgba(10, 20, 40, 0.95) !important;
             backdrop-filter: blur(20px);
-            border-radius: 20px;
             padding: 40px;
-            border: 2px solid #1e90ff !important; /* Viền xanh nước biển */
-            box-shadow: 0 20px 60px rgba(30, 144, 255, 0.3), 
-                        0 0 0 1px rgba(30, 144, 255, 0.1),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            animation: slideIn 0.4s ease-out;
-            margin: 20px auto;
-            position: relative;
-            overflow: visible; /* Đảm bảo header không bị cắt */
+            min-height: 100vh;
+            box-sizing: border-box;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
         
         @keyframes slideIn {
@@ -262,9 +365,30 @@
             font-weight: 600;
         }
         
-        @media (max-width: 576px) {
+        /* ========== RESPONSIVE - MOBILE ========== */
+        /* ========== RESPONSIVE - MOBILE ========== */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+            
+            .dashboard-wrapper {
+                display: block;
+            }
+            
+            .dashboard-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .dashboard-sidebar.open {
+                transform: translateX(0);
+            }
+            
             .download-box {
-                padding: 30px 20px;
+                margin-left: 0;
+                width: 100%;
+                padding: 80px 15px 30px;
             }
             
             .download-item {
@@ -292,13 +416,36 @@
     <script type="text/javascript" src="assets/js/jquery-1.11.2.min.js"></script>
 </head>
 <body class="home-page">
-    <!-- Download Overlay - Form nổi trên nền trang chính -->
-    <div class="auth-overlay">
+    <!-- Dashboard Wrapper -->
+    <div class="dashboard-wrapper">
+        <!-- Menu Toggle for Mobile -->
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar" id="dashboardSidebar">
+            <div class="sidebar-header">
+                <h1><i class="fas fa-user-circle"></i> Dashboard</h1>
+                <p><?php echo htmlspecialchars($username); ?></p>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.php" class="<?php echo getNavActiveClass('dashboard.php'); ?>"><i class="fas fa-home"></i> Trang Chủ</a></li>
+                <li><a href="transaction_history.php" class="<?php echo getNavActiveClass('transaction_history.php'); ?>"><i class="fas fa-history"></i> Lịch Sử Giao Dịch</a></li>
+                <li><a href="payment.php" class="<?php echo getNavActiveClass('payment.php'); ?>"><i class="fas fa-credit-card"></i> Nạp Tiền</a></li>
+                <li><a href="download.php" class="<?php echo getNavActiveClass('download.php'); ?>"><i class="fas fa-download"></i> Tải Game</a></li>
+                <li><a href="ranking.php" class="<?php echo getNavActiveClass('ranking.php'); ?>"><i class="fas fa-trophy"></i> Xếp Hạng</a></li>
+                <?php if (isAdmin()): ?>
+                <li><a href="admin/cms/index.php" class="<?php echo getNavActiveClass('admin/cms/index.php'); ?>"><i class="fas fa-cog"></i> CMS Admin</a></li>
+                <?php endif; ?>
+                <li><a href="index.php"><i class="fas fa-globe"></i> Trang Chủ Website</a></li>
+                <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Đăng Xuất</a></li>
+            </ul>
+        </aside>
+        
+        <!-- Main Content -->
         <div class="download-box">
             <div class="download-header">
-                <a href="index.php" class="back-link">
-                    <i class="fas fa-arrow-left"></i> Quay lại trang chủ
-                </a>
                 <div class="download-logo">
                     <img src="assets/images/logo.png" alt="Logo" class="logo-img">
                     <h1 class="f-utm_nyala t-upper">Song Long Tranh Bá</h1>
@@ -362,6 +509,24 @@
 
     <script>
         console.log('Download page loaded - PC version only');
+        
+        // Toggle sidebar on mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('dashboardSidebar');
+            sidebar.classList.toggle('open');
+        }
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('dashboardSidebar');
+            const menuToggle = document.querySelector('.menu-toggle');
+            
+            if (window.innerWidth <= 768) {
+                if (sidebar && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
     </script>
 </body>
 </html>
