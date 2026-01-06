@@ -116,6 +116,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
             margin: 0;
             padding: 0;
             height: 100%;
+            overflow: hidden;
         }
         
         body.home-page {
@@ -125,25 +126,20 @@ if (!empty($currentOrderCode) && $orderData === null) {
         /* Dashboard layout with sidebar */
         .dashboard-wrapper {
             display: flex;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            position: relative;
+            min-height: 100vh;
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(15px);
-            z-index: 9999;
-            overflow-y: auto;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
         }
         
-        /* Sidebar */
+        /* Sidebar - Fixed position */
         .dashboard-sidebar {
             width: 260px;
             background: rgba(22, 33, 62, 0.95);
             padding: 20px 0;
             position: fixed;
+            left: 0;
+            top: 0;
             height: 100vh;
             overflow-y: auto;
             overflow-x: hidden;
@@ -230,34 +226,14 @@ if (!empty($currentOrderCode) && $orderData === null) {
             flex: 1;
             margin-left: 260px;
             width: calc(100% - 260px);
-            max-width: calc(100% - 260px);
             background: rgba(10, 20, 40, 0.95) !important;
             backdrop-filter: blur(20px);
             padding: 40px;
-            position: relative;
-            overflow-x: hidden;
-            overflow-y: visible;
             min-height: 100vh;
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
-            margin: 0;
             box-sizing: border-box;
-            z-index: 1;
-        }
-        
-        /* Blue glow effect */
-        .payment-container::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, #1e90ff, #00bfff, #1e90ff);
-            border-radius: 20px;
-            z-index: -1;
-            animation: glow 2s ease-in-out infinite alternate;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
         
         @keyframes glow {
@@ -524,18 +500,14 @@ if (!empty($currentOrderCode) && $orderData === null) {
             animation: pulse 0.5s ease;
         }
         
+        /* ========== RESPONSIVE - MOBILE ========== */
         @media (max-width: 768px) {
             .menu-toggle {
                 display: block;
             }
             
             .dashboard-wrapper {
-                overflow-y: auto;
-                overflow-x: hidden;
-                -webkit-overflow-scrolling: touch;
-                position: fixed;
-                width: 100%;
-                height: 100%;
+                display: block;
             }
             
             .dashboard-sidebar {
@@ -549,11 +521,8 @@ if (!empty($currentOrderCode) && $orderData === null) {
             
             .payment-container {
                 margin-left: 0;
-                max-width: 100%;
-                padding: 60px 15px 30px;
-                overflow-x: hidden;
-                overflow-y: visible;
-                min-height: auto;
+                width: 100%;
+                padding: 80px 15px 30px;
             }
             
             .amount-options {

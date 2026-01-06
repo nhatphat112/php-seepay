@@ -30,6 +30,7 @@ $user_role = getUserRole();
             margin: 0;
             padding: 0;
             height: 100%;
+            overflow: hidden;
         }
         
         body.home-page {
@@ -39,25 +40,20 @@ $user_role = getUserRole();
         /* Dashboard layout with sidebar */
         .dashboard-wrapper {
             display: flex;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            position: relative;
+            min-height: 100vh;
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(15px);
-            z-index: 9999;
-            overflow-y: auto;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
         }
         
-        /* Sidebar */
+        /* Sidebar - Fixed position */
         .dashboard-sidebar {
             width: 260px;
             background: rgba(22, 33, 62, 0.95);
             padding: 20px 0;
             position: fixed;
+            left: 0;
+            top: 0;
             height: 100vh;
             overflow-y: auto;
             overflow-x: hidden;
@@ -144,20 +140,14 @@ $user_role = getUserRole();
             flex: 1;
             margin-left: 260px;
             width: calc(100% - 260px);
-            max-width: calc(100% - 260px);
-            background: rgba(20, 20, 30, 0.95);
+            background: rgba(20, 20, 30, 0.95) !important;
             backdrop-filter: blur(20px);
             padding: 40px;
-            position: relative;
-            overflow-x: hidden;
-            overflow-y: visible;
             min-height: 100vh;
-            border-radius: 0;
             box-sizing: border-box;
-            box-shadow: none;
-            margin: 0;
-            border: none !important;
-            z-index: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
         
         @keyframes slideIn {
@@ -390,18 +380,15 @@ $user_role = getUserRole();
             color: #ffd700;
         }
         
+        /* ========== RESPONSIVE - MOBILE ========== */
+        /* ========== RESPONSIVE - MOBILE ========== */
         @media (max-width: 768px) {
             .menu-toggle {
                 display: block;
             }
             
             .dashboard-wrapper {
-                overflow-y: auto;
-                overflow-x: hidden;
-                -webkit-overflow-scrolling: touch;
-                position: fixed;
-                width: 100%;
-                height: 100%;
+                display: block;
             }
             
             .dashboard-sidebar {
@@ -415,11 +402,8 @@ $user_role = getUserRole();
             
             .ranking-container {
                 margin-left: 0;
-                max-width: 100%;
-                padding: 60px 15px 30px;
-                overflow-x: hidden;
-                overflow-y: visible;
-                min-height: auto;
+                width: 100%;
+                padding: 80px 15px 30px;
             }
             
             .ranking-tabs {

@@ -144,20 +144,14 @@ $user_role = getUserRole();
             flex: 1;
             margin-left: 260px;
             width: calc(100% - 260px);
-            max-width: calc(100% - 260px);
             background: rgba(10, 20, 40, 0.95) !important;
             backdrop-filter: blur(20px);
             padding: 40px;
-            position: relative;
-            overflow-x: hidden;
-            overflow-y: visible;
             min-height: 100vh;
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
-            margin: 0;
             box-sizing: border-box;
-            z-index: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
         
         @keyframes slideIn {
@@ -371,18 +365,15 @@ $user_role = getUserRole();
             font-weight: 600;
         }
         
+        /* ========== RESPONSIVE - MOBILE ========== */
+        /* ========== RESPONSIVE - MOBILE ========== */
         @media (max-width: 768px) {
             .menu-toggle {
                 display: block;
             }
             
             .dashboard-wrapper {
-                overflow-y: auto;
-                overflow-x: hidden;
-                -webkit-overflow-scrolling: touch;
-                position: fixed;
-                width: 100%;
-                height: 100%;
+                display: block;
             }
             
             .dashboard-sidebar {
@@ -396,11 +387,8 @@ $user_role = getUserRole();
             
             .download-box {
                 margin-left: 0;
-                max-width: 100%;
-                padding: 60px 15px 30px;
-                overflow-x: hidden;
-                overflow-y: visible;
-                min-height: auto;
+                width: 100%;
+                padding: 80px 15px 30px;
             }
             
             .download-item {

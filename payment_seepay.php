@@ -89,6 +89,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
             margin: 0;
             padding: 0;
             height: 100%;
+            overflow: hidden;
         }
         
         body.home-page {
@@ -98,25 +99,20 @@ if (!empty($currentOrderCode) && $orderData === null) {
         /* Dashboard layout with sidebar */
         .dashboard-wrapper {
             display: flex;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            position: relative;
+            min-height: 100vh;
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(15px);
-            z-index: 9999;
-            overflow-y: auto;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
         }
         
-        /* Sidebar */
+        /* Sidebar - Fixed position */
         .dashboard-sidebar {
             width: 260px;
             background: rgba(22, 33, 62, 0.95);
             padding: 20px 0;
             position: fixed;
+            left: 0;
+            top: 0;
             height: 100vh;
             overflow-y: auto;
             overflow-x: hidden;
@@ -198,7 +194,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
             background: rgba(30, 144, 255, 0.3);
         }
         
-        /* Main content */
+        /* Main content - Không dùng position fixed, đẩy sang phải */
         .payment-container {
             flex: 1;
             margin-left: 260px;
@@ -207,23 +203,11 @@ if (!empty($currentOrderCode) && $orderData === null) {
             background: rgba(10, 20, 40, 0.95) !important;
             backdrop-filter: blur(20px);
             padding: 40px;
-            position: relative;
-            overflow-x: hidden;
-            overflow-y: visible;
             min-height: 100vh;
             box-sizing: border-box;
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
-            margin: 0;
-            z-index: 1;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            margin: 0 !important;
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
-            margin: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
         
         @keyframes slideIn {
@@ -823,18 +807,14 @@ if (!empty($currentOrderCode) && $orderData === null) {
     </script>
     
     <style>
+        /* ========== RESPONSIVE - MOBILE ========== */
         @media (max-width: 768px) {
             .menu-toggle {
                 display: block;
             }
             
             .dashboard-wrapper {
-                overflow-y: auto;
-                overflow-x: hidden;
-                -webkit-overflow-scrolling: touch;
-                position: fixed;
-                width: 100%;
-                height: 100%;
+                display: block;
             }
             
             .dashboard-sidebar {
@@ -848,11 +828,33 @@ if (!empty($currentOrderCode) && $orderData === null) {
             
             .payment-container {
                 margin-left: 0;
+                width: 100%;
                 max-width: 100%;
-                padding: 60px 15px 30px;
-                overflow-x: hidden;
-                overflow-y: visible;
-                min-height: auto;
+                padding: 80px 15px 30px;
+            }
+            
+            /* Các element khác responsive */
+            .amount-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+            
+            .qr-code-image {
+                max-width: 250px;
+            }
+            
+            .bank-info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .bank-info-value {
+                width: 100%;
+                word-break: break-all;
             }
         }
     </style>
