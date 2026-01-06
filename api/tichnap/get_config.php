@@ -23,7 +23,7 @@ try {
     
     // Lấy config (luôn có 1 record)
     $stmt = $db->prepare("
-        SELECT TOP 1 FeatureEnabled
+        SELECT TOP 1 FeatureEnabled, EventStartDate, EventEndDate
         FROM TichNapConfig
         ORDER BY UpdatedDate DESC
     ");
@@ -33,20 +33,26 @@ try {
     // Nếu chưa có config, tạo mặc định
     if (!$config) {
         $stmt = $db->prepare("
-            INSERT INTO TichNapConfig (FeatureEnabled, UpdatedDate)
-            VALUES (1, GETDATE())
+            INSERT INTO TichNapConfig (FeatureEnabled, EventStartDate, EventEndDate, UpdatedDate)
+            VALUES (1, NULL, NULL, GETDATE())
         ");
         $stmt->execute();
         $featureEnabled = true;
+        $eventStartDate = null;
+        $eventEndDate = null;
     } else {
         $featureEnabled = (bool)$config['FeatureEnabled'];
+        $eventStartDate = $config['EventStartDate'] ?? null;
+        $eventEndDate = $config['EventEndDate'] ?? null;
     }
     
     http_response_code(200);
     echo json_encode([
         'success' => true,
         'data' => [
-            'featureEnabled' => $featureEnabled
+            'featureEnabled' => $featureEnabled,
+            'eventStartDate' => $eventStartDate,
+            'eventEndDate'   => $eventEndDate
         ]
     ], JSON_UNESCAPED_UNICODE);
     

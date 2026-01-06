@@ -97,7 +97,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nạp Tiền - Song Long Tranh Bá Mobile</title>
+<title>Nạp Tích Lũy - Song Long Tranh Bá Mobile</title>
     
     <!-- Favicon -->
     <link rel="icon" href="images/favicon.ico"/>
@@ -296,6 +296,41 @@ if (!empty($currentOrderCode) && $orderData === null) {
             color: #e8c088 !important;
             margin: 10px 0;
             text-shadow: 0 0 10px rgba(232, 192, 136, 0.3);
+        }
+
+        /* TichNap Milestone Styles */
+        #milestonesList button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        #milestonesList button:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .payment-container {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+
+            .dashboard-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            .dashboard-sidebar.open {
+                transform: translateX(0);
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            #milestonesList {
+                grid-template-columns: 1fr;
+            }
         }
         
         .payment-header h2 {
@@ -568,246 +603,74 @@ if (!empty($currentOrderCode) && $orderData === null) {
                     <img src="assets/images/logo.png" alt="Logo" class="logo-img">
                     <h1 class="f-utm_nyala t-upper">Song Long Tranh Bá</h1>
                 </div>
-                <h2 class="f-cambria">Nạp Tiền</h2>
-                <p class="f-calibri">Nạp Silk qua QR Code và Chuyển Khoản Ngân Hàng</p>
+                <h2 class="f-cambria">Nạp Tích Lũy</h2>
+                <p class="f-calibri">Nhận phần thưởng khi đạt các mốc nạp tích lũy</p>
             </div>
 
-            <!-- Current Silk -->
-            <div class="current-silk">
-                <h3><i class="fas fa-gem"></i> Silk Hiện Tại</h3>
-                <div class="silk-amount"><?php echo number_format($silk); ?> Silk</div>
-            </div>
-
-            <?php if ($error): ?>
-                <div class="alert alert-error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span><?php echo htmlspecialchars($error); ?></span>
+            <!-- Nạp Tích Lũy Content -->
+            <div class="payment-form" id="tichnapContent">
+                <!-- Loading State -->
+                <div id="tichnapLoading" style="text-align: center; padding: 40px; color: #e8c088;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 32px; margin-bottom: 15px;"></i>
+                    <p>Đang tải thông tin...</p>
                 </div>
-            <?php endif; ?>
 
-            <?php if ($success): ?>
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i>
-                    <span><?php echo htmlspecialchars($success); ?></span>
+                <!-- Error State -->
+                <div id="tichnapError" style="display: none; text-align: center; padding: 40px; color: #ff6b6b;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 32px; margin-bottom: 15px;"></i>
+                    <p id="errorMessage"></p>
                 </div>
-            <?php endif; ?>
 
-            <?php if ($orderData && ($orderData['Status'] === 'pending' || $orderData['Status'] === 'processing')): ?>
-                <!-- Order Details Section -->
-                <div class="payment-form" id="orderDetailsSection">
-                    <h3 style="color: #e8c088; margin-bottom: 20px;">
-                        <i class="fas fa-receipt"></i> Chi Tiết Đơn Hàng #<?php echo htmlspecialchars($orderData['OrderCode']); ?>
-                    </h3>
-                    
-                    <!-- Status Indicator with Realtime Updates -->
-                    <div id="statusIndicator" style="background: rgba(255, 193, 7, 0.1); border: 2px solid #ffc107; border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center;">
-                        <div id="statusText" style="color: #e8c088; font-weight: bold; font-size: 16px;">
-                            <i class="fas fa-circle-notch fa-spin"></i> Đang chờ thanh toán...
-                        </div>
-                    </div>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
-                        <div style="display: flex; justify-content: space-between; padding-bottom: 5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
-                            <span style="color: #e8c088; font-weight: bold;">Trạng thái:</span>
-                            <span style="color: #e8c088;">
-                                <span id="orderStatusBadge" style="font-weight: bold; padding: 5px 10px; border-radius: 5px; background: #ffc107; color: #333;">
-                                    <?php echo htmlspecialchars(ucfirst($orderData['Status'])); ?>
-                                </span>
-                            </span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding-bottom: 5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
-                            <span style="color: #e8c088; font-weight: bold;">Số tiền:</span>
-                            <span style="color: #e8c088;"><?php echo number_format($orderData['Amount']); ?> VNĐ</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding-bottom: 5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
-                            <span style="color: #e8c088; font-weight: bold;">Số Silk nhận:</span>
-                            <span style="color: #e8c088;"><?php echo number_format($orderData['SilkAmount']); ?> Silk</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding-bottom: 5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
-                            <span style="color: #e8c088; font-weight: bold;">Thời gian tạo:</span>
-                            <span style="color: #e8c088;"><?php echo date('H:i:s d-m-Y', strtotime($orderData['CreatedDate'])); ?></span>
-                        </div>
-                    </div>
-
-                    <?php
-                    if (!empty($orderData['QRCode'])): ?>
-                        <div style="text-align: center; margin-top: 20px; padding: 20px; background: rgba(10, 20, 40, 0.8); border-radius: 10px; border: 1px solid #4682b4;">
-                            <h4 style="color: #e8c088; margin: 0 0 15px 0; font-size: 16px;">
-                                <i class="fas fa-qrcode"></i> Mã QR Thanh Toán
-                            </h4>
-                            <div style="display: inline-block; padding: 15px; background: #ffffff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);">
-                                <img 
-                                    src="<?php echo htmlspecialchars($orderData['QRCode']); ?>" 
-                                    alt="QR Code" 
-                                    id="qr-code-image"
-                                    style="max-width: 250px; width: 100%; height: auto; display: block; border-radius: 5px;"
-                                    onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'250\' height=\'250\'%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23ccc\'%3EQR Code không tải được%3C/text%3E%3C/svg%3E';"
-                                >
+                <!-- Main Content -->
+                <div id="tichnapMain" style="display: none;">
+                    <!-- Thời gian sự kiện -->
+                    <div id="eventTimeInfo" style="background: rgba(30, 144, 255, 0.1); border: 2px solid #1e90ff; border-radius: 10px; padding: 15px; margin-bottom: 20px; display: none;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                            <div style="text-align: center;">
+                                <div style="color: #87ceeb; font-size: 12px; margin-bottom: 5px;">
+                                    <i class="fas fa-calendar-alt"></i> Bắt đầu
+                                </div>
+                                <div style="color: #ffd700; font-size: 14px; font-weight: 600;" id="eventStartDate">
+                                    --
+                                </div>
                             </div>
-                            <p style="color: #e8c088; font-size: 14px; margin: 15px 0 10px 0; font-weight: bold;">Quét mã QR để thanh toán</p>
-                            <p style="color: #e8c088; font-size: 12px; margin: 0;">Hoặc chuyển khoản theo thông tin bên dưới</p>
+                            <div style="color: #87ceeb; font-size: 20px;">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="color: #87ceeb; font-size: 12px; margin-bottom: 5px;">
+                                    <i class="fas fa-calendar-check"></i> Kết thúc
+                                </div>
+                                <div style="color: #ffd700; font-size: 14px; font-weight: 600;" id="eventEndDate">
+                                    --
+                                </div>
+                            </div>
                         </div>
-                    <?php else: ?>
-                        <div style="text-align: center; margin-top: 20px; padding: 20px; background: rgba(255, 193, 7, 0.1); border-radius: 10px; border: 1px solid #ffc107;">
-                            <p style="color: #ffc107; font-size: 14px;">
-                                <i class="fas fa-exclamation-triangle"></i> QR Code đang được tạo, vui lòng đợi...
-                            </p>
+                    </div>
+
+                    <!-- Tổng tiền đã nạp -->
+                    <div style="background: rgba(30, 144, 255, 0.1); border: 2px solid #1e90ff; border-radius: 10px; padding: 20px; margin-bottom: 30px; text-align: center;">
+                        <h3 style="color: #87ceeb; margin-bottom: 10px; font-size: 16px;">
+                            <i class="fas fa-wallet"></i> Tổng Tiền Đã Nạp
+                        </h3>
+                        <div style="font-size: 32px; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);" id="totalMoneyDisplay">
+                            0 VND
                         </div>
-                    <?php endif; ?>
+                    </div>
 
-                    <?php if (!empty($orderData['BankAccount'])): ?>
-                        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                            <thead>
-                                <tr>
-                                    <th style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); text-align: left; background: rgba(30, 144, 255, 0.2); color: #e8c088;">Thông tin chuyển khoản</th>
-                                    <th style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); text-align: left; background: rgba(30, 144, 255, 0.2); color: #e8c088;">Chi tiết</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (!empty($orderData['BankName'])): ?>
-                                <tr>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;">Ngân hàng</td>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;"><?php echo htmlspecialchars($orderData['BankName']); ?></td>
-                                </tr>
-                                <?php endif; ?>
-                                <tr>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;">Số tài khoản</td>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;">
-                                        <span id="bankAccountNum"><?php echo htmlspecialchars($orderData['BankAccount']); ?></span>
-                                        <button class="copy-btn" data-target="bankAccountNum" style="background: #1e90ff; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; margin-left: 10px;">
-                                            <i class="fas fa-copy"></i> Copy
-                                        </button>
-                                    </td>
-                                </tr>
-                                <?php if (!empty($orderData['AccountName'])): ?>
-                                <tr>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;">Tên tài khoản</td>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;"><?php echo htmlspecialchars($orderData['AccountName']); ?></td>
-                                </tr>
-                                <?php endif; ?>
-                                <?php if (!empty($orderData['Content'])): ?>
-                                <tr>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;">Nội dung chuyển khoản</td>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;">
-                                        <span id="transferContent"><?php echo htmlspecialchars($orderData['Content']); ?></span>
-                                        <button class="copy-btn" data-target="transferContent" style="background: #1e90ff; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; margin-left: 10px;">
-                                            <i class="fas fa-copy"></i> Copy
-                                        </button>
-                                    </td>
-                                </tr>
-                                <?php endif; ?>
-                                <tr>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;">Số tiền</td>
-                                    <td style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(20, 30, 50, 0.8); color: #e8c088;">
-                                        <span id="transferAmount"><?php echo number_format($orderData['Amount']); ?></span> VNĐ
-                                        <button class="copy-btn" data-target="transferAmount" style="background: #1e90ff; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; margin-left: 10px;">
-                                            <i class="fas fa-copy"></i> Copy
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    <?php endif; ?>
+                    <!-- Thông báo mốc tiếp theo -->
+                    <div id="nextMilestoneInfo" style="background: rgba(255, 215, 0, 0.1); border: 2px solid #ffd700; border-radius: 10px; padding: 15px; margin-bottom: 30px; text-align: center; display: none;">
+                        <p style="color: #ffd700; margin: 0; font-size: 16px;">
+                            <i class="fas fa-info-circle"></i> <span id="nextMilestoneText"></span>
+                        </p>
+                    </div>
 
-                    <div style="background: rgba(30, 144, 255, 0.1); border: 2px solid #1e90ff; border-radius: 10px; padding: 20px; margin-top: 30px;">
-                        <h4 style="color: #e8c088; margin: 0 0 15px 0;">
-                            <i class="fas fa-exclamation-triangle"></i> Lưu ý quan trọng
-                        </h4>
-                        <p style="color: #e8c088; margin: 5px 0; font-size: 14px;">- Vui lòng chuyển khoản đúng số tiền và nội dung để giao dịch được xử lý tự động.</p>
-                        <p style="color: #e8c088; margin: 5px 0; font-size: 14px;">- Nếu chuyển sai nội dung hoặc số tiền, giao dịch có thể bị treo và cần liên hệ hỗ trợ.</p>
-                        <p style="color: #e8c088; margin: 5px 0; font-size: 14px;">- Đơn hàng sẽ hết hạn sau 15 phút. Vui lòng hoàn tất thanh toán trong thời gian này.</p>
+                    <!-- Danh sách mốc quà -->
+                    <div id="milestonesList" style="display: grid; gap: 20px;">
+                        <!-- Milestones will be loaded here -->
                     </div>
                 </div>
-            <?php elseif ($orderData && ($orderData['Status'] === 'completed' || $orderData['Status'] === 'failed' || $orderData['Status'] === 'expired')): ?>
-                <!-- Final Status Display -->
-                <div class="payment-form">
-                    <h3 style="color: #e8c088; margin-bottom: 20px;">
-                        <i class="fas fa-info-circle"></i> Trạng Thái Đơn Hàng #<?php echo htmlspecialchars($orderData['OrderCode']); ?>
-                    </h3>
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
-                        <div style="display: flex; justify-content: space-between; padding-bottom: 5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
-                            <span style="color: #e8c088; font-weight: bold;">Trạng thái:</span>
-                            <span style="font-weight: bold; padding: 5px 10px; border-radius: 5px; 
-                                <?php 
-                                $statusColor = $orderData['Status'] === 'completed' ? 'background: #28a745; color: #fff;' : 
-                                              ($orderData['Status'] === 'failed' ? 'background: #dc3545; color: #fff;' : 
-                                              'background: #ffc107; color: #333;');
-                                echo $statusColor;
-                                ?>">
-                                <?php echo htmlspecialchars(ucfirst($orderData['Status'])); ?>
-                            </span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding-bottom: 5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
-                            <span style="color: #e8c088; font-weight: bold;">Số tiền:</span>
-                            <span style="color: #e8c088;"><?php echo number_format($orderData['Amount']); ?> VNĐ</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding-bottom: 5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
-                            <span style="color: #e8c088; font-weight: bold;">Số Silk nhận:</span>
-                            <span style="color: #e8c088;"><?php echo number_format($orderData['SilkAmount']); ?> Silk</span>
-                        </div>
-                        <?php if (!empty($orderData['CompletedDate'])): ?>
-                        <div style="display: flex; justify-content: space-between; padding-bottom: 5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
-                            <span style="color: #e8c088; font-weight: bold;">Thời gian hoàn tất:</span>
-                            <span style="color: #e8c088;"><?php echo date('H:i:s d-m-Y', strtotime($orderData['CompletedDate'])); ?></span>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            <?php else: ?>
-                <!-- Payment Form Section (for new order) -->
-            <form method="POST" class="payment-form" id="paymentForm">
-                <div class="form-group">
-                    <label for="amount">Số Tiền Nạp (VNĐ)</label>
-                    <input type="number" id="amount" name="amount" class="form-control" 
-                           placeholder="Nhập số tiền..." min="10000" max="10000000" required>
-                    <div id="silk-preview" style="margin-top: 10px; padding: 10px; background: rgba(30, 144, 255, 0.1); border-radius: 5px; border: 1px solid #1e90ff; display: none;">
-                        <span style="color: #e8c088; font-weight: bold;">Bạn sẽ nhận được: </span>
-                        <span id="silk-amount-preview" style="color: #e8c088; font-weight: bold; font-size: 18px;">0</span>
-                        <span style="color: #e8c088; font-weight: bold;"> Silk</span>
-                    </div>
-                    
-                    <div class="amount-options">
-                        <div class="amount-btn" data-amount="50000">
-                            <div>50,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 2,000 Silk</div>
-                        </div>
-                        <div class="amount-btn" data-amount="100000">
-                            <div>100,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 4,000 Silk</div>
-                        </div>
-                        <div class="amount-btn" data-amount="200000">
-                            <div>200,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 8,000 Silk</div>
-                        </div>
-                        <div class="amount-btn" data-amount="500000">
-                            <div>500,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 20,000 Silk</div>
-                        </div>
-                        <div class="amount-btn" data-amount="1000000">
-                            <div>1,000,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 40,000 Silk</div>
-                        </div>
-                        <div class="amount-btn" data-amount="2000000">
-                            <div>2,000,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 80,000 Silk</div>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-primary">
-                    <i class="fas fa-credit-card"></i> Thanh Toán Ngay
-                </button>
-            </form>
-
-            <!-- Payment Information -->
-            <div class="payment-info">
-                <h4><i class="fas fa-info-circle"></i> Thông Tin Thanh Toán</h4>
-                <p><strong>Tỷ lệ quy đổi:</strong> 100,000 VNĐ = 4,000 Silk (1 VNĐ = 0.04 Silk)</p>
-                <p><strong>Thời gian xử lý:</strong> Tức thì sau khi thanh toán thành công</p>
-                <p><strong>Phí giao dịch:</strong> Miễn phí</p>
-                <p><strong>Bảo mật:</strong> Được mã hóa SSL 256-bit</p>
             </div>
-            <?php endif; ?>
 
             <div class="payment-footer" style="text-align: center; margin-top: 30px;">
                 <?php if (!$orderData || ($orderData['Status'] ?? '') !== 'pending'): ?>
@@ -841,6 +704,312 @@ if (!empty($currentOrderCode) && $orderData === null) {
 
     <!-- Scripts -->
     <script type="text/javascript" src="assets/js/jquery-1.11.2.min.js"></script>
+    <script>
+        // TichNap Feature - Load milestones and status
+        (function() {
+            const userJID = <?php echo $user_id; ?>;
+            let totalMoney = 0;
+            let milestones = [];
+            let claimedMilestones = [];
+
+            // Format VND
+            function formatVND(amount) {
+                return new Intl.NumberFormat('vi-VN').format(amount) + ' VND';
+            }
+
+            // Format date time
+            function formatDateTime(dateString) {
+                if (!dateString) return '--';
+                try {
+                    const date = new Date(dateString);
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = date.getFullYear();
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    return `${day}/${month}/${year} ${hours}:${minutes}`;
+                } catch (e) {
+                    return dateString;
+                }
+            }
+
+            // Load all data
+            async function loadTichNapData() {
+                try {
+                    // Load total money
+                    const totalMoneyRes = await fetch(`api/tichnap/get_total_money.php?userJID=${userJID}`);
+                    const totalMoneyData = await totalMoneyRes.json();
+                    
+                    if (totalMoneyData.success) {
+                        totalMoney = totalMoneyData.data || 0;
+                        document.getElementById('totalMoneyDisplay').textContent = formatVND(totalMoney);
+                        
+                        // Hiển thị thời gian sự kiện
+                        const eventTimeInfo = document.getElementById('eventTimeInfo');
+                        const eventStartDateEl = document.getElementById('eventStartDate');
+                        const eventEndDateEl = document.getElementById('eventEndDate');
+                        
+                        if (totalMoneyData.eventStartDate || totalMoneyData.eventEndDate) {
+                            eventStartDateEl.textContent = formatDateTime(totalMoneyData.eventStartDate);
+                            eventEndDateEl.textContent = formatDateTime(totalMoneyData.eventEndDate);
+                            eventTimeInfo.style.display = 'block';
+                        } else {
+                            eventTimeInfo.style.display = 'none';
+                        }
+                    }
+
+                    // Check feature status
+                    if (!totalMoneyData.featureEnabled || !totalMoneyData.inTimeRange) {
+                        showError(totalMoneyData.featureMessage || 'Tính năng nạp tích lũy hiện không khả dụng');
+                        return;
+                    }
+
+                    // Load milestones
+                    const ranksRes = await fetch('api/tichnap/get_ranks.php');
+                    const ranksData = await ranksRes.json();
+                    
+                    if (ranksData.success) {
+                        milestones = ranksData.data || [];
+                    }
+
+                    // Load claimed status
+                    const claimedRes = await fetch(`api/tichnap/get_claimed_status.php?username=<?php echo urlencode($username); ?>`);
+                    const claimedData = await claimedRes.json();
+                    
+                    if (claimedData.success) {
+                        claimedMilestones = claimedData.data.map(item => item.idItem);
+                    }
+
+                    // Render UI
+                    renderMilestones();
+                    updateNextMilestoneInfo();
+
+                    // Show main content
+                    document.getElementById('tichnapLoading').style.display = 'none';
+                    document.getElementById('tichnapMain').style.display = 'block';
+
+                } catch (error) {
+                    console.error('Error loading TichNap data:', error);
+                    showError('Lỗi khi tải dữ liệu: ' + error.message);
+                }
+            }
+
+            // Show error
+            function showError(message) {
+                document.getElementById('tichnapLoading').style.display = 'none';
+                document.getElementById('tichnapError').style.display = 'block';
+                document.getElementById('errorMessage').textContent = message;
+            }
+
+            // Render milestones
+            function renderMilestones() {
+                const container = document.getElementById('milestonesList');
+                
+                if (!milestones || milestones.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #e8c088;">
+                            <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
+                            <p>Chưa có mốc nạp tích lũy nào</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = milestones.map(milestone => {
+                    const milestoneValue = milestone.priceValue || 0;
+                    const isClaimed = claimedMilestones.includes(milestone.id);
+                    const isReached = totalMoney >= milestoneValue;
+                    const status = isClaimed ? 'claimed' : (isReached ? 'available' : 'locked');
+
+                    let statusBadge = '';
+                    let statusColor = '';
+                    let buttonHtml = '';
+
+                    if (status === 'claimed') {
+                        statusBadge = '<span style="background: #28a745; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;"><i class="fas fa-check"></i> Đã Nhận</span>';
+                        statusColor = '#28a745';
+                    } else if (status === 'available') {
+                        statusBadge = '<span style="background: #ffd700; color: #333; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;"><i class="fas fa-gift"></i> Có Thể Nhận</span>';
+                        statusColor = '#ffd700';
+                        buttonHtml = `
+                            <button onclick="claimReward('${milestone.id}')" 
+                                    style="background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); 
+                                           color: #333; 
+                                           border: none; 
+                                           padding: 10px 20px; 
+                                           border-radius: 8px; 
+                                           cursor: pointer; 
+                                           font-weight: 600;
+                                           margin-top: 15px;
+                                           transition: all 0.3s;">
+                                <i class="fas fa-gift"></i> Nhận Phần Thưởng
+                            </button>
+                        `;
+                    } else {
+                        statusBadge = '<span style="background: #6c757d; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;"><i class="fas fa-lock"></i> Chưa Đạt</span>';
+                        statusColor = '#6c757d';
+                        const remaining = milestoneValue - totalMoney;
+                        buttonHtml = `
+                            <div style="color: #87ceeb; margin-top: 15px; font-size: 14px;">
+                                <i class="fas fa-info-circle"></i> Cần nạp thêm: <strong style="color: #ffd700;">${formatVND(remaining)}</strong>
+                            </div>
+                        `;
+                    }
+
+                    // Progress bar
+                    const progressPercent = Math.min((totalMoney / milestoneValue) * 100, 100);
+
+                    return `
+                        <div style="background: rgba(30, 144, 255, 0.05); 
+                                    border: 2px solid ${statusColor}; 
+                                    border-radius: 10px; 
+                                    padding: 20px;
+                                    transition: all 0.3s;
+                                    ${status === 'available' ? 'box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);' : ''}">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <div>
+                                    <h3 style="color: #e8c088; margin: 0 0 5px 0; font-size: 20px;">
+                                        <i class="fas fa-trophy"></i> ${milestone.price}
+                                    </h3>
+                                    ${milestone.description ? `<p style="color: #87ceeb; margin: 0; font-size: 14px;">${milestone.description}</p>` : ''}
+                                </div>
+                                ${statusBadge}
+                            </div>
+
+                            <!-- Progress Bar -->
+                            <div style="background: rgba(108, 117, 125, 0.3); border-radius: 10px; height: 8px; margin-bottom: 15px; overflow: hidden;">
+                                <div style="background: linear-gradient(90deg, ${statusColor} 0%, ${statusColor}dd 100%); 
+                                           height: 100%; 
+                                           width: ${progressPercent}%; 
+                                           transition: width 0.5s;
+                                           border-radius: 10px;"></div>
+                            </div>
+                            <div style="color: #87ceeb; font-size: 12px; margin-bottom: 15px;">
+                                Tiến độ: ${formatVND(totalMoney)} / ${milestone.price} (${Math.round(progressPercent)}%)
+                            </div>
+
+                            <!-- Items List -->
+                            ${milestone.items && milestone.items.length > 0 ? `
+                                <div style="margin-top: 15px;">
+                                    <div style="color: #87ceeb; font-size: 14px; margin-bottom: 10px; font-weight: 600;">
+                                        <i class="fas fa-box"></i> Phần Thưởng:
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
+                                        ${milestone.items.map(item => `
+                                            <div style="background: rgba(30, 144, 255, 0.1); 
+                                                       border: 1px solid rgba(30, 144, 255, 0.3); 
+                                                       border-radius: 8px; 
+                                                       padding: 10px; 
+                                                       text-align: center;">
+                                                ${item.image ? `
+                                                    <img src="${item.image}" 
+                                                         alt="${item.name}" 
+                                                         style="width: 50px; height: 50px; object-fit: contain; margin-bottom: 5px;">
+                                                ` : `
+                                                    <div style="width: 50px; height: 50px; background: rgba(30, 144, 255, 0.2); border-radius: 4px; margin: 0 auto 5px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-box" style="font-size: 24px; color: #87ceeb;"></i>
+                                                    </div>
+                                                `}
+                                                <div style="color: #e8c088; font-size: 12px; font-weight: 600;">${item.name}</div>
+                                                <div style="color: #87ceeb; font-size: 11px;">x${item.quantity}</div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            <!-- Action Button -->
+                            ${buttonHtml}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Update next milestone info
+            function updateNextMilestoneInfo() {
+                const nextMilestone = milestones.find(m => {
+                    const milestoneValue = m.priceValue || 0;
+                    const isClaimed = claimedMilestones.includes(m.id);
+                    return !isClaimed && totalMoney < milestoneValue;
+                });
+
+                const nextMilestoneInfo = document.getElementById('nextMilestoneInfo');
+                const nextMilestoneText = document.getElementById('nextMilestoneText');
+
+                if (nextMilestone) {
+                    const remaining = nextMilestone.priceValue - totalMoney;
+                    nextMilestoneText.textContent = `Vui lòng nạp thêm ${formatVND(remaining)} để nhận mốc tiếp theo (${nextMilestone.price})`;
+                    nextMilestoneInfo.style.display = 'block';
+                } else {
+                    // All milestones reached or claimed
+                    const allClaimed = milestones.every(m => claimedMilestones.includes(m.id));
+                    if (allClaimed && milestones.length > 0) {
+                        nextMilestoneText.textContent = 'Chúc mừng! Bạn đã nhận tất cả phần thưởng!';
+                        nextMilestoneInfo.style.display = 'block';
+                    } else {
+                        nextMilestoneInfo.style.display = 'none';
+                    }
+                }
+            }
+
+            // Claim reward function
+            window.claimReward = async function(milestoneId) {
+                if (!confirm('Bạn có chắc muốn nhận phần thưởng này?')) {
+                    return;
+                }
+
+                // Disable button to prevent double click
+                const button = event.target.closest('button');
+                if (button) {
+                    button.disabled = true;
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+                }
+
+                try {
+                    const response = await fetch('api/tichnap/claim_reward.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            itemTichNap: milestoneId,
+                            userJID: userJID
+                            // Không cần charNames nữa, API sẽ tự động lấy
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert('Đã nhận phần thưởng thành công!');
+                        // Reload data
+                        loadTichNapData();
+                    } else {
+                        // Hiển thị thông báo lỗi chi tiết
+                        const errorMsg = result.error || 'Không thể nhận phần thưởng';
+                        if (errorMsg.includes('đã nhận')) {
+                            alert('⚠️ ' + errorMsg);
+                        } else {
+                            alert('❌ Lỗi: ' + errorMsg);
+                        }
+                        // Reload data để cập nhật trạng thái
+                        loadTichNapData();
+                    }
+                } catch (error) {
+                    alert('❌ Lỗi kết nối: ' + error.message);
+                } finally {
+                    // Re-enable button
+                    if (button) {
+                        button.disabled = false;
+                        button.innerHTML = '<i class="fas fa-gift"></i> Nhận Phần Thưởng';
+                    }
+                }
+            };
+
+            // Load data on page load
+            loadTichNapData();
+        })();
+    </script>
     <script>
         // Initialize variables from PHP
         const ORDER_CODE = '<?php echo htmlspecialchars($currentOrderCode); ?>';

@@ -219,28 +219,15 @@ require_once __DIR__ . '/../../connection_manager.php';
             margin-top: 4px;
         }
         
-        .selected-items {
-            margin-top: 20px;
+        .item-input-row {
             padding: 15px;
             background: #f8f9fa;
             border-radius: 8px;
+            border: 2px solid #e0e0e0;
         }
         
-        .selected-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            background: white;
-            border-radius: 6px;
-            margin: 5px;
-            border: 2px solid #667eea;
-        }
-        
-        .selected-item .remove-btn {
-            cursor: pointer;
-            color: #dc3545;
-            font-weight: bold;
+        .item-input-row:first-child {
+            border-color: #667eea;
         }
         
         .milestone-list {
@@ -357,6 +344,22 @@ require_once __DIR__ . '/../../connection_manager.php';
                 </div>
                 
                 <div class="form-group">
+                    <label>Thời Gian Bắt Đầu Sự Kiện</label>
+                    <input type="datetime-local" id="eventStartDate">
+                    <p style="color: #888; margin-top: 5px; font-size: 12px;">
+                        Để trống nếu muốn bắt đầu ngay lập tức
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label>Thời Gian Kết Thúc Sự Kiện</label>
+                    <input type="datetime-local" id="eventEndDate">
+                    <p style="color: #888; margin-top: 5px; font-size: 12px;">
+                        Để trống nếu sự kiện không giới hạn thời gian
+                    </p>
+                </div>
+                
+                <div class="form-group">
                     <button onclick="saveConfig()" class="btn btn-primary">
                         <i class="fas fa-save"></i> Lưu Cấu Hình
                     </button>
@@ -379,21 +382,31 @@ require_once __DIR__ . '/../../connection_manager.php';
                 </div>
                 
                 <div class="form-group">
-                    <label>Chọn Vật Phẩm Phần Thưởng *</label>
-                    <div class="item-selector">
-                        <div class="item-search">
-                            <input type="text" id="itemSearch" placeholder="Tìm kiếm vật phẩm (mã hoặc tên)...">
-                        </div>
-                        <div id="itemList" class="item-list">
-                            <div class="loading">
-                                <i class="fas fa-spinner fa-spin"></i> Đang tải vật phẩm...
+                    <label>Vật Phẩm Phần Thưởng *</label>
+                    <div id="itemsContainer">
+                        <div class="item-input-row" style="display: grid; grid-template-columns: 2fr 2fr 1fr auto; gap: 10px; margin-bottom: 10px; align-items: end;">
+                            <div>
+                                <label style="font-size: 12px; color: #666; margin-bottom: 5px;">Tên Vật Phẩm</label>
+                                <input type="text" class="item-name" placeholder="Ví dụ: Quiver" required>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: #666; margin-bottom: 5px;">ID Vật Phẩm (CodeItem)</label>
+                                <input type="text" class="item-code" placeholder="Ví dụ: ITEM_MALL_QUIVER" required>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: #666; margin-bottom: 5px;">Số Lượng</label>
+                                <input type="number" class="item-quantity" placeholder="1" value="1" min="1" required>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-secondary" onclick="removeItemRow(this)" style="padding: 12px 15px;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
-                    <div id="selectedItems" class="selected-items" style="display: none;">
-                        <strong>Đã chọn:</strong>
-                        <div id="selectedItemsList"></div>
-                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="addItemRow()" style="margin-top: 10px;">
+                        <i class="fas fa-plus"></i> Thêm Vật Phẩm
+                    </button>
                 </div>
                 
                 <div class="form-group">
@@ -409,9 +422,100 @@ require_once __DIR__ . '/../../connection_manager.php';
     </div>
     
     <script>
-        let selectedItems = [];
-        let allItems = [];
+        // Thêm dòng nhập item mới
+        function addItemRow() {
+            const container = document.getElementById('itemsContainer');
+            const newRow = document.createElement('div');
+            newRow.className = 'item-input-row';
+            newRow.style.cssText = 'display: grid; grid-template-columns: 2fr 2fr 1fr auto; gap: 10px; margin-bottom: 10px; align-items: end; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 2px solid #e0e0e0;';
+            newRow.innerHTML = `
+                <div>
+                    <label style="font-size: 12px; color: #666; margin-bottom: 5px; display: block;">Tên Vật Phẩm</label>
+                    <input type="text" class="item-name" placeholder="Ví dụ: Quiver" required>
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: #666; margin-bottom: 5px; display: block;">ID Vật Phẩm (CodeItem)</label>
+                    <input type="text" class="item-code" placeholder="Ví dụ: ITEM_MALL_QUIVER" required>
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: #666; margin-bottom: 5px; display: block;">Số Lượng</label>
+                    <input type="number" class="item-quantity" placeholder="1" value="1" min="1" required>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-secondary" onclick="removeItemRow(this)" style="padding: 12px 15px;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(newRow);
+        }
         
+        // Xóa dòng nhập item
+        function removeItemRow(btn) {
+            const container = document.getElementById('itemsContainer');
+            if (container.children.length > 1) {
+                btn.closest('.item-input-row').remove();
+            } else {
+                alert('Phải có ít nhất một vật phẩm!');
+            }
+        }
+        
+        // Load config (feature toggle + thời gian sự kiện)
+        async function loadConfig() {
+            try {
+                const res = await fetch('../../api/tichnap/get_config.php');
+                const result = await res.json();
+                if (result.success && result.data) {
+                    document.getElementById('featureToggle').checked = !!result.data.featureEnabled;
+                    
+                    // Parse datetime từ server (format DATETIME) sang datetime-local (YYYY-MM-DDTHH:MM)
+                    if (result.data.eventStartDate) {
+                        const start = new Date(result.data.eventStartDate);
+                        document.getElementById('eventStartDate').value = start.toISOString().slice(0, 16);
+                    } else {
+                        document.getElementById('eventStartDate').value = '';
+                    }
+                    
+                    if (result.data.eventEndDate) {
+                        const end = new Date(result.data.eventEndDate);
+                        document.getElementById('eventEndDate').value = end.toISOString().slice(0, 16);
+                    } else {
+                        document.getElementById('eventEndDate').value = '';
+                    }
+                }
+            } catch (error) {
+                alert('Lỗi tải cấu hình: ' + error.message);
+            }
+        }
+
+        // Save config (feature toggle + thời gian sự kiện)
+        async function saveConfig() {
+            const featureEnabled = document.getElementById('featureToggle').checked;
+            const eventStartDate = document.getElementById('eventStartDate').value || null;
+            const eventEndDate = document.getElementById('eventEndDate').value || null;
+            try {
+                const res = await fetch('../../api/tichnap/update_config.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        featureEnabled,
+                        eventStartDate,
+                        eventEndDate
+                    })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    alert(result.message || 'Đã lưu cấu hình thành công!');
+                } else {
+                    alert('Lỗi: ' + (result.error || 'Không thể lưu cấu hình'));
+                }
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            }
+        }
+
         // Switch tabs
         function switchTab(tabName) {
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
@@ -428,7 +532,6 @@ require_once __DIR__ . '/../../connection_manager.php';
             } else {
                 document.querySelectorAll('.tab')[1].classList.add('active');
                 document.getElementById('createTab').classList.add('active');
-                loadItems();
             }
         }
         
@@ -438,24 +541,21 @@ require_once __DIR__ . '/../../connection_manager.php';
             listEl.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>';
             
             try {
-                const response = await fetch('../../api/tichnap/get_ranks.php');
+                // Dùng get_all_milestones để lấy tất cả mốc (bao gồm cả inactive nếu có)
+                const response = await fetch('../../api/tichnap/get_all_milestones.php');
                 const result = await response.json();
                 
                 if (result.success && result.data.length > 0) {
                     listEl.innerHTML = result.data.map(milestone => `
-                        <div class="milestone-card" style="${milestone.isActive ? 'border-color: #4caf50; background: #f0f9f0;' : ''}">
+                        <div class="milestone-card">
                             <div class="milestone-header">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 10px;">
                                         <div class="milestone-price">${milestone.price}</div>
-                                        ${milestone.isActive ? '<span style="background: #4caf50; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">ĐANG KÍCH HOẠT</span>' : ''}
                                     </div>
                                     ${milestone.description ? `<div style="color: #666; margin-top: 5px;">${milestone.description}</div>` : ''}
                                 </div>
                                 <div style="display: flex; gap: 10px;">
-                                    ${!milestone.isActive ? `<button class="btn btn-primary" onclick="activateMilestone('${milestone.id}')" style="font-size: 12px; padding: 6px 12px;">
-                                        <i class="fas fa-check"></i> Kích Hoạt
-                                    </button>` : ''}
                                     <button class="btn btn-secondary" onclick="deleteMilestone('${milestone.id}')" style="font-size: 12px; padding: 6px 12px;">
                                         <i class="fas fa-trash"></i> Xóa
                                     </button>
@@ -482,106 +582,39 @@ require_once __DIR__ . '/../../connection_manager.php';
             }
         }
         
-        // Load items for selection
-        async function loadItems(keyword = '') {
-            const listEl = document.getElementById('itemList');
-            listEl.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>';
-            
-            try {
-                const url = `../../api/tichnap/search_items.php?limit=50${keyword ? '&keyword=' + encodeURIComponent(keyword) : ''}`;
-                const response = await fetch(url);
-                const result = await response.json();
-                
-                if (result.success && result.data.length > 0) {
-                    allItems = result.data;
-                    listEl.innerHTML = result.data.map(item => `
-                        <div class="item-card" onclick="toggleItem('${item.id}', '${item.codeItem}', '${item.nameItem}', '${item.image || ''}')">
-                            ${item.image ? `<img src="${item.image}" alt="${item.nameItem}">` : '<div style="width: 100%; height: 120px; background: #f5f5f5; border-radius: 6px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-image" style="font-size: 32px; color: #ccc;"></i></div>'}
-                            <div class="item-name">${item.nameItem}</div>
-                            <div class="item-code">${item.codeItem}</div>
-                        </div>
-                    `).join('');
-                } else {
-                    listEl.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>Không tìm thấy vật phẩm</p></div>';
-                }
-            } catch (error) {
-                listEl.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Lỗi: ${error.message}</p></div>`;
-            }
-        }
-        
-        // Toggle item selection
-        function toggleItem(id, codeItem, nameItem, image) {
-            const index = selectedItems.findIndex(item => item.id === id);
-            
-            if (index > -1) {
-                selectedItems.splice(index, 1);
-            } else {
-                selectedItems.push({ id, codeItem, nameItem, image });
-            }
-            
-            updateSelectedItems();
-            updateItemCards();
-        }
-        
-        // Update selected items display
-        function updateSelectedItems() {
-            const container = document.getElementById('selectedItems');
-            const listEl = document.getElementById('selectedItemsList');
-            
-            if (selectedItems.length > 0) {
-                container.style.display = 'block';
-                listEl.innerHTML = selectedItems.map(item => `
-                    <div class="selected-item">
-                        ${item.image ? `<img src="${item.image}" style="width: 30px; height: 30px; object-fit: contain;">` : ''}
-                        <span>${item.nameItem}</span>
-                        <span class="remove-btn" onclick="removeItem('${item.id}')">×</span>
-                    </div>
-                `).join('');
-            } else {
-                container.style.display = 'none';
-            }
-        }
-        
-        // Update item cards visual state
-        function updateItemCards() {
-            document.querySelectorAll('.item-card').forEach(card => {
-                const itemId = card.getAttribute('onclick').match(/'([^']+)'/)[1];
-                if (selectedItems.find(item => item.id === itemId)) {
-                    card.classList.add('selected');
-                } else {
-                    card.classList.remove('selected');
-                }
-            });
-        }
-        
-        // Remove item from selection
-        function removeItem(id) {
-            selectedItems = selectedItems.filter(item => item.id !== id);
-            updateSelectedItems();
-            updateItemCards();
-        }
-        
-        // Search items
-        let searchTimeout;
-        document.getElementById('itemSearch').addEventListener('input', function(e) {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                loadItems(e.target.value);
-            }, 300);
-        });
         
         // Create milestone form
         document.getElementById('createMilestoneForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            if (selectedItems.length === 0) {
-                alert('Vui lòng chọn ít nhất một vật phẩm phần thưởng!');
+            // Thu thập dữ liệu từ các dòng nhập item
+            const itemRows = document.querySelectorAll('.item-input-row');
+            const items = [];
+            
+            for (let row of itemRows) {
+                const name = row.querySelector('.item-name').value.trim();
+                const code = row.querySelector('.item-code').value.trim();
+                const quantity = parseInt(row.querySelector('.item-quantity').value) || 1;
+                
+                if (!name || !code) {
+                    alert('Vui lòng điền đầy đủ thông tin vật phẩm!');
+                    return;
+                }
+                
+                items.push({
+                    name: name,
+                    codeItem: code,
+                    quantity: quantity
+                });
+            }
+            
+            if (items.length === 0) {
+                alert('Vui lòng thêm ít nhất một vật phẩm phần thưởng!');
                 return;
             }
             
             const rank = parseInt(document.getElementById('rank').value);
             const description = document.getElementById('description').value;
-            const itemIds = selectedItems.map(item => item.id);
             
             if (!rank || rank <= 0) {
                 alert('Vui lòng nhập mốc tiền hợp lệ!');
@@ -597,7 +630,7 @@ require_once __DIR__ . '/../../connection_manager.php';
                     body: JSON.stringify({
                         rank: rank,
                         description: description,
-                        itemIds: itemIds
+                        items: items
                     })
                 });
                 
@@ -618,39 +651,16 @@ require_once __DIR__ . '/../../connection_manager.php';
         // Reset form
         function resetForm() {
             document.getElementById('createMilestoneForm').reset();
-            selectedItems = [];
-            updateSelectedItems();
-            updateItemCards();
-        }
-        
-        // Activate milestone
-        async function activateMilestone(id) {
-            if (!confirm('Bạn có chắc muốn kích hoạt mốc nạp này? Mốc đang active sẽ bị tắt.')) {
-                return;
+            const container = document.getElementById('itemsContainer');
+            // Giữ lại 1 dòng, xóa các dòng khác
+            while (container.children.length > 1) {
+                container.removeChild(container.lastChild);
             }
-            
-            try {
-                const response = await fetch('../../api/tichnap/activate_milestone.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        id: id
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('Đã kích hoạt mốc nạp thành công!');
-                    loadMilestones();
-                } else {
-                    alert('Lỗi: ' + result.error);
-                }
-            } catch (error) {
-                alert('Lỗi: ' + error.message);
-            }
+            // Reset dòng đầu tiên
+            const firstRow = container.querySelector('.item-input-row');
+            firstRow.querySelector('.item-name').value = '';
+            firstRow.querySelector('.item-code').value = '';
+            firstRow.querySelector('.item-quantity').value = '1';
         }
         
         // Delete milestone

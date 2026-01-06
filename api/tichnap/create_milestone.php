@@ -7,7 +7,10 @@
  * {
  *   "rank": 100000,
  *   "description": "Phần thưởng mốc 100k",
- *   "itemIds": ["guid1", "guid2", "guid3"]
+ *   "items": [
+ *     {"name": "Quiver", "codeItem": "ITEM_MALL_QUIVER", "quantity": 1},
+ *     {"name": "Potion", "codeItem": "ITEM_MALL_POTION", "quantity": 10}
+ *   ]
  * }
  */
 
@@ -55,7 +58,7 @@ try {
     
     $rank = isset($input['rank']) ? (int)$input['rank'] : 0;
     $description = isset($input['description']) ? trim($input['description']) : '';
-    $itemIds = isset($input['itemIds']) ? $input['itemIds'] : [];
+    $items = isset($input['items']) ? $input['items'] : [];
     
     // Validate input
     if ($rank <= 0) {
@@ -67,22 +70,32 @@ try {
         exit;
     }
     
-    if (empty($itemIds) || !is_array($itemIds)) {
+    if (empty($items) || !is_array($items)) {
         http_response_code(400);
         echo json_encode([
             'success' => false,
-            'error' => 'Phải chọn ít nhất một vật phẩm'
+            'error' => 'Phải thêm ít nhất một vật phẩm'
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
     
-    // Validate GUIDs
-    foreach ($itemIds as $itemId) {
-        if (!isValidGuid($itemId)) {
+    // Validate items
+    foreach ($items as $item) {
+        if (empty($item['name']) || empty($item['codeItem'])) {
             http_response_code(400);
             echo json_encode([
                 'success' => false,
-                'error' => 'Invalid item ID format: ' . $itemId
+                'error' => 'Mỗi vật phẩm phải có tên và ID (CodeItem)'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        
+        $quantity = isset($item['quantity']) ? (int)$item['quantity'] : 1;
+        if ($quantity <= 0) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Số lượng vật phẩm phải lớn hơn 0'
             ], JSON_UNESCAPED_UNICODE);
             exit;
         }
@@ -108,42 +121,30 @@ try {
         exit;
     }
     
-    // Disable tất cả mốc khác (chỉ cho phép 1 mốc active)
-    $stmt = $db->prepare("
-        UPDATE SilkTichNap
-        SET IsActive = 0, UpdatedDate = GETDATE(), UpdatedId = ?
-        WHERE IsDelete = 0 AND IsActive = 1
-    ");
-    $stmt->execute([$adminJID]);
-    
-    // Validate all items exist
-    $placeholders = implode(',', array_fill(0, count($itemIds), '?'));
-    $stmt = $db->prepare("
-        SELECT COUNT(*) as count
-        FROM GiftCodeItem
-        WHERE Id IN ($placeholders) AND IsDelete = 0
-    ");
-    $stmt->execute($itemIds);
-    $itemsExist = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($itemsExist['count'] != count($itemIds)) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'error' => 'Một hoặc nhiều vật phẩm không tồn tại'
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
+    // Chuẩn hóa items data
+    $normalizedItems = [];
+    foreach ($items as $item) {
+        $normalizedItems[] = [
+            'name' => trim($item['name']),
+            'codeItem' => trim($item['codeItem']),
+            'quantity' => (int)($item['quantity'] ?? 1)
+        ];
     }
     
-    // Create milestone (tự động set IsActive = 1 vì đã disable các mốc khác)
-    $dsItem = implode(',', $itemIds);
+    // Lưu items dưới dạng JSON
+    $itemsJson = json_encode($normalizedItems, JSON_UNESCAPED_UNICODE);
+    
+    // Giữ DsItem rỗng để tương thích với code cũ (nếu có)
+    $dsItem = '';
+    
+    // Create milestone (mặc định IsActive = 1, tất cả mốc đều active)
+    // CreatedId là UNIQUEIDENTIFIER, không thể dùng INT từ session, set NULL
     $stmt = $db->prepare("
-        INSERT INTO SilkTichNap (Id, Rank, DsItem, Description, IsActive, CreatedDate, CreatedId)
-        VALUES (NEWID(), ?, ?, ?, 1, GETDATE(), ?)
+        INSERT INTO SilkTichNap (Id, Rank, DsItem, ItemsJson, Description, IsActive, CreatedDate, CreatedId)
+        VALUES (NEWID(), ?, ?, ?, ?, 1, GETDATE(), NULL)
     ");
     
-    $adminJID = $_SESSION['user_id'] ?? null;
-    $stmt->execute([$rank, $dsItem, $description, $adminJID]);
+    $stmt->execute([$rank, $dsItem, $itemsJson, $description]);
     
     http_response_code(200);
     echo json_encode([
@@ -153,7 +154,8 @@ try {
             'rank' => $rank,
             'price' => formatVND($rank),
             'description' => $description,
-            'itemCount' => count($itemIds)
+            'itemCount' => count($normalizedItems),
+            'items' => $normalizedItems
         ]
     ], JSON_UNESCAPED_UNICODE);
     

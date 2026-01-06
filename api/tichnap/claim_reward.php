@@ -73,15 +73,6 @@ try {
         exit;
     }
     
-    if (empty($charNames)) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'error' => 'charNames is required'
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-    
     if ($userJID <= 0) {
         http_response_code(400);
         echo json_encode([
@@ -89,6 +80,22 @@ try {
             'error' => 'Invalid userJID'
         ], JSON_UNESCAPED_UNICODE);
         exit;
+    }
+    
+    // Nếu không có charNames, tự động lấy character đầu tiên của user
+    if (empty($charNames)) {
+        $db = ConnectionManager::getAccountDB();
+        $shardDb = ConnectionManager::getShardDB();
+        $charNames = getFirstCharacterNameFromJID($userJID, $shardDb, $db);
+        
+        if (empty($charNames)) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Không tìm thấy nhân vật. Vui lòng tạo nhân vật trong game trước.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
     }
     
     // Validate GUID format
@@ -113,31 +120,38 @@ try {
     
     $username = $_SESSION['username'];
     $db = ConnectionManager::getAccountDB();
-    $shardDb = ConnectionManager::getShardDB();
     
-    // 0. Kiểm tra tính năng có được bật không
-    $stmt = $db->prepare("
-        SELECT TOP 1 FeatureEnabled
-        FROM TichNapConfig
-        ORDER BY UpdatedDate DESC
-    ");
-    $stmt->execute();
-    $config = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Lấy shardDb nếu chưa có (nếu đã lấy ở trên thì không cần lấy lại)
+    if (!isset($shardDb)) {
+        $shardDb = ConnectionManager::getShardDB();
+    }
     
-    if (!$config || !$config['FeatureEnabled']) {
+    // 0. Kiểm tra tính năng có đang hoạt động không (bật và trong thời gian sự kiện)
+    $featureStatus = checkTichNapFeatureStatus($db);
+    
+    if (!$featureStatus['enabled']) {
         http_response_code(403);
         echo json_encode([
             'success' => false,
-            'error' => 'Tính năng nạp tích lũy đang tạm thời tắt'
+            'error' => $featureStatus['message'] ?? 'Tính năng nạp tích lũy đang tạm thời tắt'
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
     
-    // 1. Kiểm tra và lấy thông tin mốc nạp (chỉ lấy mốc đang active)
+    if (!$featureStatus['inTimeRange']) {
+        http_response_code(403);
+        echo json_encode([
+            'success' => false,
+            'error' => $featureStatus['message'] ?? 'Sự kiện nạp tích lũy hiện không khả dụng'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    
+    // 1. Kiểm tra và lấy thông tin mốc nạp (tất cả mốc đều active mặc định)
     $stmt = $db->prepare("
-        SELECT Id, Rank, DsItem, Description
+        SELECT Id, Rank, DsItem, ItemsJson, Description
         FROM SilkTichNap
-        WHERE Id = ? AND IsDelete = 0 AND IsActive = 1
+        WHERE Id = ? AND IsDelete = 0
     ");
     $stmt->execute([$itemTichNap]);
     $milestone = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -193,9 +207,45 @@ try {
     }
     
     // 6. Lấy danh sách item cần trao
-    $itemIds = parseItemIds($milestone['DsItem']);
+    $items = [];
     
-    if (empty($itemIds)) {
+    // Ưu tiên đọc từ ItemsJson (cách mới)
+    if (!empty($milestone['ItemsJson'])) {
+        $itemsData = json_decode($milestone['ItemsJson'], true);
+        if (is_array($itemsData) && !empty($itemsData)) {
+            foreach ($itemsData as $itemData) {
+                $codeItem = trim($itemData['codeItem'] ?? '');
+                $quantity = (int)($itemData['quantity'] ?? 1);
+                $name = trim($itemData['name'] ?? '');
+                
+                if (!empty($codeItem) && $quantity > 0) {
+                    $items[] = [
+                        'CodeItem' => $codeItem,
+                        'quanlity' => $quantity,
+                        'NameItem' => $name ?: $codeItem
+                    ];
+                }
+            }
+        }
+    } 
+    // Fallback: đọc từ DsItem (cách cũ - tương thích ngược)
+    else if (!empty($milestone['DsItem'])) {
+        $itemIds = parseItemIds($milestone['DsItem']);
+        
+        if (!empty($itemIds)) {
+            $placeholders = implode(',', array_fill(0, count($itemIds), '?'));
+            
+            $stmt = $db->prepare("
+                SELECT CodeItem, quanlity, NameItem
+                FROM GiftCodeItem
+                WHERE Id IN ($placeholders) AND IsDelete = 0
+            ");
+            $stmt->execute($itemIds);
+            $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+    }
+    
+    if (empty($items)) {
         http_response_code(400);
         echo json_encode([
             'success' => false,
@@ -204,47 +254,50 @@ try {
         exit;
     }
     
-    $placeholders = implode(',', array_fill(0, count($itemIds), '?'));
-    
-    $stmt = $db->prepare("
-        SELECT CodeItem, quanlity, NameItem
-        FROM GiftCodeItem
-        WHERE Id IN ($placeholders) AND IsDelete = 0
-    ");
-    $stmt->execute($itemIds);
-    $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    if (empty($items)) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'error' => 'Không tìm thấy vật phẩm phần thưởng'
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-    
     // 7. Bắt đầu transaction để đảm bảo tính nhất quán
     $db->beginTransaction();
     
     try {
-        // 8. Thêm item vào game (gọi stored procedure cho từng item)
+        // 8. Thêm item vào game qua bảng _InstantItemDelivery
+        // Chuẩn bị dữ liệu items để thêm cùng lúc
+        $itemsToAdd = [];
+        foreach ($items as $item) {
+            $itemsToAdd[] = [
+                'codeName' => $item['CodeItem'],
+                'codeItem' => $item['CodeItem'],  // Alias để tương thích
+                'count' => (int)$item['quanlity'],
+                'quanlity' => (int)$item['quanlity']  // Alias để tương thích
+            ];
+        }
+        
+        // Sử dụng hàm addMultipleItemsToCharacter để thêm tất cả items cùng lúc
+        // Hàm này sẽ:
+        // 1. Lấy CharID từ CharName trong SRO_VT_SHARD.dbo._Char (chỉ 1 lần)
+        // 2. Insert tất cả items vào SRO_VT_FILTER.dbo._InstantItemDelivery
+        // Refactor theo SQL script: INSERT INTO SRO_VT_FILTER.dbo.[_InstantItemDelivery] ...
+        $result = addMultipleItemsToCharacter(
+            $charNames,
+            $itemsToAdd,
+            $shardDb,
+            'SRO_VT_FILTER'  // Tên database FILTER
+        );
+        
+        if (!$result['success'] || $result['failed'] > 0) {
+            $errorMsg = 'Không thể thêm một số vật phẩm. ';
+            if (!empty($result['errors'])) {
+                $errorMsg .= implode('; ', $result['errors']);
+            }
+            throw new Exception($errorMsg);
+        }
+        
+        // Chuẩn bị danh sách items đã thêm để trả về
         $addedItems = [];
         foreach ($items as $item) {
-            $success = addItemToCharacter(
-                $charNames,
-                $item['CodeItem'],
-                (int)$item['quanlity'],
-                $shardDb
-            );
-            
-            if ($success) {
-                $addedItems[] = [
-                    'codeItem' => $item['CodeItem'],
-                    'quanlity' => (int)$item['quanlity']
-                ];
-            } else {
-                throw new Exception("Không thể thêm item: " . $item['CodeItem']);
-            }
+            $addedItems[] = [
+                'codeItem' => $item['CodeItem'],
+                'quanlity' => (int)$item['quanlity'],
+                'name' => $item['NameItem'] ?? $item['CodeItem']
+            ];
         }
         
         // 9. Ghi log đã nhận

@@ -73,7 +73,6 @@ try {
     }
     
     $db = ConnectionManager::getAccountDB();
-    $adminJID = $_SESSION['user_id'] ?? null;
     
     // Check if milestone exists
     $stmt = $db->prepare("
@@ -92,20 +91,22 @@ try {
     }
     
     // Disable tất cả mốc khác (chỉ cho phép 1 mốc active)
+    // UpdatedId là UNIQUEIDENTIFIER, không thể dùng INT từ session, set NULL
     $stmt = $db->prepare("
         UPDATE SilkTichNap
-        SET IsActive = 0, UpdatedDate = GETDATE(), UpdatedId = ?
+        SET IsActive = 0, UpdatedDate = GETDATE(), UpdatedId = NULL
         WHERE IsDelete = 0 AND IsActive = 1
     ");
-    $stmt->execute([$adminJID]);
+    $stmt->execute();
     
     // Activate mốc được chọn
+    // UpdatedId là UNIQUEIDENTIFIER, không thể dùng INT từ session, set NULL
     $stmt = $db->prepare("
         UPDATE SilkTichNap
-        SET IsActive = 1, UpdatedDate = GETDATE(), UpdatedId = ?
+        SET IsActive = 1, UpdatedDate = GETDATE(), UpdatedId = NULL
         WHERE Id = ?
     ");
-    $stmt->execute([$adminJID, $id]);
+    $stmt->execute([$id]);
     
     http_response_code(200);
     echo json_encode([

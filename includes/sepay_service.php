@@ -349,7 +349,6 @@ class SepayService {
         $isBankWebhook = isset($data['gateway']) || isset($data['accountNumber']) || isset($data['transferAmount']);
         $isSepayWebhook = isset($data['order_code']) || isset($data['orderCode']) || isset($data['status']);
         
-        
         // Extract order code based on webhook type
         $orderCode = '';
         if ($isSepayWebhook) {
@@ -541,11 +540,15 @@ class SepayService {
                     
                     // Lưu vào TotalMoneyUser để theo dõi tích lũy (optional - có thể tính trực tiếp từ TB_Order)
                     try {
+                        // Convert Amount từ decimal sang int (BIGINT) và JID sang int
+                        $userJID = (int)$order['JID'];
+                        $totalMoney = (int)round((float)$order['Amount']); // Convert decimal to int
+                        
                         $stmt = $db->prepare("
                             INSERT INTO TotalMoneyUser (Id, UserJID, TotalMoney, CreateDate, CreatedDate)
                             VALUES (NEWID(), ?, ?, GETDATE(), GETDATE())
                         ");
-                        $stmt->execute([$order['JID'], $order['Amount']]);
+                        $stmt->execute([$userJID, $totalMoney]);
                     } catch (Exception $e) {
                         // Log error nhưng không ảnh hưởng đến payment processing
                         // Bảng TotalMoneyUser có thể chưa tồn tại hoặc có lỗi
@@ -612,7 +615,6 @@ class SepayService {
             }
             
             // Unknown status
-            
             $result = [
                 'success' => true,
                 'message' => 'Webhook received but status not processed',
@@ -623,7 +625,6 @@ class SepayService {
             return $result;
             
         } catch (Exception $e) {
-            
             $errorResult = [
                 'success' => false,
                 'error' => $e->getMessage(),

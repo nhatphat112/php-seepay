@@ -1,7 +1,13 @@
 <?php
 /**
  * Migration Script: Tạo bảng cho chức năng Nạp Tích Lũy
- * Script này chỉ tạo các bảng nếu chưa tồn tại, không xóa bất kỳ dữ liệu nào
+ * 
+ * NGUYÊN TẮC AN TOÀN:
+ * - CHỈ BỔ SUNG: Tạo bảng mới, thêm cột mới, tạo index mới
+ * - KHÔNG XÓA: Không DROP TABLE, DROP COLUMN, DELETE, TRUNCATE
+ * - KHÔNG SỬA: Không ALTER COLUMN, không thay đổi kiểu dữ liệu
+ * - IDEMPOTENT: Có thể chạy nhiều lần mà không gây lỗi
+ * - TƯƠNG THÍCH: Không làm lỗi các câu query cũ
  * 
  * Usage:
  *   php sql_scripts/migrate_tichnap.php
@@ -36,6 +42,7 @@ try {
                 [Id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
                 [Rank] INT NOT NULL,
                 [DsItem] NVARCHAR(MAX),
+                [ItemsJson] NVARCHAR(MAX) NULL,
                 [Description] NVARCHAR(MAX),
                 [IsActive] BIT DEFAULT 0,
                 [CreatedDate] DATETIME DEFAULT GETDATE(),
@@ -64,6 +71,22 @@ try {
             $db->exec("ALTER TABLE [dbo].[SilkTichNap] ADD [IsActive] BIT DEFAULT 0");
             echo "   ✓ Đã thêm cột IsActive\n";
         }
+        
+        // Kiểm tra và thêm cột ItemsJson nếu chưa có
+        $stmt = $db->query("
+            SELECT COUNT(*) as count 
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_SCHEMA = 'dbo' 
+            AND TABLE_NAME = 'SilkTichNap' 
+            AND COLUMN_NAME = 'ItemsJson'
+        ");
+        $hasItemsJson = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($hasItemsJson['count'] == 0) {
+            echo "   → Thêm cột ItemsJson...\n";
+            $db->exec("ALTER TABLE [dbo].[SilkTichNap] ADD [ItemsJson] NVARCHAR(MAX) NULL");
+            echo "   ✓ Đã thêm cột ItemsJson\n";
+        }
     }
     echo "\n";
     
@@ -91,13 +114,29 @@ try {
             )
         ");
         
-        // Tạo indexes
-        try {
-            $db->exec("CREATE NONCLUSTERED INDEX [IX_LogTichNap_CharName] ON [dbo].[LogTichNap] ([CharName])");
-            $db->exec("CREATE NONCLUSTERED INDEX [IX_LogTichNap_IdTichNap] ON [dbo].[LogTichNap] ([IdTichNap])");
-            echo "   ✓ Đã tạo indexes\n";
-        } catch (Exception $e) {
-            // Index có thể đã tồn tại, bỏ qua
+        // Tạo indexes nếu chưa tồn tại
+        $indexes = [
+            ['IX_LogTichNap_CharName', 'CharName'],
+            ['IX_LogTichNap_IdTichNap', 'IdTichNap']
+        ];
+        
+        foreach ($indexes as $index) {
+            $stmt = $db->query("
+                SELECT COUNT(*) as count 
+                FROM sys.indexes 
+                WHERE name = '{$index[0]}' 
+                AND object_id = OBJECT_ID('[dbo].[LogTichNap]')
+            ");
+            $exists = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($exists['count'] == 0) {
+                try {
+                    $db->exec("CREATE NONCLUSTERED INDEX [{$index[0]}] ON [dbo].[LogTichNap] ([{$index[1]}])");
+                    echo "   ✓ Đã tạo index {$index[0]}\n";
+                } catch (Exception $e) {
+                    // Bỏ qua nếu có lỗi
+                }
+            }
         }
         
         echo "   ✓ Đã tạo bảng LogTichNap\n";
@@ -129,12 +168,22 @@ try {
             )
         ");
         
-        // Tạo index
-        try {
-            $db->exec("CREATE NONCLUSTERED INDEX [IX_TotalMoneyUser_UserJID] ON [dbo].[TotalMoneyUser] ([UserJID])");
-            echo "   ✓ Đã tạo index\n";
-        } catch (Exception $e) {
-            // Index có thể đã tồn tại, bỏ qua
+        // Tạo index nếu chưa tồn tại
+        $stmt = $db->query("
+            SELECT COUNT(*) as count 
+            FROM sys.indexes 
+            WHERE name = 'IX_TotalMoneyUser_UserJID' 
+            AND object_id = OBJECT_ID('[dbo].[TotalMoneyUser]')
+        ");
+        $exists = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($exists['count'] == 0) {
+            try {
+                $db->exec("CREATE NONCLUSTERED INDEX [IX_TotalMoneyUser_UserJID] ON [dbo].[TotalMoneyUser] ([UserJID])");
+                echo "   ✓ Đã tạo index IX_TotalMoneyUser_UserJID\n";
+            } catch (Exception $e) {
+                // Bỏ qua nếu có lỗi
+            }
         }
         
         echo "   ✓ Đã tạo bảng TotalMoneyUser\n";
@@ -165,12 +214,22 @@ try {
             )
         ");
         
-        // Tạo index
-        try {
-            $db->exec("CREATE NONCLUSTERED INDEX [IX_GiftCodeItem_CodeItem] ON [dbo].[GiftCodeItem] ([CodeItem])");
-            echo "   ✓ Đã tạo index\n";
-        } catch (Exception $e) {
-            // Index có thể đã tồn tại, bỏ qua
+        // Tạo index nếu chưa tồn tại
+        $stmt = $db->query("
+            SELECT COUNT(*) as count 
+            FROM sys.indexes 
+            WHERE name = 'IX_GiftCodeItem_CodeItem' 
+            AND object_id = OBJECT_ID('[dbo].[GiftCodeItem]')
+        ");
+        $exists = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($exists['count'] == 0) {
+            try {
+                $db->exec("CREATE NONCLUSTERED INDEX [IX_GiftCodeItem_CodeItem] ON [dbo].[GiftCodeItem] ([CodeItem])");
+                echo "   ✓ Đã tạo index IX_GiftCodeItem_CodeItem\n";
+            } catch (Exception $e) {
+                // Bỏ qua nếu có lỗi
+            }
         }
         
         echo "   ✓ Đã tạo bảng GiftCodeItem\n";
@@ -201,13 +260,29 @@ try {
             )
         ");
         
-        // Tạo indexes
-        try {
-            $db->exec("CREATE NONCLUSTERED INDEX [IX_TaiLieuDinhKem_Item_ID] ON [dbo].[TaiLieuDinhKem] ([Item_ID])");
-            $db->exec("CREATE NONCLUSTERED INDEX [IX_TaiLieuDinhKem_LoaiTaiLieu] ON [dbo].[TaiLieuDinhKem] ([LoaiTaiLieu])");
-            echo "   ✓ Đã tạo indexes\n";
-        } catch (Exception $e) {
-            // Index có thể đã tồn tại, bỏ qua
+        // Tạo indexes nếu chưa tồn tại
+        $indexes = [
+            ['IX_TaiLieuDinhKem_Item_ID', 'Item_ID'],
+            ['IX_TaiLieuDinhKem_LoaiTaiLieu', 'LoaiTaiLieu']
+        ];
+        
+        foreach ($indexes as $index) {
+            $stmt = $db->query("
+                SELECT COUNT(*) as count 
+                FROM sys.indexes 
+                WHERE name = '{$index[0]}' 
+                AND object_id = OBJECT_ID('[dbo].[TaiLieuDinhKem]')
+            ");
+            $exists = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($exists['count'] == 0) {
+                try {
+                    $db->exec("CREATE NONCLUSTERED INDEX [{$index[0]}] ON [dbo].[TaiLieuDinhKem] ([{$index[1]}])");
+                    echo "   ✓ Đã tạo index {$index[0]}\n";
+                } catch (Exception $e) {
+                    // Bỏ qua nếu có lỗi
+                }
+            }
         }
         
         echo "   ✓ Đã tạo bảng TaiLieuDinhKem\n";
@@ -231,6 +306,8 @@ try {
             CREATE TABLE [dbo].[TichNapConfig] (
                 [Id] INT PRIMARY KEY IDENTITY(1,1),
                 [FeatureEnabled] BIT DEFAULT 1,
+                [EventStartDate] DATETIME NULL,
+                [EventEndDate] DATETIME NULL,
                 [UpdatedDate] DATETIME DEFAULT GETDATE(),
                 [UpdatedBy] INT
             )
@@ -245,6 +322,38 @@ try {
         echo "   ✓ Đã tạo bảng TichNapConfig và insert config mặc định\n";
     } else {
         echo "   ✓ Bảng TichNapConfig đã tồn tại\n";
+        
+        // Kiểm tra và thêm cột EventStartDate nếu chưa có
+        $stmt = $db->query("
+            SELECT COUNT(*) as count 
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_SCHEMA = 'dbo' 
+            AND TABLE_NAME = 'TichNapConfig' 
+            AND COLUMN_NAME = 'EventStartDate'
+        ");
+        $hasEventStartDate = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($hasEventStartDate['count'] == 0) {
+            echo "   → Thêm cột EventStartDate...\n";
+            $db->exec("ALTER TABLE [dbo].[TichNapConfig] ADD [EventStartDate] DATETIME NULL");
+            echo "   ✓ Đã thêm cột EventStartDate\n";
+        }
+        
+        // Kiểm tra và thêm cột EventEndDate nếu chưa có
+        $stmt = $db->query("
+            SELECT COUNT(*) as count 
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_SCHEMA = 'dbo' 
+            AND TABLE_NAME = 'TichNapConfig' 
+            AND COLUMN_NAME = 'EventEndDate'
+        ");
+        $hasEventEndDate = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($hasEventEndDate['count'] == 0) {
+            echo "   → Thêm cột EventEndDate...\n";
+            $db->exec("ALTER TABLE [dbo].[TichNapConfig] ADD [EventEndDate] DATETIME NULL");
+            echo "   ✓ Đã thêm cột EventEndDate\n";
+        }
         
         // Kiểm tra xem có config nào chưa, nếu chưa thì insert
         $stmt = $db->query("SELECT COUNT(*) as count FROM [dbo].[TichNapConfig]");

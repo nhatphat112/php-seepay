@@ -49,14 +49,30 @@ try {
     
     $db = ConnectionManager::getAccountDB();
     
+    // Kiểm tra tính năng có đang hoạt động không
+    $featureStatus = checkTichNapFeatureStatus($db);
+    
     // Tính tổng tiền từ TB_Order (chỉ tính các đơn hàng đã hoàn thành)
     $totalMoney = getTotalMoneyFromOrders($userJID, $db);
+    
+    // Lấy thời gian sự kiện từ config
+    $eventStartDate = null;
+    $eventEndDate = null;
+    if ($featureStatus['config']) {
+        $eventStartDate = $featureStatus['config']['eventStartDate'] ?? null;
+        $eventEndDate = $featureStatus['config']['eventEndDate'] ?? null;
+    }
     
     http_response_code(200);
     echo json_encode([
         'success' => true,
         'data' => $totalMoney,
-        'message' => 'Success'
+        'message' => 'Success',
+        'featureEnabled' => $featureStatus['enabled'],
+        'inTimeRange' => $featureStatus['inTimeRange'],
+        'featureMessage' => $featureStatus['message'],
+        'eventStartDate' => $eventStartDate,
+        'eventEndDate' => $eventEndDate
     ], JSON_UNESCAPED_UNICODE);
     
 } catch (Exception $e) {

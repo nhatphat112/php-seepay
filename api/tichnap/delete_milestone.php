@@ -91,14 +91,14 @@ try {
     }
     
     // Soft delete (set IsDelete = 1)
+    // UpdatedId là UNIQUEIDENTIFIER, không thể dùng INT từ session, set NULL
     $stmt = $db->prepare("
         UPDATE SilkTichNap
-        SET IsDelete = 1, UpdatedDate = GETDATE(), UpdatedId = ?
+        SET IsDelete = 1, UpdatedDate = GETDATE(), UpdatedId = NULL
         WHERE Id = ?
     ");
     
-    $adminJID = $_SESSION['user_id'] ?? null;
-    $stmt->execute([$adminJID, $id]);
+    $stmt->execute([$id]);
     
     http_response_code(200);
     echo json_encode([
