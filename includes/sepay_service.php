@@ -539,6 +539,19 @@ class SepayService {
                     ");
                     $stmt->execute([$transactionID, $order['OrderID']]);
                     
+                    // Lưu vào TotalMoneyUser để theo dõi tích lũy (optional - có thể tính trực tiếp từ TB_Order)
+                    try {
+                        $stmt = $db->prepare("
+                            INSERT INTO TotalMoneyUser (Id, UserJID, TotalMoney, CreateDate, CreatedDate)
+                            VALUES (NEWID(), ?, ?, GETDATE(), GETDATE())
+                        ");
+                        $stmt->execute([$order['JID'], $order['Amount']]);
+                    } catch (Exception $e) {
+                        // Log error nhưng không ảnh hưởng đến payment processing
+                        // Bảng TotalMoneyUser có thể chưa tồn tại hoặc có lỗi
+                        error_log("Error saving to TotalMoneyUser: " . $e->getMessage());
+                    }
+                    
                     // Commit transaction
                     $db->commit();
                     

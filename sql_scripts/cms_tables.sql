@@ -1,309 +1,146 @@
+-- =============================================
+-- Migration Script: Thêm hệ thống phân quyền
+-- Description: Thêm cột role và tạo tài khoản admin mặc định
+-- =============================================
+
 USE [SRO_VT_ACCOUNT]
 GO
 
-SET ANSI_NULLS ON
+-- 1. Thêm cột role vào bảng TB_User (nếu chưa có)
+IF NOT EXISTS (
+    SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
+    WHERE TABLE_NAME = 'TB_User' 
+    AND COLUMN_NAME = 'role'
+)
+BEGIN
+    ALTER TABLE [dbo].[TB_User]
+    ADD [role] [varchar](20) NULL DEFAULT 'user'
+    
+    PRINT 'Đã thêm cột role vào bảng TB_User'
+END
+ELSE
+BEGIN
+    PRINT 'Cột role đã tồn tại trong bảng TB_User'
+END
 GO
 
-SET QUOTED_IDENTIFIER ON
+-- 2. Cập nhật tất cả user hiện tại thành 'user' (nếu role là NULL)
+UPDATE [dbo].[TB_User]
+SET [role] = 'user'
+WHERE [role] IS NULL
 GO
 
--- TB_User
-CREATE TABLE [dbo].[TB_User](
-	[JID] [int] IDENTITY(1,1) NOT NULL,
-	[StrUserID] [varchar](25) NOT NULL,
-	[password] [varchar](50) NOT NULL,
-	[SecretAnswer] [nvarchar](255) NULL,
-	[Status] [tinyint] NULL,
-	[GMrank] [tinyint] NULL,
-	[Name] [nvarchar](50) NULL,
-	[Email] [varchar](50) NULL,
-	[sex] [char](2) NULL,
-	[certificate_num] [varchar](30) NULL,
-	[address] [nvarchar](100) NULL,
-	[postcode] [varchar](10) NULL,
-	[phone] [varchar](20) NULL,
-	[mobile] [varchar](20) NULL,
-	[regtime] [datetime] NULL,
-	[reg_ip] [varchar](25) NULL,
-	[Time_log] [datetime] NULL,
-	[freetime] [int] NULL,
-	[sec_primary] [tinyint] NOT NULL,
-	[sec_content] [tinyint] NOT NULL,
-	[AccPlayTime] [int] NOT NULL,
-	[LatestUpdateTime_ToPlayTime] [int] NOT NULL,
-	[Play123Time] [int] NOT NULL,
- CONSTRAINT [PK_TB_User] PRIMARY KEY CLUSTERED 
-(
-	[JID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-) ON [PRIMARY]
+PRINT 'Đã cập nhật role cho tất cả user hiện tại'
+
+-- 3. Tạo tài khoản admin mặc định (nếu chưa tồn tại)
+IF NOT EXISTS (SELECT * FROM [dbo].[TB_User] WHERE [StrUserID] = 'adminsonglong')
+BEGIN
+    -- Tạo tài khoản admin
+    INSERT INTO [dbo].[TB_User] (
+        [StrUserID], 
+        [password], 
+        [Email], 
+        [role],
+        [regtime],
+        [Status],
+        [sec_primary],
+        [sec_content],
+        [AccPlayTime],
+        [LatestUpdateTime_ToPlayTime],
+        [Play123Time]
+    ) VALUES (
+        'adminsonglong',
+        'f6fdffe48c908deb0f4c3bd36c032e72', -- MD5 hash của 'adminadmin'
+        'admin@songlong.com',
+        'admin',
+        GETDATE(),
+        0,
+        3,
+        3,
+        0,
+        0,
+        0
+    )
+    
+    PRINT 'Đã tạo tài khoản admin: adminsonglong'
+    
+    -- Lấy JID của admin vừa tạo
+    DECLARE @AdminJID INT
+    SELECT @AdminJID = [JID] FROM [dbo].[TB_User] WHERE [StrUserID] = 'adminsonglong'
+    
+    -- Tạo bản ghi SK_Silk cho admin
+    IF NOT EXISTS (SELECT * FROM [dbo].[SK_Silk] WHERE [JID] = @AdminJID)
+    BEGIN
+        INSERT INTO [dbo].[SK_Silk] ([JID], [silk_own], [silk_gift], [silk_point])
+        VALUES (@AdminJID, 0, 0, 0)
+        
+        PRINT 'Đã tạo bản ghi SK_Silk cho admin'
+    END
+    
+    -- Tạo bản ghi _AccountJID cho admin (nếu cần)
+    -- Lưu ý: Cần kiểm tra xem bảng này có tồn tại trong DB SHARD không
+    -- Nếu có, cần chạy script riêng cho DB SHARD
+    
+END
+ELSE
+BEGIN
+    -- Nếu tài khoản đã tồn tại, cập nhật role thành admin
+    UPDATE [dbo].[TB_User]
+    SET [role] = 'admin'
+    WHERE [StrUserID] = 'adminsonglong'
+    
+    PRINT 'Đã cập nhật role admin cho tài khoản adminsonglong'
+END
 GO
 
-ALTER TABLE [dbo].[TB_User] ADD CONSTRAINT [DF_TB_User_sec_primary] DEFAULT ((3)) FOR [sec_primary]
+-- 4. Hash password cho admin (MD5)
+-- Lưu ý: Password "adminadmin" sẽ được hash bằng MD5 trong ứng dụng
+-- Nhưng để đảm bảo, có thể update trực tiếp ở đây nếu cần
+-- UPDATE [dbo].[TB_User] 
+-- SET [password] = '21232f297a57a5a743894a0e4a801fc3' -- MD5 của 'admin'
+-- WHERE [StrUserID] = 'adminsonglong'
+
+-- Password "adminadmin" MD5 hash: f6fdffe48c908deb0f4c3bd36c032e72
+UPDATE [dbo].[TB_User] 
+SET [password] = 'f6fdffe48c908deb0f4c3bd36c032e72'
+WHERE [StrUserID] = 'adminsonglong'
 GO
 
-ALTER TABLE [dbo].[TB_User] ADD CONSTRAINT [DF_TB_User_sec_content] DEFAULT ((3)) FOR [sec_content]
+PRINT 'Đã cập nhật password (MD5) cho tài khoản admin'
+
+-- 5. Tạo index cho cột role (tùy chọn, để tối ưu query)
+IF NOT EXISTS (
+    SELECT * FROM sys.indexes 
+    WHERE name = 'IX_TB_User_role' 
+    AND object_id = OBJECT_ID('dbo.TB_User')
+)
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_TB_User_role] ON [dbo].[TB_User]
+    (
+        [role] ASC
+    )
+    
+    PRINT 'Đã tạo index IX_TB_User_role'
+END
 GO
 
-ALTER TABLE [dbo].[TB_User] ADD CONSTRAINT [DF__TB_User__AccPlay__3BFFE745] DEFAULT ((0)) FOR [AccPlayTime]
+-- 6. Hiển thị thông tin tài khoản admin
+SELECT 
+    [JID],
+    [StrUserID] AS Username,
+    [Email],
+    [role] AS Role,
+    [regtime] AS CreatedDate,
+    [Status]
+FROM [dbo].[TB_User]
+WHERE [StrUserID] = 'adminsonglong'
 GO
 
-ALTER TABLE [dbo].[TB_User] ADD CONSTRAINT [DF__TB_User__LatestU__3CF40B7E] DEFAULT ((0)) FOR [LatestUpdateTime_ToPlayTime]
-GO
+PRINT '============================================='
+PRINT 'Migration hoàn tất!'
+PRINT 'Tài khoản admin:'
+PRINT '  Username: adminsonglong'
+PRINT '  Password: adminadmin'
+PRINT '  Role: admin'
+PRINT '============================================='
 
-ALTER TABLE [dbo].[TB_User] ADD CONSTRAINT [DF_TB_User_Play123Time] DEFAULT ((0)) FOR [Play123Time]
-GO
-
-CREATE UNIQUE NONCLUSTERED INDEX [IX_TB_User_StrUserID] ON [dbo].[TB_User]
-(
-	[StrUserID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
-CREATE NONCLUSTERED INDEX [IX_TB_User_Email] ON [dbo].[TB_User]
-(
-	[Email] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
--- SK_Silk
-CREATE TABLE [dbo].[SK_Silk](
-	[JID] [int] NOT NULL,
-	[silk_own] [int] NOT NULL,
-	[silk_gift] [int] NOT NULL,
-	[silk_point] [int] NOT NULL
-) ON [PRIMARY]
-GO
-
-ALTER TABLE [dbo].[SK_Silk] ADD CONSTRAINT [DF_SK_Silk_silk_own] DEFAULT ((0)) FOR [silk_own]
-GO
-
-ALTER TABLE [dbo].[SK_Silk] ADD CONSTRAINT [DF_SK_Silk_silk_gift] DEFAULT ((0)) FOR [silk_gift]
-GO
-
-ALTER TABLE [dbo].[SK_Silk] ADD CONSTRAINT [DF_SK_Silk_silk_point] DEFAULT ((0)) FOR [silk_point]
-GO
-
-ALTER TABLE [dbo].[SK_Silk] ADD CONSTRAINT [PK_SK_Silk] PRIMARY KEY CLUSTERED 
-(
-	[JID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-GO
-
-ALTER TABLE [dbo].[SK_Silk] WITH CHECK ADD CONSTRAINT [FK_SK_Silk_TB_User] FOREIGN KEY([JID])
-REFERENCES [dbo].[TB_User] ([JID])
-ON DELETE CASCADE
-ON UPDATE CASCADE
-GO
-
-ALTER TABLE [dbo].[SK_Silk] CHECK CONSTRAINT [FK_SK_Silk_TB_User]
-GO
-
--- TB_Order
-CREATE TABLE [dbo].[TB_Order](
-	[OrderID] [bigint] IDENTITY(1,1) NOT NULL,
-	[JID] [int] NOT NULL,
-	[OrderCode] [varchar](100) NOT NULL,
-	[Amount] [decimal](18, 2) NOT NULL,
-	[SilkAmount] [int] NOT NULL,
-	[PaymentMethod] [varchar](50) NULL,
-	[Status] [varchar](20) NOT NULL DEFAULT 'pending',
-	[SepayTransactionID] [varchar](100) NULL,
-	[QRCode] [nvarchar](500) NULL,
-	[BankAccount] [nvarchar](100) NULL,
-	[BankName] [nvarchar](100) NULL,
-	[AccountName] [nvarchar](100) NULL,
-	[Content] [nvarchar](200) NULL,
-	[ExpiredAt] [datetime] NULL,
-	[IPAddress] [varchar](45) NULL,
-	[UserAgent] [nvarchar](500) NULL,
-	[CreatedDate] [datetime] NOT NULL DEFAULT GETDATE(),
-	[UpdatedDate] [datetime] NULL,
-	[CompletedDate] [datetime] NULL,
-	[Notes] [nvarchar](1000) NULL,
- CONSTRAINT [PK_TB_Order] PRIMARY KEY CLUSTERED 
-(
-	[OrderID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-
-CREATE UNIQUE NONCLUSTERED INDEX [IX_Order_OrderCode] ON [dbo].[TB_Order]
-(
-	[OrderCode] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
-CREATE NONCLUSTERED INDEX [IX_Order_JID] ON [dbo].[TB_Order]
-(
-	[JID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
-CREATE NONCLUSTERED INDEX [IX_Order_Status] ON [dbo].[TB_Order]
-(
-	[Status] ASC,
-	[CreatedDate] DESC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
-CREATE NONCLUSTERED INDEX [IX_Order_SepayTransactionID] ON [dbo].[TB_Order]
-(
-	[SepayTransactionID] ASC
-)WHERE [SepayTransactionID] IS NOT NULL
-WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
-ALTER TABLE [dbo].[TB_Order] WITH CHECK ADD CONSTRAINT [FK_Order_TB_User] FOREIGN KEY([JID])
-REFERENCES [dbo].[TB_User] ([JID])
-ON DELETE NO ACTION
-ON UPDATE NO ACTION
-GO
-
-ALTER TABLE [dbo].[TB_Order] CHECK CONSTRAINT [FK_Order_TB_User]
-GO
-
--- Sk_SilkLog
-CREATE TABLE [dbo].[Sk_SilkLog](
-	[ID] [bigint] IDENTITY(1,1) NOT NULL,
-	[UserName] [varchar](25) NULL,
-	[Silk_nap] [int] NOT NULL DEFAULT 0,
-	[Text] [nvarchar](500) NULL,
-	[Time_log] [datetime] NOT NULL DEFAULT GETDATE(),
- CONSTRAINT [PK_Sk_SilkLog] PRIMARY KEY CLUSTERED 
-(
-	[ID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-
-CREATE NONCLUSTERED INDEX [IX_SilkLog_UserName] ON [dbo].[Sk_SilkLog]
-(
-	[UserName] ASC,
-	[Time_log] DESC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
--- TB_HomeSlider
-CREATE TABLE [dbo].[TB_HomeSlider](
-	[SliderID] [int] IDENTITY(1,1) NOT NULL,
-	[ImagePath] [nvarchar](500) NOT NULL,
-	[LinkURL] [nvarchar](500) NULL,
-	[DisplayOrder] [int] NOT NULL DEFAULT 0,
-	[IsActive] [bit] NOT NULL DEFAULT 1,
-	[CreatedDate] [datetime] NOT NULL DEFAULT GETDATE(),
-	[UpdatedDate] [datetime] NULL,
- CONSTRAINT [PK_TB_HomeSlider] PRIMARY KEY CLUSTERED 
-(
-	[SliderID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-
-CREATE NONCLUSTERED INDEX [IX_Slider_DisplayOrder] ON [dbo].[TB_HomeSlider]
-(
-	[DisplayOrder] ASC,
-	[IsActive] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
--- TB_News
-CREATE TABLE [dbo].[TB_News](
-	[NewsID] [int] IDENTITY(1,1) NOT NULL,
-	[Category] [nvarchar](50) NOT NULL,
-	[Title] [nvarchar](200) NOT NULL,
-	[LinkURL] [nvarchar](500) NOT NULL,
-	[DisplayOrder] [int] NOT NULL DEFAULT 0,
-	[IsActive] [bit] NOT NULL DEFAULT 1,
-	[CreatedDate] [datetime] NOT NULL DEFAULT GETDATE(),
-	[UpdatedDate] [datetime] NULL,
- CONSTRAINT [PK_TB_News] PRIMARY KEY CLUSTERED 
-(
-	[NewsID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-
-CREATE NONCLUSTERED INDEX [IX_News_Category] ON [dbo].[TB_News]
-(
-	[Category] ASC,
-	[IsActive] ASC,
-	[DisplayOrder] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
-CREATE NONCLUSTERED INDEX [IX_News_CreatedDate] ON [dbo].[TB_News]
-(
-	[CreatedDate] DESC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
--- TB_SocialLinks
-CREATE TABLE [dbo].[TB_SocialLinks](
-	[LinkID] [int] IDENTITY(1,1) NOT NULL,
-	[LinkType] [nvarchar](50) NOT NULL,
-	[LinkURL] [nvarchar](500) NOT NULL,
-	[DisplayName] [nvarchar](100) NULL,
-	[DisplayOrder] [int] NOT NULL DEFAULT 0,
-	[UpdatedDate] [datetime] NULL,
- CONSTRAINT [PK_TB_SocialLinks] PRIMARY KEY CLUSTERED 
-(
-	[LinkID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-
-CREATE UNIQUE NONCLUSTERED INDEX [IX_SocialLinks_LinkType] ON [dbo].[TB_SocialLinks]
-(
-	[LinkType] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
--- TB_ServerInfo
-CREATE TABLE [dbo].[TB_ServerInfo](
-	[InfoID] [int] IDENTITY(1,1) NOT NULL,
-	[Content] [nvarchar](max) NOT NULL,
-	[UpdatedDate] [datetime] NULL,
- CONSTRAINT [PK_TB_ServerInfo] PRIMARY KEY CLUSTERED 
-(
-	[InfoID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-
--- TB_WeeklyEvents
-CREATE TABLE [dbo].[TB_WeeklyEvents](
-	[EventID] [int] IDENTITY(1,1) NOT NULL,
-	[EventTime] [nvarchar](50) NOT NULL,
-	[EventDay] [nvarchar](50) NOT NULL,
-	[EventTitle] [nvarchar](200) NOT NULL,
-	[DisplayOrder] [int] NOT NULL DEFAULT 0,
-	[IsActive] [bit] NOT NULL DEFAULT 1,
-	[CreatedDate] [datetime] NOT NULL DEFAULT GETDATE(),
-	[UpdatedDate] [datetime] NULL,
- CONSTRAINT [PK_TB_WeeklyEvents] PRIMARY KEY CLUSTERED 
-(
-	[EventID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-
-CREATE NONCLUSTERED INDEX [IX_Events_DisplayOrder] ON [dbo].[TB_WeeklyEvents]
-(
-	[DisplayOrder] ASC,
-	[IsActive] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
--- TB_QRCode
-CREATE TABLE [dbo].[TB_QRCode](
-	[QRCodeID] [int] IDENTITY(1,1) NOT NULL,
-	[ImagePath] [nvarchar](500) NOT NULL,
-	[Description] [nvarchar](200) NULL,
-	[UpdatedDate] [datetime] NULL,
- CONSTRAINT [PK_TB_QRCode] PRIMARY KEY CLUSTERED 
-(
-	[QRCodeID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
