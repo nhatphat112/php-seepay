@@ -57,6 +57,7 @@ require_once __DIR__ . '/auth_check.php';
                 <li><a href="weekly_events.php" class="active"><i class="fas fa-calendar-week"></i> Sự Kiện Trong Tuần</a></li>
                 <li><a href="qrcode.php"><i class="fas fa-qrcode"></i> QR Code</a></li>
                 <li><a href="orders.php"><i class="fas fa-shopping-cart"></i> Lịch Sử Giao Dịch</a></li>
+                <li><a href="tichnap/index.php"><i class="fas fa-gift"></i> Mốc Nạp Tích Lũy</a></li>
             </ul>
         </aside>
         

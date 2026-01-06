@@ -261,6 +261,15 @@ require_once __DIR__ . '/../auth_check.php';
                     <p>Xem và tìm kiếm orders</p>
                     <a href="/admin/orders.php">Xem →</a>
                 </div>
+                
+                <div class="dashboard-card">
+                    <div class="dashboard-card-icon">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <h3>Mốc Nạp Tích Lũy</h3>
+                    <p>Quản lý mốc nạp tích lũy và phần thưởng</p>
+                    <a href="/admin/tichnap/index.php">Quản lý →</a>
+                </div>
             </div>
         </main>
     </div>

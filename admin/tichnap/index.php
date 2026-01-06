@@ -12,82 +12,15 @@ require_once __DIR__ . '/../../connection_manager.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Mốc Nạp Tích Lũy - Admin</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Mốc Nạp Tích Lũy - CMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../admin_common.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #e0e0e0;
-        }
-        
-        .header h1 {
-            color: #333;
-            font-size: 28px;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-        
         .tabs {
             display: flex;
             gap: 10px;
             margin-bottom: 30px;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 2px solid #0f1624;
         }
         
         .tab {
@@ -97,14 +30,14 @@ require_once __DIR__ . '/../../connection_manager.php';
             background: none;
             font-size: 16px;
             font-weight: 600;
-            color: #666;
+            color: #87ceeb;
             border-bottom: 3px solid transparent;
             transition: all 0.3s;
         }
         
         .tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+            color: #e8c088;
+            border-bottom-color: #e8c088;
         }
         
         .tab-content {
@@ -115,119 +48,22 @@ require_once __DIR__ . '/../../connection_manager.php';
             display: block;
         }
         
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-        
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
         
-        .item-selector {
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            min-height: 200px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        
-        .item-search {
-            margin-bottom: 15px;
-        }
-        
-        .item-search input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-        }
-        
-        .item-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 10px;
-        }
-        
-        .item-card {
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: white;
-        }
-        
-        .item-card:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .item-card.selected {
-            border-color: #667eea;
-            background: #f0f4ff;
-        }
-        
-        .item-card img {
-            width: 100%;
-            height: 120px;
-            object-fit: contain;
-            border-radius: 6px;
-            background: #f5f5f5;
-        }
-        
-        .item-card .item-name {
-            margin-top: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #333;
-            text-align: center;
-        }
-        
-        .item-card .item-code {
-            font-size: 11px;
-            color: #666;
-            text-align: center;
-            margin-top: 4px;
-        }
-        
         .item-input-row {
             padding: 15px;
-            background: #f8f9fa;
+            background: #0f1624;
             border-radius: 8px;
-            border: 2px solid #e0e0e0;
-        }
-        
-        .item-input-row:first-child {
-            border-color: #667eea;
+            border: 1px solid #4682b4;
+            display: grid;
+            grid-template-columns: 2fr 2fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: end;
         }
         
         .milestone-list {
@@ -236,10 +72,10 @@ require_once __DIR__ . '/../../connection_manager.php';
         }
         
         .milestone-card {
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            background: #16213e;
+            border: 1px solid #0f1624;
+            border-radius: 10px;
             padding: 20px;
-            background: white;
         }
         
         .milestone-header {
@@ -247,12 +83,14 @@ require_once __DIR__ . '/../../connection_manager.php';
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #0f1624;
         }
         
         .milestone-price {
             font-size: 20px;
             font-weight: bold;
-            color: #667eea;
+            color: #e8c088;
         }
         
         .milestone-items {
@@ -267,8 +105,9 @@ require_once __DIR__ . '/../../connection_manager.php';
             align-items: center;
             gap: 8px;
             padding: 8px 12px;
-            background: #f8f9fa;
+            background: #0f1624;
             border-radius: 6px;
+            border: 1px solid #4682b4;
         }
         
         .milestone-item img {
@@ -277,33 +116,47 @@ require_once __DIR__ . '/../../connection_manager.php';
             object-fit: contain;
         }
         
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-        
         .empty-state {
             text-align: center;
             padding: 40px;
-            color: #999;
+            color: #87ceeb;
         }
         
         .empty-state i {
             font-size: 48px;
             margin-bottom: 15px;
-            color: #ccc;
+            color: #4682b4;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-gift"></i> Quản Lý Mốc Nạp Tích Lũy</h1>
-            <a href="../cms/index.php" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Quay lại CMS
-            </a>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1><i class="fas fa-cog"></i> CMS Dashboard</h1>
+                <p>Quản lý nội dung</p>
         </div>
+            <ul class="nav-menu">
+                <li><a href="cms/"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="../slider.php"><i class="fas fa-images"></i> Slider (5 ảnh)</a></li>
+                <li><a href="../news.php"><i class="fas fa-newspaper"></i> Tin Bài</a></li>
+                <li><a href="../social.php"><i class="fas fa-share-alt"></i> Social Links</a></li>
+                <li><a href="../server_info.php"><i class="fas fa-server"></i> Thông Tin Server</a></li>
+                <li><a href="../weekly_events.php"><i class="fas fa-calendar-week"></i> Sự Kiện Trong Tuần</a></li>
+                <li><a href="../qrcode.php"><i class="fas fa-qrcode"></i> QR Code</a></li>
+                <li><a href="../orders.php"><i class="fas fa-shopping-cart"></i> Lịch Sử Giao Dịch</a></li>
+                <li><a href="index.php" class="active"><i class="fas fa-gift"></i> Mốc Nạp Tích Lũy</a></li>
+            </ul>
+        </aside>
+        
+        <main class="main-content">
+            <div class="page-header">
+                <h2><i class="fas fa-gift"></i> Mốc Nạp Tích Lũy</h2>
+                <p>Quản lý mốc nạp tích lũy và phần thưởng</p>
+            </div>
+            
+            <div class="alert alert-success" id="alertSuccess" style="display: none;"></div>
+            <div class="alert alert-error" id="alertError" style="display: none;"></div>
         
         <div class="tabs">
             <button class="tab active" onclick="switchTab('milestones')">
@@ -328,38 +181,32 @@ require_once __DIR__ . '/../../connection_manager.php';
         
         <!-- Tab: Cấu hình -->
         <div id="configTab" class="tab-content">
-            <div style="max-width: 600px; margin: 0 auto;">
-                <h2 style="margin-bottom: 30px; color: #333;">
+                <div class="form-container">
+                    <h3 style="color: #e8c088; margin-bottom: 20px;">
                     <i class="fas fa-cog"></i> Cấu Hình Tính Năng
-                </h2>
+                    </h3>
                 
                 <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: 10px; font-size: 18px;">
-                        <input type="checkbox" id="featureToggle" style="width: 24px; height: 24px; cursor: pointer;">
+                        <label style="display: flex; align-items: center; gap: 10px; font-size: 16px;">
+                            <input type="checkbox" id="featureToggle" style="width: 20px; height: 20px; cursor: pointer;">
                         <span>Bật/Tắt Tính Năng Nạp Tích Lũy</span>
                     </label>
-                    <p style="color: #666; margin-top: 10px; font-size: 14px;">
-                        Khi tắt, người dùng sẽ không thể nhận phần thưởng mốc nạp
-                    </p>
+                        <small>Khi tắt, người dùng sẽ không thể nhận phần thưởng mốc nạp</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Thời Gian Bắt Đầu Sự Kiện</label>
+                        <input type="datetime-local" id="eventStartDate">
+                        <small>Để trống nếu muốn bắt đầu ngay lập tức</small>
                 </div>
                 
                 <div class="form-group">
-                    <label>Thời Gian Bắt Đầu Sự Kiện</label>
-                    <input type="datetime-local" id="eventStartDate">
-                    <p style="color: #888; margin-top: 5px; font-size: 12px;">
-                        Để trống nếu muốn bắt đầu ngay lập tức
-                    </p>
-                </div>
-
-                <div class="form-group">
-                    <label>Thời Gian Kết Thúc Sự Kiện</label>
-                    <input type="datetime-local" id="eventEndDate">
-                    <p style="color: #888; margin-top: 5px; font-size: 12px;">
-                        Để trống nếu sự kiện không giới hạn thời gian
-                    </p>
-                </div>
-                
-                <div class="form-group">
+                        <label>Thời Gian Kết Thúc Sự Kiện</label>
+                        <input type="datetime-local" id="eventEndDate">
+                        <small>Để trống nếu sự kiện không giới hạn thời gian</small>
+                    </div>
+                    
+                    <div class="btn-group">
                     <button onclick="saveConfig()" class="btn btn-primary">
                         <i class="fas fa-save"></i> Lưu Cấu Hình
                     </button>
@@ -369,6 +216,7 @@ require_once __DIR__ . '/../../connection_manager.php';
         
         <!-- Tab: Tạo mốc mới -->
         <div id="createTab" class="tab-content">
+                <div class="form-container">
             <form id="createMilestoneForm">
                 <div class="form-row">
                     <div class="form-group">
@@ -382,34 +230,34 @@ require_once __DIR__ . '/../../connection_manager.php';
                 </div>
                 
                 <div class="form-group">
-                    <label>Vật Phẩm Phần Thưởng *</label>
-                    <div id="itemsContainer">
-                        <div class="item-input-row" style="display: grid; grid-template-columns: 2fr 2fr 1fr auto; gap: 10px; margin-bottom: 10px; align-items: end;">
-                            <div>
-                                <label style="font-size: 12px; color: #666; margin-bottom: 5px;">Tên Vật Phẩm</label>
-                                <input type="text" class="item-name" placeholder="Ví dụ: Quiver" required>
-                            </div>
-                            <div>
-                                <label style="font-size: 12px; color: #666; margin-bottom: 5px;">ID Vật Phẩm (CodeItem)</label>
-                                <input type="text" class="item-code" placeholder="Ví dụ: ITEM_MALL_QUIVER" required>
-                            </div>
-                            <div>
-                                <label style="font-size: 12px; color: #666; margin-bottom: 5px;">Số Lượng</label>
-                                <input type="number" class="item-quantity" placeholder="1" value="1" min="1" required>
-                            </div>
-                            <div>
-                                <button type="button" class="btn btn-secondary" onclick="removeItemRow(this)" style="padding: 12px 15px;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
+                            <label>Vật Phẩm Phần Thưởng *</label>
+                            <div id="itemsContainer">
+                                <div class="item-input-row">
+                                    <div>
+                                        <label style="font-size: 12px; color: #87ceeb; margin-bottom: 5px; display: block;">Tên Vật Phẩm</label>
+                                        <input type="text" class="item-name" placeholder="Ví dụ: Quiver" required>
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 12px; color: #87ceeb; margin-bottom: 5px; display: block;">ID Vật Phẩm (CodeItem)</label>
+                                        <input type="text" class="item-code" placeholder="Ví dụ: ITEM_MALL_QUIVER" required>
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 12px; color: #87ceeb; margin-bottom: 5px; display: block;">Số Lượng</label>
+                                        <input type="number" class="item-quantity" placeholder="1" value="1" min="1" required>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItemRow(this)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                         </div>
-                    </div>
-                    <button type="button" class="btn btn-secondary" onclick="addItemRow()" style="margin-top: 10px;">
-                        <i class="fas fa-plus"></i> Thêm Vật Phẩm
-                    </button>
+                            </div>
+                            <button type="button" class="btn btn-secondary" onclick="addItemRow()" style="margin-top: 10px;">
+                                <i class="fas fa-plus"></i> Thêm Vật Phẩm
+                            </button>
                 </div>
                 
-                <div class="form-group">
+                        <div class="btn-group">
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Tạo Mốc Nạp
                     </button>
@@ -419,6 +267,8 @@ require_once __DIR__ . '/../../connection_manager.php';
                 </div>
             </form>
         </div>
+            </div>
+        </main>
     </div>
     
     <script>
@@ -427,22 +277,21 @@ require_once __DIR__ . '/../../connection_manager.php';
             const container = document.getElementById('itemsContainer');
             const newRow = document.createElement('div');
             newRow.className = 'item-input-row';
-            newRow.style.cssText = 'display: grid; grid-template-columns: 2fr 2fr 1fr auto; gap: 10px; margin-bottom: 10px; align-items: end; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 2px solid #e0e0e0;';
             newRow.innerHTML = `
                 <div>
-                    <label style="font-size: 12px; color: #666; margin-bottom: 5px; display: block;">Tên Vật Phẩm</label>
+                    <label style="font-size: 12px; color: #87ceeb; margin-bottom: 5px; display: block;">Tên Vật Phẩm</label>
                     <input type="text" class="item-name" placeholder="Ví dụ: Quiver" required>
                 </div>
                 <div>
-                    <label style="font-size: 12px; color: #666; margin-bottom: 5px; display: block;">ID Vật Phẩm (CodeItem)</label>
+                    <label style="font-size: 12px; color: #87ceeb; margin-bottom: 5px; display: block;">ID Vật Phẩm (CodeItem)</label>
                     <input type="text" class="item-code" placeholder="Ví dụ: ITEM_MALL_QUIVER" required>
                 </div>
                 <div>
-                    <label style="font-size: 12px; color: #666; margin-bottom: 5px; display: block;">Số Lượng</label>
+                    <label style="font-size: 12px; color: #87ceeb; margin-bottom: 5px; display: block;">Số Lượng</label>
                     <input type="number" class="item-quantity" placeholder="1" value="1" min="1" required>
                 </div>
                 <div>
-                    <button type="button" class="btn btn-secondary" onclick="removeItemRow(this)" style="padding: 12px 15px;">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeItemRow(this)">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -456,8 +305,20 @@ require_once __DIR__ . '/../../connection_manager.php';
             if (container.children.length > 1) {
                 btn.closest('.item-input-row').remove();
             } else {
-                alert('Phải có ít nhất một vật phẩm!');
+                showAlert('Phải có ít nhất một vật phẩm!', 'error');
             }
+        }
+        
+        // Show alert
+        function showAlert(message, type = 'success') {
+            const alertEl = type === 'success' ? document.getElementById('alertSuccess') : document.getElementById('alertError');
+            const otherEl = type === 'success' ? document.getElementById('alertError') : document.getElementById('alertSuccess');
+            alertEl.textContent = message;
+            alertEl.style.display = 'block';
+            otherEl.style.display = 'none';
+            setTimeout(() => {
+                alertEl.style.display = 'none';
+            }, 5000);
         }
         
         // Load config (feature toggle + thời gian sự kiện)
@@ -484,7 +345,7 @@ require_once __DIR__ . '/../../connection_manager.php';
                     }
                 }
             } catch (error) {
-                alert('Lỗi tải cấu hình: ' + error.message);
+                showAlert('Lỗi tải cấu hình: ' + error.message, 'error');
             }
         }
 
@@ -507,22 +368,22 @@ require_once __DIR__ . '/../../connection_manager.php';
                 });
                 const result = await res.json();
                 if (result.success) {
-                    alert(result.message || 'Đã lưu cấu hình thành công!');
+                    showAlert(result.message || 'Đã lưu cấu hình thành công!', 'success');
                 } else {
-                    alert('Lỗi: ' + (result.error || 'Không thể lưu cấu hình'));
+                    showAlert('Lỗi: ' + (result.error || 'Không thể lưu cấu hình'), 'error');
                 }
             } catch (error) {
-                alert('Lỗi: ' + error.message);
+                showAlert('Lỗi: ' + error.message, 'error');
             }
         }
-
+        
         // Switch tabs
         function switchTab(tabName) {
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
             if (tabName === 'milestones') {
-                document.querySelector('.tab').classList.add('active');
+                document.querySelectorAll('.tab')[0].classList.add('active');
                 document.getElementById('milestonesTab').classList.add('active');
                 loadMilestones();
             } else if (tabName === 'config') {
@@ -553,10 +414,10 @@ require_once __DIR__ . '/../../connection_manager.php';
                                     <div style="display: flex; align-items: center; gap: 10px;">
                                         <div class="milestone-price">${milestone.price}</div>
                                     </div>
-                                    ${milestone.description ? `<div style="color: #666; margin-top: 5px;">${milestone.description}</div>` : ''}
+                                    ${milestone.description ? `<div style="color: #87ceeb; margin-top: 5px;">${milestone.description}</div>` : ''}
                                 </div>
                                 <div style="display: flex; gap: 10px;">
-                                    <button class="btn btn-secondary" onclick="deleteMilestone('${milestone.id}')" style="font-size: 12px; padding: 6px 12px;">
+                                    <button class="btn btn-danger btn-sm" onclick="deleteMilestone('${milestone.id}')">
                                         <i class="fas fa-trash"></i> Xóa
                                     </button>
                                 </div>
@@ -564,10 +425,10 @@ require_once __DIR__ . '/../../connection_manager.php';
                             <div class="milestone-items">
                                 ${milestone.items.map(item => `
                                     <div class="milestone-item">
-                                        ${item.image ? `<img src="${item.image}" alt="${item.name}">` : '<div style="width: 40px; height: 40px; background: #e0e0e0; border-radius: 4px;"></div>'}
+                                        ${item.image ? `<img src="${item.image}" alt="${item.name}">` : '<div style="width: 40px; height: 40px; background: #0f1624; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #87ceeb;"><i class="fas fa-box"></i></div>'}
                                         <div>
-                                            <div style="font-weight: 600; font-size: 12px;">${item.name}</div>
-                                            <div style="font-size: 11px; color: #666;">${item.key}</div>
+                                            <div style="font-weight: 600; font-size: 12px; color: #e8c088;">${item.name}</div>
+                                            <div style="font-size: 11px; color: #87ceeb;">${item.key}</div>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -597,7 +458,7 @@ require_once __DIR__ . '/../../connection_manager.php';
                 const quantity = parseInt(row.querySelector('.item-quantity').value) || 1;
                 
                 if (!name || !code) {
-                    alert('Vui lòng điền đầy đủ thông tin vật phẩm!');
+                    showAlert('Vui lòng điền đầy đủ thông tin vật phẩm!', 'error');
                     return;
                 }
                 
@@ -609,7 +470,7 @@ require_once __DIR__ . '/../../connection_manager.php';
             }
             
             if (items.length === 0) {
-                alert('Vui lòng thêm ít nhất một vật phẩm phần thưởng!');
+                showAlert('Vui lòng thêm ít nhất một vật phẩm phần thưởng!', 'error');
                 return;
             }
             
@@ -617,7 +478,7 @@ require_once __DIR__ . '/../../connection_manager.php';
             const description = document.getElementById('description').value;
             
             if (!rank || rank <= 0) {
-                alert('Vui lòng nhập mốc tiền hợp lệ!');
+                showAlert('Vui lòng nhập mốc tiền hợp lệ!', 'error');
                 return;
             }
             
@@ -637,14 +498,14 @@ require_once __DIR__ . '/../../connection_manager.php';
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('Đã tạo mốc nạp thành công!');
+                    showAlert('Đã tạo mốc nạp thành công!', 'success');
                     resetForm();
                     switchTab('milestones');
                 } else {
-                    alert('Lỗi: ' + result.error);
+                    showAlert('Lỗi: ' + result.error, 'error');
                 }
             } catch (error) {
-                alert('Lỗi: ' + error.message);
+                showAlert('Lỗi: ' + error.message, 'error');
             }
         });
         
@@ -683,13 +544,13 @@ require_once __DIR__ . '/../../connection_manager.php';
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('Đã xóa mốc nạp thành công!');
+                    showAlert('Đã xóa mốc nạp thành công!', 'success');
                     loadMilestones();
                 } else {
-                    alert('Lỗi: ' + result.error);
+                    showAlert('Lỗi: ' + result.error, 'error');
                 }
             } catch (error) {
-                alert('Lỗi: ' + error.message);
+                showAlert('Lỗi: ' + error.message, 'error');
             }
         }
         
@@ -698,4 +559,3 @@ require_once __DIR__ . '/../../connection_manager.php';
     </script>
 </body>
 </html>
-
