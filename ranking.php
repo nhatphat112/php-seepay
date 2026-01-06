@@ -29,12 +29,13 @@ $user_role = getUserRole();
         html, body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: hidden;
+            min-height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
         
         body.home-page {
-            overflow: hidden;
+            overflow-y: auto;
         }
         
         /* Dashboard layout with sidebar */
