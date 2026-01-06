@@ -97,7 +97,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thanh Toán - Song Long Tranh Bá Mobile</title>
+    <title>Nạp Tiền - Song Long Tranh Bá Mobile</title>
     
     <!-- Favicon -->
     <link rel="icon" href="images/favicon.ico"/>
@@ -576,13 +576,13 @@ if (!empty($currentOrderCode) && $orderData === null) {
                 <p><?php echo htmlspecialchars($username); ?></p>
             </div>
             <ul class="nav-menu">
-                <li><a href="dashboard.php"><i class="fas fa-home"></i> Trang Chủ</a></li>
-                <li><a href="transaction_history.php"><i class="fas fa-history"></i> Lịch Sử Giao Dịch</a></li>
-                <li><a href="payment.php" class="active"><i class="fas fa-credit-card"></i> Nạp Tiền</a></li>
-                <li><a href="download.php"><i class="fas fa-download"></i> Tải Game</a></li>
-                <li><a href="ranking.php"><i class="fas fa-trophy"></i> Xếp Hạng</a></li>
+                <li><a href="dashboard.php" class="<?php echo getNavActiveClass('dashboard.php'); ?>"><i class="fas fa-home"></i> Trang Chủ</a></li>
+                <li><a href="transaction_history.php" class="<?php echo getNavActiveClass('transaction_history.php'); ?>"><i class="fas fa-history"></i> Lịch Sử Giao Dịch</a></li>
+                <li><a href="payment.php" class="<?php echo getNavActiveClass('payment.php'); ?>"><i class="fas fa-credit-card"></i> Nạp Tiền</a></li>
+                <li><a href="download.php" class="<?php echo getNavActiveClass('download.php'); ?>"><i class="fas fa-download"></i> Tải Game</a></li>
+                <li><a href="ranking.php" class="<?php echo getNavActiveClass('ranking.php'); ?>"><i class="fas fa-trophy"></i> Xếp Hạng</a></li>
                 <?php if (isAdmin()): ?>
-                <li><a href="admin/cms/index.php"><i class="fas fa-cog"></i> CMS Admin</a></li>
+                <li><a href="admin/cms/index.php" class="<?php echo getNavActiveClass('admin/cms/index.php'); ?>"><i class="fas fa-cog"></i> CMS Admin</a></li>
                 <?php endif; ?>
                 <li><a href="index.php"><i class="fas fa-globe"></i> Trang Chủ Website</a></li>
                 <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Đăng Xuất</a></li>

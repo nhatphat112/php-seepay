@@ -71,3 +71,36 @@ function isAdminAccount($username) {
     return strtolower($username) === 'adminsonglong';
 }
 
+/**
+ * Kiểm tra menu item có active không dựa trên URL hiện tại
+ */
+function isNavActive($url) {
+    $currentPage = basename($_SERVER['PHP_SELF']);
+    $menuPage = basename($url);
+    
+    // Xử lý trường hợp đặc biệt
+    if ($menuPage === 'dashboard.php' && $currentPage === 'dashboard.php') {
+        return true;
+    }
+    
+    // Payment pages: payment.php và payment_seepay.php đều active cho menu "payment.php"
+    if ($menuPage === 'payment.php' && ($currentPage === 'payment.php' || $currentPage === 'payment_seepay.php')) {
+        return true;
+    }
+    
+    // Admin CMS: check nếu trong admin/cms directory
+    if (strpos($url, 'admin/cms') !== false) {
+        $currentPath = $_SERVER['PHP_SELF'];
+        return strpos($currentPath, 'admin/cms') !== false || strpos($currentPath, 'admin/') !== false;
+    }
+    
+    return $currentPage === $menuPage;
+}
+
+/**
+ * Trả về class 'active' nếu menu item đang active
+ */
+function getNavActiveClass($url) {
+    return isNavActive($url) ? 'active' : '';
+}
+
