@@ -33,10 +33,15 @@ $user_role = getUserRole();
     <link rel="stylesheet" href="css/auth-enhanced.css" />
     
     <style>
+        /* Override auth-enhanced.css */
+        .auth-overlay {
+            display: none !important;
+        }
+        
         /* Dashboard layout with sidebar */
         .dashboard-wrapper {
-            display: flex;
-            position: fixed;
+            display: flex !important;
+            position: fixed !important;
             top: 0;
             left: 0;
             right: 0;
@@ -47,6 +52,8 @@ $user_role = getUserRole();
             overflow-y: auto;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
+            align-items: flex-start !important;
+            justify-content: flex-start !important;
         }
         
         /* Sidebar */
@@ -137,11 +144,11 @@ $user_role = getUserRole();
         
         /* Main content */
         .page-container {
-            flex: 1;
-            margin-left: 260px;
-            width: calc(100% - 260px);
-            max-width: calc(100% - 260px);
-            background: rgba(10, 20, 40, 0.95);
+            flex: 1 !important;
+            margin-left: 260px !important;
+            width: calc(100% - 260px) !important;
+            max-width: calc(100% - 260px) !important;
+            background: rgba(10, 20, 40, 0.95) !important;
             backdrop-filter: blur(20px);
             padding: 40px;
             position: relative;
@@ -149,6 +156,10 @@ $user_role = getUserRole();
             overflow-y: visible;
             min-height: 100vh;
             box-sizing: border-box;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            margin: 0 !important;
         }
         
         @keyframes slideIn {

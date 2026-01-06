@@ -25,10 +25,15 @@ $user_role = getUserRole();
     <link rel="stylesheet" href="css/auth-enhanced.css" />
     
     <style>
+        /* Override auth-enhanced.css */
+        .auth-overlay {
+            display: none !important;
+        }
+        
         /* Dashboard layout with sidebar */
         .dashboard-wrapper {
-            display: flex;
-            position: fixed;
+            display: flex !important;
+            position: fixed !important;
             top: 0;
             left: 0;
             right: 0;
@@ -39,6 +44,8 @@ $user_role = getUserRole();
             overflow-y: auto;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
+            align-items: flex-start !important;
+            justify-content: flex-start !important;
         }
         
         /* Sidebar */
@@ -129,10 +136,10 @@ $user_role = getUserRole();
         
         /* Main content */
         .download-box {
-            flex: 1;
-            margin-left: 260px;
-            width: calc(100% - 260px);
-            max-width: calc(100% - 260px);
+            flex: 1 !important;
+            margin-left: 260px !important;
+            width: calc(100% - 260px) !important;
+            max-width: calc(100% - 260px) !important;
             background: rgba(10, 20, 40, 0.95) !important;
             backdrop-filter: blur(20px);
             padding: 40px;
@@ -140,10 +147,10 @@ $user_role = getUserRole();
             overflow-x: hidden;
             overflow-y: visible;
             min-height: 100vh;
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
-            margin: 0;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            margin: 0 !important;
             box-sizing: border-box;
         }
         
