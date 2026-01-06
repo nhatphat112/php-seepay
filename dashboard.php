@@ -323,7 +323,6 @@ function getClassName($refObjID) {
             left: -2px;
             right: -2px;
             bottom: -2px;
-            background: linear-gradient(45deg, #1e90ff, #00bfff, #1e90ff);
             border-radius: 20px;
             z-index: -1;
             animation: glow 2s ease-in-out infinite alternate;
