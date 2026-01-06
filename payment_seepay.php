@@ -73,7 +73,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thanh Toán - Song Long Tranh Bá Mobile</title>
+    <title>Nạp Tiền - Song Long Tranh Bá Mobile</title>
     
     <link rel="icon" href="images/favicon.ico"/>
     <link rel="stylesheet" href="assets/css/swiper-bundle.min.css" />
@@ -570,7 +570,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
             <ul class="nav-menu">
                 <li><a href="dashboard.php"><i class="fas fa-home"></i> Trang Chủ</a></li>
                 <li><a href="transaction_history.php"><i class="fas fa-history"></i> Lịch Sử Giao Dịch</a></li>
-                <li><a href="payment.php" class="active"><i class="fas fa-credit-card"></i> Thanh Toán</a></li>
+                <li><a href="payment.php" class="active"><i class="fas fa-credit-card"></i> Nạp Tiền</a></li>
                 <li><a href="download.php"><i class="fas fa-download"></i> Tải Game</a></li>
                 <li><a href="ranking.php"><i class="fas fa-trophy"></i> Xếp Hạng</a></li>
                 <?php if (isAdmin()): ?>
@@ -584,7 +584,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
         <!-- Main Content -->
         <div class="payment-container">
             <div class="payment-header">
-                <h1 class="f-utm_nyala t-upper" style="color: #1e90ff !important;">Thanh Toán</h1>
+                <h1 class="f-utm_nyala t-upper" style="color: #1e90ff !important;">Nạp Tiền</h1>
                 <p class="f-calibri" style="color: #87ceeb !important;">Nạp Silk qua QR Code và Chuyển Khoản</p>
             </div>
 
@@ -828,6 +828,15 @@ if (!empty($currentOrderCode) && $orderData === null) {
                 display: block;
             }
             
+            .dashboard-wrapper {
+                overflow-y: auto;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+                position: fixed;
+                width: 100%;
+                height: 100%;
+            }
+            
             .dashboard-sidebar {
                 transform: translateX(-100%);
                 transition: transform 0.3s ease;
@@ -841,6 +850,9 @@ if (!empty($currentOrderCode) && $orderData === null) {
                 margin-left: 0;
                 max-width: 100%;
                 padding: 60px 15px 30px;
+                overflow-x: hidden;
+                overflow-y: visible;
+                min-height: auto;
             }
         }
     </style>

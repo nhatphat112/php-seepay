@@ -502,7 +502,7 @@ $user_role = getUserRole();
             <ul class="nav-menu">
                 <li><a href="dashboard.php"><i class="fas fa-home"></i> Trang Chủ</a></li>
                 <li><a href="transaction_history.php" class="active"><i class="fas fa-history"></i> Lịch Sử Giao Dịch</a></li>
-                <li><a href="payment.php"><i class="fas fa-credit-card"></i> Thanh Toán</a></li>
+                <li><a href="payment.php"><i class="fas fa-credit-card"></i> Nạp Tiền</a></li>
                 <li><a href="download.php"><i class="fas fa-download"></i> Tải Game</a></li>
                 <li><a href="ranking.php"><i class="fas fa-trophy"></i> Xếp Hạng</a></li>
                 <?php if (isAdmin()): ?>

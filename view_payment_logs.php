@@ -349,6 +349,15 @@ $user_role = getUserRole();
                 display: block;
             }
             
+            .dashboard-wrapper {
+                overflow-y: auto;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+                position: fixed;
+                width: 100%;
+                height: 100%;
+            }
+            
             .dashboard-sidebar {
                 transform: translateX(-100%);
                 transition: transform 0.3s ease;
@@ -362,11 +371,14 @@ $user_role = getUserRole();
                 margin-left: 0;
                 max-width: 100%;
                 padding: 60px 15px 30px;
+                overflow-x: hidden;
+                overflow-y: visible;
+                min-height: auto;
             }
         }
     </style>
 </head>
-<body>
+<body class="home-page">
     <!-- Dashboard Wrapper -->
     <div class="dashboard-wrapper">
         <!-- Menu Toggle for Mobile -->
@@ -383,7 +395,7 @@ $user_role = getUserRole();
             <ul class="nav-menu">
                 <li><a href="dashboard.php"><i class="fas fa-home"></i> Trang Chủ</a></li>
                 <li><a href="transaction_history.php"><i class="fas fa-history"></i> Lịch Sử Giao Dịch</a></li>
-                <li><a href="payment.php"><i class="fas fa-credit-card"></i> Thanh Toán</a></li>
+                <li><a href="payment.php"><i class="fas fa-credit-card"></i> Nạp Tiền</a></li>
                 <li><a href="download.php"><i class="fas fa-download"></i> Tải Game</a></li>
                 <li><a href="ranking.php"><i class="fas fa-trophy"></i> Xếp Hạng</a></li>
                 <li><a href="view_payment_logs.php" class="active"><i class="fas fa-file-alt"></i> Payment Logs</a></li>

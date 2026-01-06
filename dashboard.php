@@ -868,7 +868,7 @@ function getClassName($refObjID) {
                             <i class="fas fa-credit-card"></i>
                         </div>
                         <div class="action-text">
-                            <h3>Thanh Toán</h3>
+                            <h3>Nạp Tiền</h3>
                             <p>Nạp Silk trực tuyến</p>
                         </div>
                     </a>
