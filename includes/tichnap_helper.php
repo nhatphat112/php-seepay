@@ -94,7 +94,7 @@ function getTotalMoneyFromTotalMoneyUser($userJID, $db) {
  */
 function getFirstCharacterNameFromJID($userJID, $shardDb, $accountDb = null) {
     try {
-        // Bước 1: Lấy CharName từ SR_ShardCharNames (bảng mapping)
+        // Bước 1: Lấy CharName từ SR_ShardCharNames (bảng mapping UserJID -> CharName)
         $stmt = $shardDb->prepare("
             SELECT TOP 1 CharName 
             FROM SR_ShardCharNames 
@@ -109,29 +109,45 @@ function getFirstCharacterNameFromJID($userJID, $shardDb, $accountDb = null) {
             return null;
         }
         
-        $charName = trim($result['CharName']);
-        error_log("Found character from SR_ShardCharNames for UserJID {$userJID}: {$charName}");
+        $charNameInput = trim($result['CharName']);
+        error_log("Found character from SR_ShardCharNames for UserJID {$userJID}: {$charNameInput}");
         
-        // Bước 2: Verify và lấy CharName16 từ SRO_VT_SHARD.dbo._Char (theo SQL script)
-        // SELECT @CharName = CharName16 FROM SRO_VT_SHARD.dbo._Char WHERE CharID = @CharID
-        // Nhưng ở đây ta có CharName, nên query trực tiếp:
+        // Bước 2: Lấy CharID từ SRO_VT_SHARD.dbo._Char (theo SQL script)
+        // SELECT TOP (1) @CharID = CharID FROM SRO_VT_SHARD.dbo._Char WHERE CharName16 = @CharNameInput
         $stmt = $shardDb->prepare("
-            SELECT TOP 1 CharName16, CharID
+            SELECT TOP 1 CharID, CharName16
             FROM SRO_VT_SHARD.dbo._Char 
             WHERE CharName16 = ?
         ");
-        $stmt->execute([$charName]);
+        $stmt->execute([$charNameInput]);
         $charResult = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        if ($charResult && !empty($charResult['CharName16'])) {
-            $charName16 = trim($charResult['CharName16']);
-            $charID = (int)$charResult['CharID'];
-            error_log("Verified character in SRO_VT_SHARD.dbo._Char for UserJID {$userJID}: CharName16={$charName16}, CharID={$charID}");
-            return $charName16;
+        if (!$charResult || empty($charResult['CharID'])) {
+            error_log("Warning: Character '{$charNameInput}' not found in SRO_VT_SHARD.dbo._Char for UserJID: {$userJID}");
+            return null;
         }
         
-        error_log("Warning: Character '{$charName}' not found in SRO_VT_SHARD.dbo._Char for UserJID: {$userJID}");
-        return null;
+        $charID = (int)$charResult['CharID'];
+        $charName16 = trim($charResult['CharName16'] ?? $charNameInput);
+        
+        // Bước 3: Verify - SELECT @CharName = CharName16 FROM SRO_VT_SHARD.dbo._Char WHERE CharID = @CharID
+        $stmt = $shardDb->prepare("
+            SELECT CharName16 
+            FROM SRO_VT_SHARD.dbo._Char 
+            WHERE CharID = ?
+        ");
+        $stmt->execute([$charID]);
+        $verifyResult = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($verifyResult && !empty($verifyResult['CharName16'])) {
+            $verifiedCharName = trim($verifyResult['CharName16']);
+            error_log("Verified character for UserJID {$userJID}: CharName16={$verifiedCharName}, CharID={$charID}");
+            return $verifiedCharName;
+        }
+        
+        // Nếu verify không thành công, vẫn trả về charName16 từ bước 2
+        error_log("Warning: Could not verify character CharID {$charID}, but returning CharName16: {$charName16}");
+        return $charName16;
     } catch (Exception $e) {
         error_log("Error getting first character name from JID {$userJID}: " . $e->getMessage());
         return null;
