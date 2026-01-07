@@ -137,7 +137,7 @@ require_once __DIR__ . '/../../connection_manager.php';
                 <p>Quản lý nội dung</p>
         </div>
             <ul class="nav-menu">
-                <li><a href="cms/"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="../cms/"><i class="fas fa-home"></i> Dashboard</a></li>
                 <li><a href="../slider.php"><i class="fas fa-images"></i> Slider (5 ảnh)</a></li>
                 <li><a href="../news.php"><i class="fas fa-newspaper"></i> Tin Bài</a></li>
                 <li><a href="../social.php"><i class="fas fa-share-alt"></i> Social Links</a></li>
@@ -394,7 +394,7 @@ require_once __DIR__ . '/../../connection_manager.php';
         async function loadConfig() {
             try {
                 const res = await fetch('../../api/tichnap/get_config.php');
-                const result = await res.json();
+                const result = await parseJSONResponse(res);
                 if (result.success && result.data) {
                     document.getElementById('featureToggle').checked = !!result.data.featureEnabled;
                     
@@ -435,7 +435,7 @@ require_once __DIR__ . '/../../connection_manager.php';
                         eventEndDate
                     })
                 });
-                const result = await res.json();
+                const result = await parseJSONResponse(res);
                 if (result.success) {
                     showAlert(result.message || 'Đã lưu cấu hình thành công!', 'success');
                 } else {
@@ -521,7 +521,7 @@ require_once __DIR__ . '/../../connection_manager.php';
                     })
                 });
                 
-                const result = await res.json();
+                const result = await parseJSONResponse(res);
                 if (result.success) {
                     showAlert(result.message || 'Đã reset tích lũy thành công!', 'success');
                     document.getElementById('resetTotalMoneyForm').reset();
@@ -624,7 +624,7 @@ require_once __DIR__ . '/../../connection_manager.php';
                         body: JSON.stringify(requestBody)
                     });
                     
-                    const result = await res.json();
+                    const result = await parseJSONResponse(res);
                     console.log('Response:', result);
                     
                     if (result.success) {
@@ -647,6 +647,21 @@ require_once __DIR__ . '/../../connection_manager.php';
             });
         }
         
+        // Helper function để parse JSON response an toàn
+        async function parseJSONResponse(response) {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                throw new Error(`Expected JSON but got: ${contentType}. Response: ${text.substring(0, 200)}`);
+            }
+            
+            return await response.json();
+        }
+        
         // Load milestones
         async function loadMilestones() {
             const listEl = document.getElementById('milestonesList');
@@ -655,7 +670,7 @@ require_once __DIR__ . '/../../connection_manager.php';
             try {
                 // Dùng get_all_milestones để lấy tất cả mốc (bao gồm cả inactive nếu có)
                 const response = await fetch('../../api/tichnap/get_all_milestones.php');
-                const result = await response.json();
+                const result = await parseJSONResponse(response);
                 
                 if (result.success && result.data.length > 0) {
                     listEl.innerHTML = result.data.map(milestone => `
@@ -746,7 +761,7 @@ require_once __DIR__ . '/../../connection_manager.php';
                     })
                 });
                 
-                const result = await response.json();
+                const result = await parseJSONResponse(response);
                 
                 if (result.success) {
                     showAlert('Đã tạo mốc nạp thành công!', 'success');
@@ -792,7 +807,7 @@ require_once __DIR__ . '/../../connection_manager.php';
                     })
                 });
                 
-                const result = await response.json();
+                const result = await parseJSONResponse(response);
                 
                 if (result.success) {
                     showAlert('Đã xóa mốc nạp thành công!', 'success');
