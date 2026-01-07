@@ -539,21 +539,39 @@ class SepayService {
                     $stmt->execute([$transactionID, $order['OrderID']]);
                     
                     // Cộng tích lũy vào column AccumulatedDeposit trong TB_User
+                    // Chỉ cộng nếu đang trong thời gian sự kiện tích lũy
                     try {
-                        // Convert Amount từ decimal sang int (BIGINT) và JID sang int
-                        $userJID = (int)$order['JID'];
-                        $totalMoney = (int)round((float)$order['Amount']); // Convert decimal to int
+                        // Kiểm tra xem có đang trong thời gian sự kiện tích lũy không
+                        if (!function_exists('checkTichNapFeatureStatus')) {
+                            require_once __DIR__ . '/tichnap_helper.php';
+                        }
+                        $featureStatus = checkTichNapFeatureStatus($db);
                         
-                        // Cộng vào AccumulatedDeposit
-                        $stmt = $db->prepare("
-                            UPDATE TB_User 
-                            SET AccumulatedDeposit = AccumulatedDeposit + ?
-                            WHERE JID = ?
-                        ");
-                        $stmt->execute([$totalMoney, $userJID]);
+                        // Chỉ cộng tích lũy nếu:
+                        // 1. Tính năng được bật (enabled = true)
+                        // 2. Đang trong thời gian sự kiện (inTimeRange = true)
+                        if ($featureStatus['enabled'] && $featureStatus['inTimeRange']) {
+                            // Convert Amount từ decimal sang int (BIGINT) và JID sang int
+                            $userJID = (int)$order['JID'];
+                            $totalMoney = (int)round((float)$order['Amount']); // Convert decimal to int
+                            
+                            // Cộng vào AccumulatedDeposit
+                            $stmt = $db->prepare("
+                                UPDATE TB_User 
+                                SET AccumulatedDeposit = AccumulatedDeposit + ?
+                                WHERE JID = ?
+                            ");
+                            $stmt->execute([$totalMoney, $userJID]);
+                            
+                            error_log("AccumulatedDeposit updated for user JID {$userJID} (Order: {$orderCode}): +{$totalMoney} VND");
+                        } else {
+                            // Không trong thời gian sự kiện - không cộng tích lũy
+                            $reason = $featureStatus['message'] ?? 'Không trong thời gian sự kiện tích lũy';
+                            error_log("AccumulatedDeposit NOT updated for order {$orderCode} (User JID: {$order['JID']}): {$reason}");
+                        }
                     } catch (Exception $e) {
                         // Log error nhưng không ảnh hưởng đến payment processing
-                        error_log("Error updating AccumulatedDeposit: " . $e->getMessage());
+                        error_log("Error updating AccumulatedDeposit for order {$orderCode}: " . $e->getMessage());
                     }
                     
                     // Commit transaction

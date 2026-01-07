@@ -39,20 +39,26 @@ if (!isAdmin()) {
 
 try {
     // Get JSON input
-    $input = json_decode(file_get_contents('php://input'), true);
+    $rawInput = file_get_contents('php://input');
+    $input = json_decode($rawInput, true);
+    
+    // Log for debugging
+    error_log("add_total_money.php - Raw input: " . $rawInput);
+    error_log("add_total_money.php - Parsed input: " . print_r($input, true));
     
     if (!isset($input['target']) || !isset($input['amount'])) {
         http_response_code(400);
         echo json_encode([
             'success' => false,
-            'error' => 'Missing required fields: target, amount'
+            'error' => 'Missing required fields: target, amount',
+            'debug' => ['received' => $input]
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
     
-    $target = $input['target'];
-    $username = $input['username'] ?? null;
-    $amount = (int)$input['amount'];
+    $target = trim($input['target']);
+    $username = isset($input['username']) && !empty($input['username']) ? trim($input['username']) : null;
+    $amount = isset($input['amount']) ? (int)$input['amount'] : 0;
     
     if ($target !== 'all' && $target !== 'user') {
         http_response_code(400);
@@ -97,8 +103,14 @@ try {
         }
     }
     
+    // Log before calling addTotalMoney
+    error_log("add_total_money.php - Calling addTotalMoney with userJID: " . ($userJID ?? 'null') . ", amount: {$amount}, target: {$target}");
+    
     // Add total money
     $result = addTotalMoney($userJID, $amount, $db);
+    
+    // Log result
+    error_log("add_total_money.php - Result: " . print_r($result, true));
     
     if ($result['success']) {
         http_response_code(200);
@@ -122,4 +134,5 @@ try {
         'error' => 'Internal server error: ' . $e->getMessage()
     ], JSON_UNESCAPED_UNICODE);
 }
+
 

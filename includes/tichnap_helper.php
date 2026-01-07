@@ -81,7 +81,41 @@ function getTotalMoneyFromTotalMoneyUser($userJID, $db) {
 }
 
 /**
+ * Lấy tên nhân vật đầu tiên từ UserJID
+ * 
+ * @param int $userJID JID của user
+ * @param PDO $shardDb Shard database connection
+ * @param PDO|null $accountDb Account database connection (không dùng, để tương thích)
+ * @return string|null Tên nhân vật hoặc null nếu không tìm thấy
+ */
+function getFirstCharacterNameFromJID($userJID, $shardDb, $accountDb = null) {
+    try {
+        $stmt = $shardDb->prepare("
+            SELECT TOP 1 CharName 
+            FROM SR_ShardCharNames 
+            WHERE UserJID = ?
+            ORDER BY CharName ASC
+        ");
+        $stmt->execute([$userJID]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($result && !empty($result['CharName'])) {
+            $charName = trim($result['CharName']);
+            error_log("Found character from SR_ShardCharNames for UserJID {$userJID}: {$charName}");
+            return $charName;
+        }
+        
+        error_log("Warning: Could not find character in SR_ShardCharNames for UserJID: {$userJID}");
+        return null;
+    } catch (Exception $e) {
+        error_log("Error getting first character name from JID {$userJID}: " . $e->getMessage());
+        return null;
+    }
+}
+
+/**
  * Kiểm tra nhân vật có tồn tại không
+ * Sử dụng SRO_VT_SHARD.dbo._Char
  * 
  * @param string $charName Tên nhân vật
  * @param PDO $shardDb Shard database connection
@@ -91,7 +125,7 @@ function checkCharacterExists($charName, $shardDb) {
     try {
         $stmt = $shardDb->prepare("
             SELECT COUNT(*) as count 
-            FROM _Char 
+            FROM SRO_VT_SHARD.dbo._Char 
             WHERE CharName16 = ?
         ");
         $stmt->execute([$charName]);
@@ -105,6 +139,7 @@ function checkCharacterExists($charName, $shardDb) {
 
 /**
  * Lấy CharID từ CharName
+ * Sử dụng SRO_VT_SHARD.dbo._Char
  * 
  * @param string $charName Tên nhân vật
  * @param PDO $shardDb Shard database connection
@@ -114,7 +149,7 @@ function getCharIDFromName($charName, $shardDb) {
     try {
         $stmt = $shardDb->prepare("
             SELECT TOP 1 CharID 
-            FROM _Char 
+            FROM SRO_VT_SHARD.dbo._Char 
             WHERE CharName16 = ?
         ");
         $stmt->execute([$charName]);
@@ -127,19 +162,21 @@ function getCharIDFromName($charName, $shardDb) {
 }
 
 /**
- * Thêm item vào game qua bảng _InstantItemDelivery (Cách mới)
+ * Thêm item vào game qua bảng _InstantItemDelivery
+ * Sử dụng SRO_VT_SHARD.dbo._Char để lấy CharID
+ * Sử dụng SRO_VT_FILTER.dbo._InstantItemDelivery để insert item
  * 
  * @param string $charName Tên nhân vật
  * @param string $codeItem Mã item (ví dụ: 'ITEM_MALL_QUIVER')
  * @param int $count Số lượng
- * @param PDO $shardDb Shard database connection (để lấy CharID)
+ * @param PDO $shardDb Shard database connection (để lấy CharID từ SRO_VT_SHARD)
  * @param PDO|null $filterDb Filter database connection (null thì dùng shardDb với database prefix)
  * @param string $filterDatabase Tên database FILTER (mặc định: 'SRO_VT_FILTER')
  * @return bool True nếu thành công
  */
 function addItemToCharacterViaInstantDelivery($charName, $codeItem, $count = 1, $shardDb, $filterDb = null, $filterDatabase = 'SRO_VT_FILTER') {
     try {
-        // 1. Lấy CharID từ CharName
+        // 1. Lấy CharID từ CharName (từ SRO_VT_SHARD.dbo._Char)
         $charID = getCharIDFromName($charName, $shardDb);
         if ($charID === null) {
             error_log("Character not found: $charName");
@@ -153,7 +190,7 @@ function addItemToCharacterViaInstantDelivery($charName, $codeItem, $count = 1, 
             $db = $shardDb;
         }
         
-        // 3. Insert vào _InstantItemDelivery
+        // 3. Insert vào SRO_VT_FILTER.dbo._InstantItemDelivery
         // Nếu dùng cùng connection, cần chỉ định database trong query
         if ($filterDb === null) {
             // Dùng database prefix trong query
@@ -172,6 +209,7 @@ function addItemToCharacterViaInstantDelivery($charName, $codeItem, $count = 1, 
         }
         
         $stmt->execute([$charID, $codeItem, $count]);
+        error_log("Successfully added item {$codeItem} (count: {$count}) to character {$charName} (CharID: {$charID})");
         return true;
     } catch (Exception $e) {
         error_log("Error adding item via InstantItemDelivery: " . $e->getMessage());
@@ -181,10 +219,12 @@ function addItemToCharacterViaInstantDelivery($charName, $codeItem, $count = 1, 
 
 /**
  * Thêm nhiều item vào game cùng lúc qua bảng _InstantItemDelivery
+ * Sử dụng SRO_VT_SHARD.dbo._Char để lấy CharID
+ * Sử dụng SRO_VT_FILTER.dbo._InstantItemDelivery để insert items
  * 
  * @param string $charName Tên nhân vật
  * @param array $items Mảng các item: [['codeName' => 'ITEM_MALL_QUIVER', 'count' => 1], ...]
- * @param PDO $shardDb Shard database connection
+ * @param PDO $shardDb Shard database connection (để lấy CharID từ SRO_VT_SHARD)
  * @param PDO|null $filterDb Filter database connection (null thì dùng shardDb với database prefix)
  * @param string $filterDatabase Tên database FILTER (mặc định: 'SRO_VT_FILTER')
  * @return array ['success' => bool, 'added' => int, 'failed' => int, 'errors' => array]
@@ -198,13 +238,16 @@ function addMultipleItemsToCharacter($charName, $items, $shardDb, $filterDb = nu
     ];
     
     try {
-        // 1. Lấy CharID từ CharName
+        // 1. Lấy CharID từ CharName (từ SRO_VT_SHARD.dbo._Char)
         $charID = getCharIDFromName($charName, $shardDb);
         if ($charID === null) {
             $result['success'] = false;
             $result['errors'][] = "Character not found: $charName";
+            error_log("Character not found in SRO_VT_SHARD.dbo._Char: $charName");
             return $result;
         }
+        
+        error_log("Found CharID {$charID} for character {$charName}, adding " . count($items) . " items");
         
         // 2. Xác định database connection cho FILTER
         $db = $filterDb;
@@ -212,7 +255,7 @@ function addMultipleItemsToCharacter($charName, $items, $shardDb, $filterDb = nu
             $db = $shardDb;
         }
         
-        // 3. Insert nhiều item cùng lúc
+        // 3. Insert nhiều item cùng lúc vào SRO_VT_FILTER.dbo._InstantItemDelivery
         foreach ($items as $item) {
             $codeName = $item['codeName'] ?? $item['codeItem'] ?? '';
             $count = (int)($item['count'] ?? $item['quanlity'] ?? 1);
@@ -225,12 +268,14 @@ function addMultipleItemsToCharacter($charName, $items, $shardDb, $filterDb = nu
             
             try {
                 if ($filterDb === null) {
+                    // Dùng database prefix trong query
                     $stmt = $db->prepare("
                         INSERT INTO [{$filterDatabase}].[dbo].[_InstantItemDelivery]
                             ([CharID], [StorageType], [CodeName], [Count], [Plus], [AddMagParams], [MagParams], [VarianceRand])
                         VALUES (?, 0, ?, ?, 0, NULL, NULL, NULL)
                     ");
                 } else {
+                    // Dùng connection riêng cho FILTER database
                     $stmt = $db->prepare("
                         INSERT INTO [dbo].[_InstantItemDelivery]
                             ([CharID], [StorageType], [CodeName], [Count], [Plus], [AddMagParams], [MagParams], [VarianceRand])
@@ -240,14 +285,16 @@ function addMultipleItemsToCharacter($charName, $items, $shardDb, $filterDb = nu
                 
                 $stmt->execute([$charID, $codeName, $count]);
                 $result['added']++;
+                error_log("Successfully added item {$codeName} (count: {$count}) to character {$charName} (CharID: {$charID})");
             } catch (Exception $e) {
                 $result['failed']++;
                 $result['errors'][] = "Failed to add {$codeName}: " . $e->getMessage();
-                error_log("Error adding item {$codeName}: " . $e->getMessage());
+                error_log("Error adding item {$codeName} to character {$charName}: " . $e->getMessage());
             }
         }
         
         $result['success'] = ($result['failed'] == 0);
+        error_log("addMultipleItemsToCharacter completed: added={$result['added']}, failed={$result['failed']}, success={$result['success']}");
         return $result;
     } catch (Exception $e) {
         $result['success'] = false;
@@ -474,30 +521,49 @@ function resetTotalMoney($userJID, $db) {
  */
 function addTotalMoney($userJID, $amount, $db) {
     try {
+        error_log("addTotalMoney called - userJID: " . ($userJID ?? 'null') . ", amount: {$amount}");
+        
         if ($userJID === null) {
             // Cộng cho tất cả users
-            $stmt = $db->prepare("
+            $sql = "
                 UPDATE TB_User 
                 SET AccumulatedDeposit = AccumulatedDeposit + ?
                 WHERE JID IS NOT NULL
-            ");
+            ";
+            error_log("addTotalMoney - Executing SQL for all users: " . $sql);
+            $stmt = $db->prepare($sql);
             $stmt->execute([$amount]);
             $affected = $stmt->rowCount();
+            
+            // Nếu rowCount() trả về 0, có thể do driver không hỗ trợ, thử query lại để đếm
+            if ($affected === 0) {
+                $countStmt = $db->query("SELECT COUNT(*) as cnt FROM TB_User WHERE JID IS NOT NULL");
+                $countResult = $countStmt->fetch(PDO::FETCH_ASSOC);
+                $totalUsers = $countResult['cnt'] ?? 0;
+                error_log("addTotalMoney - rowCount returned 0, but total users: {$totalUsers}");
+                $affected = $totalUsers; // Sử dụng số lượng users thực tế
+            }
+            
+            error_log("addTotalMoney - Affected rows: {$affected}");
             
             return [
                 'success' => true,
                 'affected' => $affected,
-                'message' => "Đã cộng {$amount} VND tích lũy cho {$affected} người dùng"
+                'message' => "Đã cộng " . number_format($amount) . " VND tích lũy cho {$affected} người dùng"
             ];
         } else {
             // Cộng cho user cụ thể
-            $stmt = $db->prepare("
+            $sql = "
                 UPDATE TB_User 
                 SET AccumulatedDeposit = AccumulatedDeposit + ?
                 WHERE JID = ?
-            ");
+            ";
+            error_log("addTotalMoney - Executing SQL for user JID {$userJID}: " . $sql);
+            $stmt = $db->prepare($sql);
             $stmt->execute([$amount, $userJID]);
             $affected = $stmt->rowCount();
+            
+            error_log("addTotalMoney - Affected rows: {$affected}");
             
             if ($affected === 0) {
                 return [
@@ -510,11 +576,12 @@ function addTotalMoney($userJID, $amount, $db) {
             return [
                 'success' => true,
                 'affected' => $affected,
-                'message' => "Đã cộng {$amount} VND tích lũy cho user JID {$userJID}"
+                'message' => "Đã cộng " . number_format($amount) . " VND tích lũy cho user JID {$userJID}"
             ];
         }
     } catch (Exception $e) {
         error_log("Error adding total money: " . $e->getMessage());
+        error_log("Error trace: " . $e->getTraceAsString());
         return [
             'success' => false,
             'affected' => 0,

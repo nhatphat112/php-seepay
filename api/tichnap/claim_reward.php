@@ -61,7 +61,9 @@ try {
     
     $itemTichNap = trim($input['itemTichNap'] ?? '');
     $charNames = trim($input['charNames'] ?? '');
-    $userJID = (int)($input['userJID'] ?? 0);
+    
+    // Lấy userJID từ session (không lấy từ input để đảm bảo security)
+    $userJID = (int)($_SESSION['user_id'] ?? 0);
     
     // Validate input
     if (empty($itemTichNap)) {
@@ -77,7 +79,7 @@ try {
         http_response_code(400);
         echo json_encode([
             'success' => false,
-            'error' => 'Invalid userJID'
+            'error' => 'Invalid user session. Please login again.'
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -108,22 +110,12 @@ try {
         exit;
     }
     
-    // Check user ownership
-    if ($userJID != $_SESSION['user_id']) {
-        http_response_code(403);
-        echo json_encode([
-            'success' => false,
-            'error' => 'Forbidden. You can only claim rewards for your own account.'
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-    
     $username = $_SESSION['username'];
     $db = ConnectionManager::getAccountDB();
     
     // Lấy shardDb nếu chưa có (nếu đã lấy ở trên thì không cần lấy lại)
     if (!isset($shardDb)) {
-        $shardDb = ConnectionManager::getShardDB();
+    $shardDb = ConnectionManager::getShardDB();
     }
     
     // 0. Kiểm tra tính năng có đang hoạt động không (bật và trong thời gian sự kiện)
@@ -233,15 +225,15 @@ try {
         $itemIds = parseItemIds($milestone['DsItem']);
         
         if (!empty($itemIds)) {
-            $placeholders = implode(',', array_fill(0, count($itemIds), '?'));
-            
-            $stmt = $db->prepare("
-                SELECT CodeItem, quanlity, NameItem
-                FROM GiftCodeItem
-                WHERE Id IN ($placeholders) AND IsDelete = 0
-            ");
-            $stmt->execute($itemIds);
-            $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $placeholders = implode(',', array_fill(0, count($itemIds), '?'));
+    
+    $stmt = $db->prepare("
+        SELECT CodeItem, quanlity, NameItem
+        FROM GiftCodeItem
+        WHERE Id IN ($placeholders) AND IsDelete = 0
+    ");
+    $stmt->execute($itemIds);
+    $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
     }
     
@@ -293,11 +285,11 @@ try {
         // Chuẩn bị danh sách items đã thêm để trả về
         $addedItems = [];
         foreach ($items as $item) {
-            $addedItems[] = [
-                'codeItem' => $item['CodeItem'],
+                $addedItems[] = [
+                    'codeItem' => $item['CodeItem'],
                 'quanlity' => (int)$item['quanlity'],
                 'name' => $item['NameItem'] ?? $item['CodeItem']
-            ];
+                ];
         }
         
         // 9. Ghi log đã nhận

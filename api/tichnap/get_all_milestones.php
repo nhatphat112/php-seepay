@@ -82,39 +82,39 @@ try {
         // Fallback: đọc từ DsItem (cách cũ - tương thích ngược)
         else if (!empty($milestone['DsItem'])) {
             $itemIds = parseItemIds($milestone['DsItem']);
+        
+        if (!empty($itemIds)) {
+            $placeholders = implode(',', array_fill(0, count($itemIds), '?'));
             
-            if (!empty($itemIds)) {
-                $placeholders = implode(',', array_fill(0, count($itemIds), '?'));
-                
+            $stmt = $db->prepare("
+                SELECT Id, CodeItem, NameItem, quanlity
+                FROM GiftCodeItem
+                WHERE Id IN ($placeholders) AND IsDelete = 0
+            ");
+            $stmt->execute($itemIds);
+            $giftItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            foreach ($giftItems as $giftItem) {
                 $stmt = $db->prepare("
-                    SELECT Id, CodeItem, NameItem, quanlity
-                    FROM GiftCodeItem
-                    WHERE Id IN ($placeholders) AND IsDelete = 0
+                    SELECT DuongDanFile
+                    FROM TaiLieuDinhKem
+                    WHERE Item_ID = ? AND LoaiTaiLieu = 'IconVP'
+                    ORDER BY CreatedDate DESC
                 ");
-                $stmt->execute($itemIds);
-                $giftItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $stmt->execute([$giftItem['Id']]);
+                $image = $stmt->fetch(PDO::FETCH_ASSOC);
                 
-                foreach ($giftItems as $giftItem) {
-                    $stmt = $db->prepare("
-                        SELECT DuongDanFile
-                        FROM TaiLieuDinhKem
-                        WHERE Item_ID = ? AND LoaiTaiLieu = 'IconVP'
-                        ORDER BY CreatedDate DESC
-                    ");
-                    $stmt->execute([$giftItem['Id']]);
-                    $image = $stmt->fetch(PDO::FETCH_ASSOC);
-                    
-                    $itemName = $giftItem['NameItem'] ?: $giftItem['CodeItem'];
-                    $quantity = (int)$giftItem['quanlity'];
-                    
-                    $items[] = [
-                        'id' => $giftItem['Id'],
-                        'key' => $giftItem['CodeItem'],
-                        'name' => $itemName,
-                        'quantity' => $quantity,
-                        'displayName' => $quantity > 1 ? "$itemName x ($quantity)" : $itemName,
-                        'image' => $image['DuongDanFile'] ?? null
-                    ];
+                $itemName = $giftItem['NameItem'] ?: $giftItem['CodeItem'];
+                $quantity = (int)$giftItem['quanlity'];
+                
+                $items[] = [
+                    'id' => $giftItem['Id'],
+                    'key' => $giftItem['CodeItem'],
+                    'name' => $itemName,
+                    'quantity' => $quantity,
+                    'displayName' => $quantity > 1 ? "$itemName x ($quantity)" : $itemName,
+                    'image' => $image['DuongDanFile'] ?? null
+                ];
                 }
             }
         }

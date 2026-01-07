@@ -235,11 +235,11 @@ require_once __DIR__ . '/../../connection_manager.php';
                             </div>
                             <div class="form-group">
                                 <label>Số Tiền Cộng (VND) *</label>
-                                <input type="number" id="addAmount" name="amount" required min="1" placeholder="100000">
+                                <input type="number" id="addAmount" name="amount" required min="1" step="1" placeholder="100000" value="">
                                 <small>Số tiền tích lũy sẽ được cộng thêm</small>
                             </div>
                             <div class="btn-group">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="addTotalMoneyBtn">
                                     <i class="fas fa-plus-circle"></i> Cộng Tích Lũy
                                 </button>
                             </div>
@@ -535,52 +535,117 @@ require_once __DIR__ . '/../../connection_manager.php';
         });
         
         // Add Total Money Form
-        document.getElementById('addTotalMoneyForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const target = document.getElementById('addTarget').value;
-            const username = document.getElementById('addUsername').value.trim();
-            const amount = parseInt(document.getElementById('addAmount').value);
-            
-            if (target === 'user' && !username) {
-                showAlert('Vui lòng nhập username!', 'error');
-                return;
-            }
-            
-            if (!amount || amount <= 0) {
-                showAlert('Vui lòng nhập số tiền hợp lệ!', 'error');
-                return;
-            }
-            
-            if (!confirm(`Bạn có chắc muốn cộng ${amount.toLocaleString('vi-VN')} VND tích lũy ${target === 'all' ? 'cho tất cả người dùng' : 'cho user ' + username}?`)) {
-                return;
-            }
-            
-            try {
-                const res = await fetch('../../api/tichnap/add_total_money.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        target: target,
-                        username: target === 'user' ? username : null,
-                        amount: amount
-                    })
-                });
+        const addTotalMoneyForm = document.getElementById('addTotalMoneyForm');
+        const addTotalMoneyBtn = document.getElementById('addTotalMoneyBtn');
+        
+        if (addTotalMoneyForm) {
+            addTotalMoneyForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
                 
-                const result = await res.json();
-                if (result.success) {
-                    showAlert(result.message || 'Đã cộng tích lũy thành công!', 'success');
-                    document.getElementById('addTotalMoneyForm').reset();
-                    document.getElementById('addUsernameGroup').style.display = 'none';
-                } else {
-                    showAlert('Lỗi: ' + (result.error || 'Không thể cộng tích lũy'), 'error');
+                // Disable button để tránh double submit
+                if (addTotalMoneyBtn) {
+                    addTotalMoneyBtn.disabled = true;
+                    addTotalMoneyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
                 }
-            } catch (error) {
-                showAlert('Lỗi: ' + error.message, 'error');
-            }
-        });
+                
+                try {
+                    const target = document.getElementById('addTarget').value;
+                    const username = document.getElementById('addUsername').value.trim();
+                    const amountInput = document.getElementById('addAmount').value.trim();
+                    
+                    console.log('Add Total Money Form - target:', target, 'username:', username, 'amountInput:', amountInput);
+                    
+                    // Validate target
+                    if (target !== 'all' && target !== 'user') {
+                        showAlert('Vui lòng chọn đối tượng!', 'error');
+                        if (addTotalMoneyBtn) {
+                            addTotalMoneyBtn.disabled = false;
+                            addTotalMoneyBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Cộng Tích Lũy';
+                        }
+                        return;
+                    }
+                    
+                    if (target === 'user' && !username) {
+                        showAlert('Vui lòng nhập username!', 'error');
+                        if (addTotalMoneyBtn) {
+                            addTotalMoneyBtn.disabled = false;
+                            addTotalMoneyBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Cộng Tích Lũy';
+                        }
+                        return;
+                    }
+                    
+                    // Validate amount
+                    if (!amountInput) {
+                        showAlert('Vui lòng nhập số tiền!', 'error');
+                        if (addTotalMoneyBtn) {
+                            addTotalMoneyBtn.disabled = false;
+                            addTotalMoneyBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Cộng Tích Lũy';
+                        }
+                        return;
+                    }
+                    
+                    const amount = parseInt(amountInput.replace(/[^\d]/g, '')); // Remove non-numeric characters
+                    console.log('Parsed amount:', amount);
+                    
+                    if (isNaN(amount) || amount <= 0) {
+                        showAlert('Vui lòng nhập số tiền hợp lệ (lớn hơn 0)!', 'error');
+                        if (addTotalMoneyBtn) {
+                            addTotalMoneyBtn.disabled = false;
+                            addTotalMoneyBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Cộng Tích Lũy';
+                        }
+                        return;
+                    }
+                    
+                    if (!confirm(`Bạn có chắc muốn cộng ${amount.toLocaleString('vi-VN')} VND tích lũy ${target === 'all' ? 'cho tất cả người dùng' : 'cho user ' + username}?`)) {
+                        if (addTotalMoneyBtn) {
+                            addTotalMoneyBtn.disabled = false;
+                            addTotalMoneyBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Cộng Tích Lũy';
+                        }
+                        return;
+                    }
+                    
+                    const requestBody = {
+                        target: target,
+                        amount: amount
+                    };
+                    
+                    // Chỉ thêm username nếu target là 'user'
+                    if (target === 'user') {
+                        requestBody.username = username;
+                    }
+                    
+                    console.log('Sending request:', requestBody);
+                    
+                    const res = await fetch('../../api/tichnap/add_total_money.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+                    
+                    const result = await res.json();
+                    console.log('Response:', result);
+                    
+                    if (result.success) {
+                        showAlert(result.message || 'Đã cộng tích lũy thành công!', 'success');
+                        document.getElementById('addTotalMoneyForm').reset();
+                        document.getElementById('addUsernameGroup').style.display = 'none';
+                    } else {
+                        showAlert('Lỗi: ' + (result.error || 'Không thể cộng tích lũy'), 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showAlert('Lỗi: ' + error.message, 'error');
+                } finally {
+                    // Re-enable button
+                    if (addTotalMoneyBtn) {
+                        addTotalMoneyBtn.disabled = false;
+                        addTotalMoneyBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Cộng Tích Lũy';
+                    }
+                }
+            });
+        }
         
         // Load milestones
         async function loadMilestones() {
