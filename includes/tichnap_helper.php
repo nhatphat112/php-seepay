@@ -34,24 +34,25 @@ function parseGuid($guidString) {
 }
 
 /**
- * Lấy tổng tiền đã nạp từ TB_Order
+ * Lấy tổng tiền đã nạp từ column AccumulatedDeposit trong TB_User
+ * Column này được cập nhật khi order completed và khi admin reset/cộng tích lũy
  * 
  * @param int $userJID JID của user
  * @param PDO $db Database connection
- * @return int Tổng tiền đã nạp
+ * @return int Tổng tiền đã nạp (tích lũy)
  */
 function getTotalMoneyFromOrders($userJID, $db) {
     try {
         $stmt = $db->prepare("
-            SELECT SUM(Amount) as total 
-            FROM TB_Order 
-            WHERE JID = ? AND Status = 'completed'
+            SELECT AccumulatedDeposit 
+            FROM TB_User 
+            WHERE JID = ?
         ");
         $stmt->execute([$userJID]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return (int)($result['total'] ?? 0);
+        return (int)($result['AccumulatedDeposit'] ?? 0);
     } catch (Exception $e) {
-        error_log("Error getting total money: " . $e->getMessage());
+        error_log("Error getting total money from AccumulatedDeposit: " . $e->getMessage());
         return 0;
     }
 }
@@ -389,6 +390,135 @@ function checkTichNapFeatureStatus($db) {
             'inTimeRange' => false,
             'message' => 'Lỗi kiểm tra cấu hình: ' . $e->getMessage(),
             'config' => null
+        ];
+    }
+}
+
+/**
+ * Lấy JID từ username
+ * 
+ * @param string $username Username (StrUserID)
+ * @param PDO $db Database connection
+ * @return int|null JID hoặc null nếu không tìm thấy
+ */
+function getJIDFromUsername($username, $db) {
+    try {
+        $stmt = $db->prepare("
+            SELECT JID 
+            FROM TB_User 
+            WHERE StrUserID = ?
+        ");
+        $stmt->execute([$username]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? (int)$result['JID'] : null;
+    } catch (Exception $e) {
+        error_log("Error getting JID from username {$username}: " . $e->getMessage());
+        return null;
+    }
+}
+
+/**
+ * Reset tích lũy cho user (set AccumulatedDeposit = 0)
+ * 
+ * @param int|null $userJID JID của user (null = tất cả users)
+ * @param PDO $db Database connection
+ * @return array ['success' => bool, 'affected' => int, 'message' => string]
+ */
+function resetTotalMoney($userJID, $db) {
+    try {
+        if ($userJID === null) {
+            // Reset tất cả users
+            $stmt = $db->prepare("
+                UPDATE TB_User 
+                SET AccumulatedDeposit = 0
+            ");
+            $stmt->execute();
+            $affected = $stmt->rowCount();
+            return [
+                'success' => true,
+                'affected' => $affected,
+                'message' => "Đã reset tích lũy cho {$affected} người dùng"
+            ];
+        } else {
+            // Reset user cụ thể
+            $stmt = $db->prepare("
+                UPDATE TB_User 
+                SET AccumulatedDeposit = 0
+                WHERE JID = ?
+            ");
+            $stmt->execute([$userJID]);
+            $affected = $stmt->rowCount();
+            return [
+                'success' => true,
+                'affected' => $affected,
+                'message' => "Đã reset tích lũy cho user JID {$userJID}"
+            ];
+        }
+    } catch (Exception $e) {
+        error_log("Error resetting total money: " . $e->getMessage());
+        return [
+            'success' => false,
+            'affected' => 0,
+            'message' => 'Lỗi: ' . $e->getMessage()
+        ];
+    }
+}
+
+/**
+ * Cộng tích lũy cho user (cộng vào AccumulatedDeposit trong TB_User)
+ * 
+ * @param int|null $userJID JID của user (null = tất cả users)
+ * @param int $amount Số tiền cộng thêm
+ * @param PDO $db Database connection
+ * @return array ['success' => bool, 'affected' => int, 'message' => string]
+ */
+function addTotalMoney($userJID, $amount, $db) {
+    try {
+        if ($userJID === null) {
+            // Cộng cho tất cả users
+            $stmt = $db->prepare("
+                UPDATE TB_User 
+                SET AccumulatedDeposit = AccumulatedDeposit + ?
+                WHERE JID IS NOT NULL
+            ");
+            $stmt->execute([$amount]);
+            $affected = $stmt->rowCount();
+            
+            return [
+                'success' => true,
+                'affected' => $affected,
+                'message' => "Đã cộng {$amount} VND tích lũy cho {$affected} người dùng"
+            ];
+        } else {
+            // Cộng cho user cụ thể
+            $stmt = $db->prepare("
+                UPDATE TB_User 
+                SET AccumulatedDeposit = AccumulatedDeposit + ?
+                WHERE JID = ?
+            ");
+            $stmt->execute([$amount, $userJID]);
+            $affected = $stmt->rowCount();
+            
+            if ($affected === 0) {
+                return [
+                    'success' => false,
+                    'affected' => 0,
+                    'message' => "Không tìm thấy user JID {$userJID}"
+                ];
+            }
+            
+            return [
+                'success' => true,
+                'affected' => $affected,
+                'message' => "Đã cộng {$amount} VND tích lũy cho user JID {$userJID}"
+            ];
+        }
+    } catch (Exception $e) {
+        error_log("Error adding total money: " . $e->getMessage());
+        return [
+            'success' => false,
+            'affected' => 0,
+            'message' => 'Lỗi: ' . $e->getMessage()
         ];
     }
 }

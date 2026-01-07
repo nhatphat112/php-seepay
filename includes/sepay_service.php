@@ -538,21 +538,22 @@ class SepayService {
                     ");
                     $stmt->execute([$transactionID, $order['OrderID']]);
                     
-                    // Lưu vào TotalMoneyUser để theo dõi tích lũy (optional - có thể tính trực tiếp từ TB_Order)
+                    // Cộng tích lũy vào column AccumulatedDeposit trong TB_User
                     try {
                         // Convert Amount từ decimal sang int (BIGINT) và JID sang int
                         $userJID = (int)$order['JID'];
                         $totalMoney = (int)round((float)$order['Amount']); // Convert decimal to int
                         
+                        // Cộng vào AccumulatedDeposit
                         $stmt = $db->prepare("
-                            INSERT INTO TotalMoneyUser (Id, UserJID, TotalMoney, CreateDate, CreatedDate)
-                            VALUES (NEWID(), ?, ?, GETDATE(), GETDATE())
+                            UPDATE TB_User 
+                            SET AccumulatedDeposit = AccumulatedDeposit + ?
+                            WHERE JID = ?
                         ");
-                        $stmt->execute([$userJID, $totalMoney]);
+                        $stmt->execute([$totalMoney, $userJID]);
                     } catch (Exception $e) {
                         // Log error nhưng không ảnh hưởng đến payment processing
-                        // Bảng TotalMoneyUser có thể chưa tồn tại hoặc có lỗi
-                        error_log("Error saving to TotalMoneyUser: " . $e->getMessage());
+                        error_log("Error updating AccumulatedDeposit: " . $e->getMessage());
                     }
                     
                     // Commit transaction

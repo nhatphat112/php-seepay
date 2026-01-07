@@ -370,6 +370,45 @@ try {
     }
     echo "\n";
     
+    // 7. Kiểm tra và thêm column AccumulatedDeposit vào TB_User
+    echo "7. Kiểm tra column AccumulatedDeposit trong TB_User...\n";
+    $stmt = $db->query("
+        SELECT COUNT(*) as count
+        FROM sys.columns 
+        WHERE object_id = OBJECT_ID('[dbo].[TB_User]') 
+        AND name = 'AccumulatedDeposit'
+    ");
+    $exists = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($exists['count'] == 0) {
+        echo "   → Thêm column AccumulatedDeposit...\n";
+        $db->exec("
+            ALTER TABLE [dbo].[TB_User]
+            ADD [AccumulatedDeposit] BIGINT NOT NULL DEFAULT 0
+        ");
+        echo "   ✓ Đã thêm column AccumulatedDeposit\n";
+        
+        // Cập nhật giá trị ban đầu từ TB_Order (nếu AccumulatedDeposit = 0)
+        echo "   → Cập nhật giá trị ban đầu từ TB_Order...\n";
+        $stmt = $db->prepare("
+            UPDATE u
+            SET u.AccumulatedDeposit = ISNULL((
+                SELECT SUM(CAST(o.Amount AS BIGINT))
+                FROM TB_Order o
+                WHERE o.JID = u.JID 
+                AND o.Status = 'completed'
+            ), 0)
+            FROM TB_User u
+            WHERE u.AccumulatedDeposit = 0
+        ");
+        $stmt->execute();
+        $affected = $stmt->rowCount();
+        echo "   ✓ Đã cập nhật giá trị ban đầu cho {$affected} người dùng\n";
+    } else {
+        echo "   ✓ Column AccumulatedDeposit đã tồn tại\n";
+    }
+    echo "\n";
+    
     // Summary
     echo "=============================================\n";
     echo "Migration hoàn tất!\n";
@@ -392,8 +431,32 @@ try {
         }
     }
     
+    // Thống kê AccumulatedDeposit
+    echo "\nThống kê AccumulatedDeposit (TB_User):\n";
+    echo str_repeat('-', 50) . "\n";
+    try {
+        $stmt = $db->query("
+            SELECT 
+                COUNT(*) as total_users,
+                SUM(AccumulatedDeposit) as total_deposit,
+                AVG(AccumulatedDeposit) as avg_deposit,
+                MAX(AccumulatedDeposit) as max_deposit,
+                COUNT(CASE WHEN AccumulatedDeposit > 0 THEN 1 END) as users_with_deposit
+            FROM TB_User
+        ");
+        $stats = $stmt->fetch(PDO::FETCH_ASSOC);
+        echo sprintf("  %-30s: %s\n", "Tổng số users", number_format($stats['total_users'] ?? 0));
+        echo sprintf("  %-30s: %s VND\n", "Tổng tích lũy", number_format($stats['total_deposit'] ?? 0));
+        echo sprintf("  %-30s: %s VND\n", "Trung bình tích lũy", number_format($stats['avg_deposit'] ?? 0));
+        echo sprintf("  %-30s: %s VND\n", "Tích lũy cao nhất", number_format($stats['max_deposit'] ?? 0));
+        echo sprintf("  %-30s: %s\n", "Users có tích lũy", number_format($stats['users_with_deposit'] ?? 0));
+    } catch (Exception $e) {
+        echo "  Error: " . $e->getMessage() . "\n";
+    }
+    
     echo "\n";
     echo "✓ Tất cả bảng đã được kiểm tra và tạo (nếu cần)\n";
+    echo "✓ Column AccumulatedDeposit đã được thêm vào TB_User\n";
     echo "✓ Không có dữ liệu nào bị xóa\n";
     echo "✓ Migration an toàn hoàn tất!\n";
     

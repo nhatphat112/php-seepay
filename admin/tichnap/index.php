@@ -165,6 +165,9 @@ require_once __DIR__ . '/../../connection_manager.php';
             <button class="tab" onclick="switchTab('create')">
                 <i class="fas fa-plus"></i> Tạo Mốc Mới
             </button>
+            <button class="tab" onclick="switchTab('manage')">
+                <i class="fas fa-users-cog"></i> Quản Lý Tích Lũy
+            </button>
             <button class="tab" onclick="switchTab('config')">
                 <i class="fas fa-cog"></i> Cấu Hình
             </button>
@@ -175,6 +178,72 @@ require_once __DIR__ . '/../../connection_manager.php';
             <div id="milestonesList" class="milestone-list">
                 <div class="loading">
                     <i class="fas fa-spinner fa-spin"></i> Đang tải...
+                </div>
+            </div>
+        </div>
+        
+            <!-- Tab: Quản Lý Tích Lũy -->
+            <div id="manageTab" class="tab-content">
+                <div class="form-container" style="max-width: 800px;">
+                    <h3 style="color: #e8c088; margin-bottom: 20px;">
+                        <i class="fas fa-users-cog"></i> Quản Lý Tích Lũy
+                    </h3>
+                    
+                    <!-- Reset Tích Lũy -->
+                    <div style="background: #0f1624; padding: 20px; border-radius: 10px; margin-bottom: 30px; border: 1px solid #4682b4;">
+                        <h4 style="color: #e8c088; margin-bottom: 15px;">
+                            <i class="fas fa-redo"></i> Reset Tích Lũy
+                        </h4>
+                        <form id="resetTotalMoneyForm">
+                            <div class="form-group">
+                                <label>Chọn đối tượng</label>
+                                <select id="resetTarget" name="target" required>
+                                    <option value="all">Tất cả người dùng</option>
+                                    <option value="user">Người dùng cụ thể</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="resetUsernameGroup" style="display: none;">
+                                <label>Username</label>
+                                <input type="text" id="resetUsername" name="username" placeholder="Nhập username">
+                                <small>Nhập username của người dùng cần reset</small>
+                            </div>
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-redo"></i> Reset Tích Lũy
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Cộng Tích Lũy -->
+                    <div style="background: #0f1624; padding: 20px; border-radius: 10px; border: 1px solid #4682b4;">
+                        <h4 style="color: #e8c088; margin-bottom: 15px;">
+                            <i class="fas fa-plus-circle"></i> Cộng Tích Lũy
+                        </h4>
+                        <form id="addTotalMoneyForm">
+                            <div class="form-group">
+                                <label>Chọn đối tượng</label>
+                                <select id="addTarget" name="target" required>
+                                    <option value="all">Tất cả người dùng</option>
+                                    <option value="user">Người dùng cụ thể</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="addUsernameGroup" style="display: none;">
+                                <label>Username</label>
+                                <input type="text" id="addUsername" name="username" placeholder="Nhập username">
+                                <small>Nhập username của người dùng cần cộng tích lũy</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Số Tiền Cộng (VND) *</label>
+                                <input type="number" id="addAmount" name="amount" required min="1" placeholder="100000">
+                                <small>Số tiền tích lũy sẽ được cộng thêm</small>
+                            </div>
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus-circle"></i> Cộng Tích Lũy
+                                </button>
+                            </div>
+                        </form>
                 </div>
             </div>
         </div>
@@ -244,14 +313,14 @@ require_once __DIR__ . '/../../connection_manager.php';
                                     <div>
                                         <label style="font-size: 12px; color: #87ceeb; margin-bottom: 5px; display: block;">Số Lượng</label>
                                         <input type="number" class="item-quantity" placeholder="1" value="1" min="1" required>
-                                    </div>
+                        </div>
                                     <div>
                                         <button type="button" class="btn btn-danger btn-sm" onclick="removeItemRow(this)">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                    </div>
-                        </div>
                             </div>
+                        </div>
+                    </div>
                             <button type="button" class="btn btn-secondary" onclick="addItemRow()" style="margin-top: 10px;">
                                 <i class="fas fa-plus"></i> Thêm Vật Phẩm
                             </button>
@@ -387,14 +456,131 @@ require_once __DIR__ . '/../../connection_manager.php';
                 document.getElementById('milestonesTab').classList.add('active');
                 loadMilestones();
             } else if (tabName === 'config') {
-                document.querySelectorAll('.tab')[2].classList.add('active');
+                document.querySelectorAll('.tab')[3].classList.add('active');
                 document.getElementById('configTab').classList.add('active');
                 loadConfig();
+            } else if (tabName === 'manage') {
+                document.querySelectorAll('.tab')[2].classList.add('active');
+                document.getElementById('manageTab').classList.add('active');
             } else {
                 document.querySelectorAll('.tab')[1].classList.add('active');
                 document.getElementById('createTab').classList.add('active');
             }
         }
+        
+        // Toggle username input based on target selection
+        document.getElementById('resetTarget').addEventListener('change', function() {
+            const usernameGroup = document.getElementById('resetUsernameGroup');
+            if (this.value === 'user') {
+                usernameGroup.style.display = 'block';
+                document.getElementById('resetUsername').required = true;
+            } else {
+                usernameGroup.style.display = 'none';
+                document.getElementById('resetUsername').required = false;
+                document.getElementById('resetUsername').value = '';
+            }
+        });
+        
+        document.getElementById('addTarget').addEventListener('change', function() {
+            const usernameGroup = document.getElementById('addUsernameGroup');
+            if (this.value === 'user') {
+                usernameGroup.style.display = 'block';
+                document.getElementById('addUsername').required = true;
+            } else {
+                usernameGroup.style.display = 'none';
+                document.getElementById('addUsername').required = false;
+                document.getElementById('addUsername').value = '';
+            }
+        });
+        
+        // Reset Total Money Form
+        document.getElementById('resetTotalMoneyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const target = document.getElementById('resetTarget').value;
+            const username = document.getElementById('resetUsername').value.trim();
+            
+            if (target === 'user' && !username) {
+                showAlert('Vui lòng nhập username!', 'error');
+                return;
+            }
+            
+            if (!confirm(`Bạn có chắc muốn reset tích lũy ${target === 'all' ? 'cho tất cả người dùng' : 'cho user ' + username}?`)) {
+                return;
+            }
+            
+            try {
+                const res = await fetch('../../api/tichnap/reset_total_money.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        target: target,
+                        username: target === 'user' ? username : null
+                    })
+                });
+                
+                const result = await res.json();
+                if (result.success) {
+                    showAlert(result.message || 'Đã reset tích lũy thành công!', 'success');
+                    document.getElementById('resetTotalMoneyForm').reset();
+                    document.getElementById('resetUsernameGroup').style.display = 'none';
+                } else {
+                    showAlert('Lỗi: ' + (result.error || 'Không thể reset tích lũy'), 'error');
+                }
+            } catch (error) {
+                showAlert('Lỗi: ' + error.message, 'error');
+            }
+        });
+        
+        // Add Total Money Form
+        document.getElementById('addTotalMoneyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const target = document.getElementById('addTarget').value;
+            const username = document.getElementById('addUsername').value.trim();
+            const amount = parseInt(document.getElementById('addAmount').value);
+            
+            if (target === 'user' && !username) {
+                showAlert('Vui lòng nhập username!', 'error');
+                return;
+            }
+            
+            if (!amount || amount <= 0) {
+                showAlert('Vui lòng nhập số tiền hợp lệ!', 'error');
+                return;
+            }
+            
+            if (!confirm(`Bạn có chắc muốn cộng ${amount.toLocaleString('vi-VN')} VND tích lũy ${target === 'all' ? 'cho tất cả người dùng' : 'cho user ' + username}?`)) {
+                return;
+            }
+            
+            try {
+                const res = await fetch('../../api/tichnap/add_total_money.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        target: target,
+                        username: target === 'user' ? username : null,
+                        amount: amount
+                    })
+                });
+                
+                const result = await res.json();
+                if (result.success) {
+                    showAlert(result.message || 'Đã cộng tích lũy thành công!', 'success');
+                    document.getElementById('addTotalMoneyForm').reset();
+                    document.getElementById('addUsernameGroup').style.display = 'none';
+                } else {
+                    showAlert('Lỗi: ' + (result.error || 'Không thể cộng tích lũy'), 'error');
+                }
+            } catch (error) {
+                showAlert('Lỗi: ' + error.message, 'error');
+            }
+        });
         
         // Load milestones
         async function loadMilestones() {
