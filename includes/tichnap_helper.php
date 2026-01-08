@@ -94,43 +94,34 @@ function getTotalMoneyFromTotalMoneyUser($userJID, $db) {
  */
 function getFirstCharacterNameFromJID($userJID, $shardDb, $accountDb = null) {
     try {
-        // Bước 1: Lấy CharName từ SR_ShardCharNames (bảng mapping UserJID -> CharName)
+        // Lấy CharName16 từ SRO_VT_SHARD.dbo._Char bằng cách JOIN với _User
+        // Chiến lược giống dashboard.php: JOIN _Char với _User thông qua CharID
         $stmt = $shardDb->prepare("
-            SELECT TOP 1 CharName 
-            FROM SR_ShardCharNames 
-            WHERE UserJID = ?
-            ORDER BY CharName ASC
+            SELECT TOP 1 
+                c.CharID,
+                c.CharName16
+            FROM SRO_VT_SHARD.dbo._Char c
+            INNER JOIN SRO_VT_SHARD.dbo._User u ON c.CharID = u.CharID
+            WHERE u.UserJID = ?
+            ORDER BY c.CurLevel DESC, c.ExpOffset DESC
         ");
         $stmt->execute([$userJID]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$result || empty($result['CharName'])) {
-            error_log("Warning: Could not find character in SR_ShardCharNames for UserJID: {$userJID}");
-            return null;
-        }
-        
-        $charNameInput = trim($result['CharName']);
-        error_log("Found character from SR_ShardCharNames for UserJID {$userJID}: {$charNameInput}");
-        
-        // Bước 2: Lấy CharID từ SRO_VT_SHARD.dbo._Char (theo SQL script)
-        // SELECT TOP (1) @CharID = CharID FROM SRO_VT_SHARD.dbo._Char WHERE CharName16 = @CharNameInput
-        $stmt = $shardDb->prepare("
-            SELECT TOP 1 CharID, CharName16
-            FROM SRO_VT_SHARD.dbo._Char 
-            WHERE CharName16 = ?
-        ");
-        $stmt->execute([$charNameInput]);
         $charResult = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$charResult || empty($charResult['CharID'])) {
-            error_log("Warning: Character '{$charNameInput}' not found in SRO_VT_SHARD.dbo._Char for UserJID: {$userJID}");
+            error_log("Warning: Could not find any character in SRO_VT_SHARD.dbo._Char for UserJID: {$userJID}");
             return null;
         }
         
         $charID = (int)$charResult['CharID'];
-        $charName16 = trim($charResult['CharName16'] ?? $charNameInput);
+        $charName16 = trim($charResult['CharName16'] ?? '');
         
-        // Bước 3: Verify - SELECT @CharName = CharName16 FROM SRO_VT_SHARD.dbo._Char WHERE CharID = @CharID
+        if (empty($charName16)) {
+            error_log("Warning: CharName16 is empty for CharID {$charID} in SRO_VT_SHARD.dbo._Char for UserJID: {$userJID}");
+            return null;
+        }
+        
+        // Verify - SELECT @CharName = CharName16 FROM SRO_VT_SHARD.dbo._Char WHERE CharID = @CharID
         $stmt = $shardDb->prepare("
             SELECT CharName16 
             FROM SRO_VT_SHARD.dbo._Char 
@@ -141,11 +132,10 @@ function getFirstCharacterNameFromJID($userJID, $shardDb, $accountDb = null) {
         
         if ($verifyResult && !empty($verifyResult['CharName16'])) {
             $verifiedCharName = trim($verifyResult['CharName16']);
-            error_log("Verified character for UserJID {$userJID}: CharName16={$verifiedCharName}, CharID={$charID}");
+            error_log("Found character for UserJID {$userJID}: CharName16={$verifiedCharName}, CharID={$charID}");
             return $verifiedCharName;
         }
         
-        // Nếu verify không thành công, vẫn trả về charName16 từ bước 2
         error_log("Warning: Could not verify character CharID {$charID}, but returning CharName16: {$charName16}");
         return $charName16;
     } catch (Exception $e) {
@@ -209,13 +199,13 @@ function getCharIDFromName($charName, $shardDb) {
  * 
  * @param string $charName Tên nhân vật
  * @param string $codeItem Mã item (ví dụ: 'ITEM_MALL_QUIVER')
- * @param int $count Số lượng
  * @param PDO $shardDb Shard database connection (để lấy CharID từ SRO_VT_SHARD)
+ * @param int $count Số lượng (mặc định: 1)
  * @param PDO|null $filterDb Filter database connection (null thì dùng shardDb với database prefix)
  * @param string $filterDatabase Tên database FILTER (mặc định: 'SRO_VT_FILTER')
  * @return bool True nếu thành công
  */
-function addItemToCharacterViaInstantDelivery($charName, $codeItem, $count = 1, $shardDb, $filterDb = null, $filterDatabase = 'SRO_VT_FILTER') {
+function addItemToCharacterViaInstantDelivery($charName, $codeItem, $shardDb, $count = 1, $filterDb = null, $filterDatabase = 'SRO_VT_FILTER') {
     try {
         // 1. Lấy CharID từ CharName (từ SRO_VT_SHARD.dbo._Char)
         $charID = getCharIDFromName($charName, $shardDb);

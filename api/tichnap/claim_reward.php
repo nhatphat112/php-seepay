@@ -271,7 +271,8 @@ try {
             $charNames,
             $itemsToAdd,
             $shardDb,
-            'SRO_VT_FILTER'  // Tên database FILTER
+            null,  // $filterDb = null (dùng shardDb với database prefix)
+            'SRO_VT_FILTER'  // $filterDatabase = tên database FILTER
         );
         
         if (!$result['success'] || $result['failed'] > 0) {
