@@ -624,44 +624,44 @@ if (!empty($currentOrderCode) && $orderData === null) {
                 <!-- Main Content -->
                 <div id="tichnapMain" style="display: none;">
                     <!-- Thời gian sự kiện -->
-                    <div id="eventTimeInfo" style="background: rgba(30, 144, 255, 0.1); border: 2px solid #1e90ff; border-radius: 10px; padding: 15px; margin-bottom: 20px; display: none;">
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                    <div id="eventTimeInfo" style="background: rgba(30, 144, 255, 0.1); border: 1px solid #1e90ff; border-radius: 6px; padding: 8px; margin-bottom: 12px; display: none;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;">
                             <div style="text-align: center;">
-                                <div style="color: #87ceeb; font-size: 12px; margin-bottom: 5px;">
-                                    <i class="fas fa-calendar-alt"></i> Bắt đầu
-                </div>
-                                <div style="color: #ffd700; font-size: 14px; font-weight: 600;" id="eventStartDate">
+                                <div style="color: #87ceeb; font-size: 9px; margin-bottom: 3px;">
+                                    <i class="fas fa-calendar-alt" style="font-size: 8px;"></i> Bắt đầu
+                                </div>
+                                <div style="color: #ffd700; font-size: 10px; font-weight: 600;" id="eventStartDate">
                                     --
-                        </div>
-                    </div>
-                            <div style="color: #87ceeb; font-size: 20px;">
-                                <i class="fas fa-arrow-right"></i>
-                        </div>
-                            <div style="text-align: center;">
-                                <div style="color: #87ceeb; font-size: 12px; margin-bottom: 5px;">
-                                    <i class="fas fa-calendar-check"></i> Kết thúc
-                        </div>
-                                <div style="color: #ffd700; font-size: 14px; font-weight: 600;" id="eventEndDate">
-                                    --
-                        </div>
-                        </div>
-                    </div>
+                                </div>
                             </div>
+                            <div style="color: #87ceeb; font-size: 12px;">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="color: #87ceeb; font-size: 9px; margin-bottom: 3px;">
+                                    <i class="fas fa-calendar-check" style="font-size: 8px;"></i> Kết thúc
+                                </div>
+                                <div style="color: #ffd700; font-size: 10px; font-weight: 600;" id="eventEndDate">
+                                    --
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Tổng tiền đã nạp -->
-                    <div style="background: rgba(30, 144, 255, 0.1); border: 2px solid #1e90ff; border-radius: 10px; padding: 20px; margin-bottom: 30px; text-align: center;">
-                        <h3 style="color: #87ceeb; margin-bottom: 10px; font-size: 16px;">
-                            <i class="fas fa-wallet"></i> Tổng Tiền Đã Nạp
-                    </h3>
-                        <div style="font-size: 32px; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);" id="totalMoneyDisplay">
+                    <div style="background: rgba(30, 144, 255, 0.1); border: 1px solid #1e90ff; border-radius: 6px; padding: 10px; margin-bottom: 15px; text-align: center;">
+                        <h3 style="color: #87ceeb; margin-bottom: 5px; font-size: 12px;">
+                            <i class="fas fa-wallet" style="font-size: 11px;"></i> Tổng Tiền Đã Nạp
+                        </h3>
+                        <div style="font-size: 20px; font-weight: bold; color: #ffd700; text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);" id="totalMoneyDisplay">
                             0 VND
                         </div>
-                        </div>
+                    </div>
 
                     <!-- Thông báo mốc tiếp theo -->
-                    <div id="nextMilestoneInfo" style="background: rgba(255, 215, 0, 0.1); border: 2px solid #ffd700; border-radius: 10px; padding: 15px; margin-bottom: 30px; text-align: center; display: none;">
-                        <p style="color: #ffd700; margin: 0; font-size: 16px;">
-                            <i class="fas fa-info-circle"></i> <span id="nextMilestoneText"></span>
+                    <div id="nextMilestoneInfo" style="background: rgba(255, 215, 0, 0.1); border: 1px solid #ffd700; border-radius: 6px; padding: 8px; margin-bottom: 15px; text-align: center; display: none;">
+                        <p style="color: #ffd700; margin: 0; font-size: 11px;">
+                            <i class="fas fa-info-circle" style="font-size: 10px;"></i> <span id="nextMilestoneText"></span>
                         </p>
                     </div>
                     
@@ -826,33 +826,33 @@ if (!empty($currentOrderCode) && $orderData === null) {
                     let buttonHtml = '';
 
                     if (status === 'claimed') {
-                        statusBadge = '<span style="background: #28a745; color: white; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;"><i class="fas fa-check"></i> Đã Nhận</span>';
+                        statusBadge = '<span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 8px; font-size: 9px; font-weight: 600;"><i class="fas fa-check"></i> Đã Nhận</span>';
                         statusColor = '#28a745';
                     } else if (status === 'available') {
-                        statusBadge = '<span style="background: #ffd700; color: #333; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;"><i class="fas fa-gift"></i> Có Thể Nhận</span>';
+                        statusBadge = '<span style="background: #ffd700; color: #333; padding: 2px 6px; border-radius: 8px; font-size: 9px; font-weight: 600;"><i class="fas fa-gift"></i> Có Thể Nhận</span>';
                         statusColor = '#ffd700';
                         buttonHtml = `
                             <button onclick="claimReward('${milestone.id}')" 
                                     style="background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); 
                                            color: #333; 
                                            border: none; 
-                                           padding: 8px 16px; 
-                                           border-radius: 6px; 
+                                           padding: 5px 12px; 
+                                           border-radius: 4px; 
                                            cursor: pointer; 
                                            font-weight: 600;
-                                           font-size: 12px;
+                                           font-size: 10px;
                                            width: 100%;
                                            transition: all 0.3s;">
-                                <i class="fas fa-gift"></i> Nhận Phần Thưởng
+                                <i class="fas fa-gift" style="font-size: 9px;"></i> Nhận Phần Thưởng
                             </button>
                         `;
                     } else {
-                        statusBadge = '<span style="background: #6c757d; color: white; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;"><i class="fas fa-lock"></i> Chưa Đạt</span>';
+                        statusBadge = '<span style="background: #6c757d; color: white; padding: 2px 6px; border-radius: 8px; font-size: 9px; font-weight: 600;"><i class="fas fa-lock"></i> Chưa Đạt</span>';
                         statusColor = '#6c757d';
                         const remaining = milestoneValue - totalMoney;
                         buttonHtml = `
-                            <div style="color: #87ceeb; font-size: 11px; text-align: center;">
-                                <i class="fas fa-info-circle"></i> Cần nạp thêm: <strong style="color: #ffd700;">${formatVND(remaining)}</strong>
+                            <div style="color: #87ceeb; font-size: 9px; text-align: center;">
+                                <i class="fas fa-info-circle" style="font-size: 8px;"></i> Cần nạp thêm: <strong style="color: #ffd700;">${formatVND(remaining)}</strong>
                             </div>
                         `;
                     }
@@ -862,55 +862,53 @@ if (!empty($currentOrderCode) && $orderData === null) {
 
                     return `
                         <div style="background: rgba(30, 144, 255, 0.05); 
-                                    border: 1.5px solid ${statusColor}; 
-                                    border-radius: 8px; 
-                                    padding: 12px;
-                                    margin-bottom: 12px;
+                                    border: 1px solid ${statusColor}; 
+                                    border-radius: 6px; 
+                                    padding: 6px 8px;
+                                    margin-bottom: 4px;
                                     transition: all 0.3s;
-                                    ${status === 'available' ? 'box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);' : ''}">
-                            <!-- Header: Title + Badge + Progress inline -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 10px;">
-                                <div style="flex: 1; min-width: 0;">
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <h3 style="color: #e8c088; margin: 0; font-size: 16px; font-weight: 600; white-space: nowrap;">
-                                            <i class="fas fa-trophy" style="font-size: 14px;"></i> ${milestone.price}
-                                        </h3>
-                                        ${statusBadge}
-                                    </div>
+                                    ${status === 'available' ? 'box-shadow: 0 0 10px rgba(255, 215, 0, 0.15);' : ''}">
+                            <!-- Header: Title + Badge inline -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 6px;">
+                                <div style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px;">
+                                    <h3 style="color: #e8c088; margin: 0; font-size: 13px; font-weight: 600; white-space: nowrap;">
+                                        <i class="fas fa-trophy" style="font-size: 11px;"></i> ${milestone.price}
+                                    </h3>
+                                    ${statusBadge}
                                 </div>
                             </div>
 
                             <!-- Compact Progress Bar -->
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                                <div style="flex: 1; background: rgba(108, 117, 125, 0.3); border-radius: 6px; height: 6px; overflow: hidden;">
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                <div style="flex: 1; background: rgba(108, 117, 125, 0.3); border-radius: 4px; height: 4px; overflow: hidden;">
                                     <div style="background: linear-gradient(90deg, ${statusColor} 0%, ${statusColor}dd 100%); 
                                                height: 100%; 
                                                width: ${progressPercent}%; 
                                                transition: width 0.5s;
-                                               border-radius: 6px;"></div>
+                                               border-radius: 4px;"></div>
                                 </div>
-                                <div style="color: #87ceeb; font-size: 11px; white-space: nowrap; min-width: fit-content;">
+                                <div style="color: #87ceeb; font-size: 9px; white-space: nowrap; min-width: fit-content;">
                                     ${Math.round(progressPercent)}%
                                 </div>
                             </div>
 
                             <!-- Compact Items List -->
                             ${milestone.items && milestone.items.length > 0 ? `
-                                <div style="margin-top: 8px; margin-bottom: 8px;">
-                                    <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+                                <div style="margin-bottom: 4px;">
+                                    <div style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center;">
                                         ${milestone.items.map(item => `
-                                            <div style="display: inline-flex; align-items: center; gap: 6px; 
+                                            <div style="display: inline-flex; align-items: center; gap: 4px; 
                                                        background: rgba(30, 144, 255, 0.08); 
                                                        border: 1px solid rgba(30, 144, 255, 0.2); 
-                                                       border-radius: 6px; 
-                                                       padding: 4px 8px;
-                                                       font-size: 11px;">
+                                                       border-radius: 4px; 
+                                                       padding: 2px 6px;
+                                                       font-size: 9px;">
                                                 ${item.image ? `
                                                     <img src="${item.image}" 
                                                          alt="${item.name}" 
-                                                         style="width: 24px; height: 24px; object-fit: contain;">
+                                                         style="width: 16px; height: 16px; object-fit: contain;">
                                                 ` : `
-                                                    <i class="fas fa-box" style="font-size: 14px; color: #87ceeb;"></i>
+                                                    <i class="fas fa-box" style="font-size: 10px; color: #87ceeb;"></i>
                                                 `}
                                                 <span style="color: #e8c088; font-weight: 500;">${item.name}</span>
                                                 <span style="color: #87ceeb; font-weight: 600;">x${item.quantity}</span>
@@ -922,7 +920,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
 
                             <!-- Action Button -->
                             ${buttonHtml ? `
-                                <div style="margin-top: 8px;">
+                                <div style="margin-top: 4px;">
                                     ${buttonHtml}
                                 </div>
                             ` : ''}
