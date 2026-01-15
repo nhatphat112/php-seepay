@@ -769,27 +769,27 @@ if (!empty($currentOrderCode) && $orderData === null) {
                     <div class="amount-options">
                         <div class="amount-btn" data-amount="50000">
                             <div>50,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 2,000 Silk</div>
+                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 1,000 Silk</div>
                         </div>
                         <div class="amount-btn" data-amount="100000">
                             <div>100,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 4,000 Silk</div>
+                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 2,000 Silk</div>
                         </div>
                         <div class="amount-btn" data-amount="200000">
                             <div>200,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 8,000 Silk</div>
+                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 4,000 Silk</div>
                         </div>
                         <div class="amount-btn" data-amount="500000">
                             <div>500,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 20,000 Silk</div>
+                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 10,000 Silk</div>
                         </div>
                         <div class="amount-btn" data-amount="1000000">
                             <div>1,000,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 40,000 Silk</div>
+                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 20,000 Silk</div>
                         </div>
                         <div class="amount-btn" data-amount="2000000">
                             <div>2,000,000 VNĐ</div>
-                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 80,000 Silk</div>
+                            <div style="font-size: 12px; color: #e8c088; margin-top: 5px;">= 40,000 Silk</div>
                         </div>
                     </div>
                 </div>
@@ -802,7 +802,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
             <!-- Payment Information -->
             <div class="payment-info">
                 <h4><i class="fas fa-info-circle"></i> Thông Tin Thanh Toán</h4>
-                <p><strong>Tỷ lệ quy đổi:</strong> 100,000 VNĐ = 4,000 Silk (1 VNĐ = 0.04 Silk)</p>
+                <p><strong>Tỷ lệ quy đổi:</strong> 100,000 VNĐ = 2,000 Silk (1 VNĐ = 0.02 Silk)</p>
                 <p><strong>Thời gian xử lý:</strong> Tức thì sau khi thanh toán thành công</p>
                 <p><strong>Phí giao dịch:</strong> Miễn phí</p>
                 <p><strong>Bảo mật:</strong> Được mã hóa SSL 256-bit</p>
@@ -849,7 +849,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
         // Function to calculate and display Silk amount
         function updateSilkPreview(amount) {
             if (amount && amount >= 10000) {
-                const silkAmount = Math.floor(parseInt(amount) * 0.04);
+                const silkAmount = Math.floor(parseInt(amount) * 0.02);
                 $('#silk-amount-preview').text(silkAmount.toLocaleString());
                 $('#silk-preview').show();
             } else {
@@ -904,8 +904,8 @@ if (!empty($currentOrderCode) && $orderData === null) {
                     return false;
                 }
                 
-                // Calculate Silk amount (100,000 VNĐ = 4,000 Silk)
-                const silkAmount = Math.floor(parseInt(amount) * 0.04);
+                // Calculate Silk amount (100,000 VNĐ = 2,000 Silk)
+                const silkAmount = Math.floor(parseInt(amount) * 0.02);
                 const confirmMessage = `Xác nhận tạo đơn hàng ${parseInt(amount).toLocaleString()} VNĐ?\nBạn sẽ nhận được ${silkAmount.toLocaleString()} Silk.`;
                 
                 if (!confirm(confirmMessage)) {

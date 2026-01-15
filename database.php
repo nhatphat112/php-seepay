@@ -15,8 +15,8 @@ class DatabaseConfig {
     const DB_SHARD = "SRO_VT_SHARD";
     
     // Silk Conversion Rate
-    // Tỉ lệ chuyển đổi: 100,000 VNĐ = 4,000 Silk (1 VNĐ = 0.04 Silk)
-    const SILK_RATE = 0.04; // 1 VNĐ = 0.04 Silk
+    // Tỉ lệ chuyển đổi: 100,000 VNĐ = 2,000 Silk (1 VNĐ = 0.02 Silk)
+    const SILK_RATE = 0.02; // 1 VNĐ = 0.02 Silk
     
     // Security Settings
     const MAX_LOGIN_ATTEMPTS = 5;

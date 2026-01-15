@@ -1022,7 +1022,7 @@ if (!empty($currentOrderCode) && $orderData === null) {
         // Function to calculate and display Silk amount
         function updateSilkPreview(amount) {
             if (amount && amount >= 10000) {
-                const silkAmount = Math.floor(parseInt(amount) * 0.04);
+                const silkAmount = Math.floor(parseInt(amount) * 0.02);
                 $('#silk-amount-preview').text(silkAmount.toLocaleString());
                 $('#silk-preview').show();
             } else {
@@ -1077,8 +1077,8 @@ if (!empty($currentOrderCode) && $orderData === null) {
                     return false;
                 }
                 
-                // Calculate Silk amount (100,000 VNĐ = 4,000 Silk)
-                const silkAmount = Math.floor(parseInt(amount) * 0.04);
+                // Calculate Silk amount (100,000 VNĐ = 2,000 Silk)
+                const silkAmount = Math.floor(parseInt(amount) * 0.02);
                 const confirmMessage = `Xác nhận tạo đơn hàng ${parseInt(amount).toLocaleString()} VNĐ?\nBạn sẽ nhận được ${silkAmount.toLocaleString()} Silk.`;
                 
                 if (!confirm(confirmMessage)) {
