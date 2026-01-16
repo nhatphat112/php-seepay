@@ -110,6 +110,118 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
                 display: none !important;
             }
         }
+        
+        /* Lucky Wheel Ticker Styles */
+        .lucky-wheel-ticker {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+            border-top: 2px solid #e8c088;
+            border-bottom: 2px solid #e8c088;
+            padding: 12px 0;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(232, 192, 136, 0.2);
+        }
+        
+        .ticker-container {
+            display: flex;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .ticker-label {
+            color: #e8c088;
+            font-weight: bold;
+            font-size: 16px;
+            margin-right: 20px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        
+        .ticker-label i {
+            color: #ffd700;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .ticker-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            height: 30px;
+        }
+        
+        .ticker-scroll {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            white-space: nowrap;
+            animation: scroll 30s linear infinite;
+        }
+        
+        .ticker-scroll:hover {
+            animation-play-state: paused;
+        }
+        
+        @keyframes scroll {
+            0% {
+                transform: translateX(100%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+        
+        .ticker-item {
+            display: inline-block;
+            color: #87ceeb;
+            font-size: 15px;
+            padding: 5px 15px;
+            background: rgba(232, 192, 136, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(232, 192, 136, 0.3);
+            white-space: nowrap;
+        }
+        
+        .ticker-item .username {
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        .ticker-item .item-name {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        
+        .ticker-item .separator {
+            color: #87ceeb;
+            margin: 0 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .ticker-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .ticker-label {
+                margin-right: 0;
+                font-size: 14px;
+            }
+            
+            .ticker-item {
+                font-size: 13px;
+                padding: 4px 12px;
+            }
+        }
     </style>
     
     <script type="text/javascript" src="assets/js/jquery-1.11.2.min.js"></script>
@@ -194,6 +306,18 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
                     </a>
                     <?php endforeach; ?>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lucky Wheel Ticker -->
+    <div class="lucky-wheel-ticker" id="luckyWheelTicker">
+        <div class="ticker-container">
+            <div class="ticker-label">
+                <i class="fas fa-trophy"></i> Vật Phẩm Hiếm:
+            </div>
+            <div class="ticker-content" id="tickerContent">
+                <div class="ticker-item">Đang tải...</div>
             </div>
         </div>
     </div>
@@ -1140,6 +1264,64 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
     <script type="text/javascript" src="assets/js/app.js"></script>
 
     <script>
+        // Lucky Wheel Ticker
+        function loadLuckyWheelTicker() {
+            $.ajax({
+                url: '/api/lucky_wheel/get_recent_rare_wins.php?limit=20',
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success && response.data.length > 0) {
+                        const tickerContent = $('#tickerContent');
+                        tickerContent.empty();
+                        
+                        const scrollDiv = $('<div>').addClass('ticker-scroll');
+                        
+                        // Duplicate items for seamless loop
+                        const items = [...response.data, ...response.data];
+                        
+                        items.forEach(function(win) {
+                            const item = $('<div>')
+                                .addClass('ticker-item')
+                                .html(
+                                    '<span class="username">' + escapeHtml(win.username) + '</span>' +
+                                    '<span class="separator">đã trúng</span>' +
+                                    '<span class="item-name">' + escapeHtml(win.item_name) + '</span>'
+                                );
+                            scrollDiv.append(item);
+                        });
+                        
+                        tickerContent.append(scrollDiv);
+                    } else {
+                        $('#tickerContent').html('<div class="ticker-item">Chưa có người chơi nào trúng vật phẩm hiếm</div>');
+                    }
+                },
+                error: function() {
+                    $('#tickerContent').html('<div class="ticker-item">Không thể tải dữ liệu</div>');
+                }
+            });
+        }
+        
+        // Escape HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+        
+        // Load ticker on page load
+        $(document).ready(function() {
+            loadLuckyWheelTicker();
+            
+            // Auto-refresh every 60 seconds
+            setInterval(loadLuckyWheelTicker, 60000);
+        });
+        
         // Smooth scroll for anchor links
         $('a[href^="#"]').on('click', function(e) {
             var target = $(this.hash);

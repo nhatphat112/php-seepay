@@ -115,6 +115,7 @@ require_once __DIR__ . '/auth_check.php';
                 <li><a href="qrcode.php"><i class="fas fa-qrcode"></i> QR Code</a></li>
                 <li><a href="orders.php" class="active"><i class="fas fa-shopping-cart"></i> Lịch Sử Giao Dịch</a></li>
                 <li><a href="users.php"><i class="fas fa-users"></i> Quản Lý User</a></li>
+                <li><a href="lucky_wheel.php"><i class="fas fa-dharmachakra"></i> Vòng Quay May Mắn</a></li>
                 <li><a href="tichnap/index.php"><i class="fas fa-gift"></i> Mốc Nạp Tích Lũy</a></li>
             </ul>
         </aside>
