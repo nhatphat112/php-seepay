@@ -244,9 +244,23 @@ try {
             // Index might already exist
         }
         
+        try {
+            $accountDb->exec("CREATE NONCLUSTERED INDEX [IX_LuckyWheelRewards_IsRare] ON [dbo].[LuckyWheelRewards] ([IsRare])");
+        } catch (Exception $e) {
+            // Index might already exist
+        }
+        
         output("  ✓ LuckyWheelRewards table created with indexes", 'success');
     } else {
         output("  ✓ LuckyWheelRewards table already exists", 'success');
+        
+        // Add IsRare index if table exists but index doesn't (for existing installations)
+        try {
+            $accountDb->exec("CREATE NONCLUSTERED INDEX [IX_LuckyWheelRewards_IsRare] ON [dbo].[LuckyWheelRewards] ([IsRare])");
+            output("  ✓ Added IsRare index to existing LuckyWheelRewards table", 'success');
+        } catch (Exception $e) {
+            // Index might already exist, ignore
+        }
     }
     
     // Step 5: Add TotalSpins column to TB_User (if not exists)

@@ -247,6 +247,9 @@ require_once __DIR__ . '/auth_check.php';
                 <button class="tab" onclick="switchTab('accumulated-items')">
                     <i class="fas fa-gift"></i> Vật Phẩm Mốc Quay
                 </button>
+                <button class="tab" onclick="switchTab('guide')">
+                    <i class="fas fa-book"></i> Hướng Dẫn
+                </button>
             </div>
             
             <!-- Tab: Cấu Hình -->
@@ -325,6 +328,157 @@ require_once __DIR__ . '/auth_check.php';
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab: Hướng Dẫn -->
+            <div id="guideTab" class="tab-content">
+                <div class="form-container">
+                    <h3 style="color: #e8c088; margin-bottom: 20px;">
+                        <i class="fas fa-book"></i> Hướng Dẫn Sử Dụng Vòng Quay May Mắn
+                    </h3>
+                    
+                    <div class="config-section" style="margin-bottom: 20px;">
+                        <h4 style="color: #e8c088; margin-bottom: 15px;">
+                            <i class="fas fa-info-circle"></i> Tổng Quan
+                        </h4>
+                        <p style="color: #87ceeb; line-height: 1.8;">
+                            Hệ thống Vòng Quay May Mắn cho phép người chơi quay vòng để nhận phần thưởng. 
+                            Mỗi lần quay tốn một số lượng Silk nhất định (mặc định: 10 Silk/lần).
+                        </p>
+                    </div>
+                    
+                    <div class="config-section" style="margin-bottom: 20px;">
+                        <h4 style="color: #e8c088; margin-bottom: 15px;">
+                            <i class="fas fa-cog"></i> Cấu Hình
+                        </h4>
+                        <ul style="color: #87ceeb; line-height: 2; padding-left: 20px;">
+                            <li><strong>Bật/Tắt tính năng:</strong> Cho phép bật hoặc tắt tính năng vòng quay cho toàn bộ người chơi.</li>
+                            <li><strong>Giá quay:</strong> Số lượng Silk cần thiết cho mỗi lần quay (tối thiểu: 1, tối đa: 1000).</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="config-section" style="margin-bottom: 20px;">
+                        <h4 style="color: #e8c088; margin-bottom: 15px;">
+                            <i class="fas fa-list"></i> Vật Phẩm Vòng Quay
+                        </h4>
+                        <ul style="color: #87ceeb; line-height: 2; padding-left: 20px;">
+                            <li><strong>Thêm vật phẩm:</strong> Nhấn nút "Thêm Vật Phẩm" và điền đầy đủ thông tin:
+                                <ul style="margin-top: 10px; padding-left: 20px;">
+                                    <li>Tên vật phẩm (tối đa 100 ký tự)</li>
+                                    <li>Mã vật phẩm (tối đa 50 ký tự, phải là mã code trong game)</li>
+                                    <li>Số lượng vật phẩm (phải > 0)</li>
+                                    <li>Vật phẩm hiếm: Đánh dấu nếu muốn hiển thị trên ticker trang chủ</li>
+                                    <li>Tỉ lệ quay ra (%): Từ 0.01 đến 100</li>
+                                </ul>
+                            </li>
+                            <li><strong>Thứ tự hiển thị:</strong> Được tự động quản lý bởi hệ thống (tự động tăng dần).</li>
+                            <li><strong>Xóa vật phẩm:</strong> Sử dụng soft delete (IsActive = 0), không hiển thị ở admin và user nhưng vẫn giữ data để user có thể claim phần thưởng đã trúng.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="config-section" style="margin-bottom: 20px;">
+                        <h4 style="color: #e8c088; margin-bottom: 15px;">
+                            <i class="fas fa-gift"></i> Vật Phẩm Mốc Quay (Tích Lũy)
+                        </h4>
+                        <ul style="color: #87ceeb; line-height: 2; padding-left: 20px;">
+                            <li><strong>Thêm vật phẩm mốc quay:</strong> Nhấn nút "Thêm Vật Phẩm Mốc Quay" và điền:
+                                <ul style="margin-top: 10px; padding-left: 20px;">
+                                    <li>Tên vật phẩm (tối đa 100 ký tự)</li>
+                                    <li>Mã vật phẩm (tối đa 50 ký tự)</li>
+                                    <li>Số lượng vật phẩm (phải > 0)</li>
+                                    <li>Mức đạt (số vòng): Số vòng quay cần đạt để nhận phần thưởng này</li>
+                                </ul>
+                            </li>
+                            <li><strong>Cơ chế tích lũy:</strong> Hệ thống tự động đếm tổng số vòng quay của mỗi user. Khi đạt mức yêu cầu, user có thể nhận phần thưởng.</li>
+                            <li><strong>Chỉ nhận 1 lần:</strong> Mỗi phần thưởng tích lũy chỉ có thể nhận được 1 lần duy nhất (có unique constraint ở database).</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="config-section" style="margin-bottom: 20px;">
+                        <h4 style="color: #e8c088; margin-bottom: 15px;">
+                            <i class="fas fa-shield-alt"></i> Workflow Nhận Thưởng - Đảm Bảo Chỉ Nhận 1 Lần
+                        </h4>
+                        
+                        <h5 style="color: #e8c088; margin-top: 15px; margin-bottom: 10px;">
+                            <i class="fas fa-dharmachakra"></i> Nhận Thưởng Từ Quay Vòng
+                        </h5>
+                        <ol style="color: #87ceeb; line-height: 2; padding-left: 20px;">
+                            <li><strong>Kiểm tra trạng thái:</strong> Chỉ cho phép claim nếu Status = 'pending'</li>
+                            <li><strong>Transaction:</strong> Sử dụng database transaction để đảm bảo atomicity</li>
+                            <li><strong>Double-check trong transaction:</strong> Kiểm tra lại Status = 'pending' trước khi xử lý</li>
+                            <li><strong>Giao vật phẩm:</strong> Thêm vật phẩm vào game qua _InstantItemDelivery</li>
+                            <li><strong>Cập nhật trạng thái:</strong> UPDATE Status = 'claimed' với điều kiện WHERE Status = 'pending' (ngăn double claim)</li>
+                            <li><strong>Xác minh:</strong> Kiểm tra rowCount() để đảm bảo update thành công</li>
+                        </ol>
+                        
+                        <h5 style="color: #e8c088; margin-top: 15px; margin-bottom: 10px;">
+                            <i class="fas fa-trophy"></i> Nhận Thưởng Tích Lũy
+                        </h5>
+                        <ol style="color: #87ceeb; line-height: 2; padding-left: 20px;">
+                            <li><strong>Kiểm tra đã claim:</strong> Gọi hasClaimedAccumulatedReward() để kiểm tra</li>
+                            <li><strong>Kiểm tra mức đạt:</strong> Tổng số vòng quay >= RequiredSpins</li>
+                            <li><strong>Transaction:</strong> Sử dụng database transaction</li>
+                            <li><strong>Double-check trong transaction:</strong> Kiểm tra lại claim status trước khi xử lý</li>
+                            <li><strong>Giao vật phẩm:</strong> Thêm vật phẩm vào game</li>
+                            <li><strong>Ghi log:</strong> INSERT vào LuckyWheelAccumulatedLog với unique constraint (UserJID, AccumulatedItemId)</li>
+                            <li><strong>Xử lý lỗi unique:</strong> Nếu có lỗi unique constraint, báo "đã nhận rồi"</li>
+                        </ol>
+                        
+                        <div style="background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; padding: 15px; margin-top: 15px; border-radius: 5px;">
+                            <p style="color: #ffc107; margin: 0; font-weight: bold;">
+                                <i class="fas fa-exclamation-triangle"></i> Lưu Ý Bảo Mật:
+                            </p>
+                            <ul style="color: #87ceeb; line-height: 1.8; margin-top: 10px; padding-left: 20px;">
+                                <li>Mỗi reward ID chỉ có thể claim 1 lần (Status: pending → claimed)</li>
+                                <li>Mỗi accumulated item chỉ có thể claim 1 lần/user (unique constraint)</li>
+                                <li>Transaction đảm bảo không có race condition</li>
+                                <li>Double-check trong transaction ngăn chặn double claim</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="config-section" style="margin-bottom: 20px;">
+                        <h4 style="color: #e8c088; margin-bottom: 15px;">
+                            <i class="fas fa-database"></i> Cấu Trúc Database
+                        </h4>
+                        <ul style="color: #87ceeb; line-height: 2; padding-left: 20px;">
+                            <li><strong>LuckyWheelConfig:</strong> Cấu hình tính năng (bật/tắt, giá quay)</li>
+                            <li><strong>LuckyWheelItems:</strong> Danh sách vật phẩm trong vòng quay</li>
+                            <li><strong>LuckyWheelLog:</strong> Log mỗi lần quay (lưu lịch sử)</li>
+                            <li><strong>LuckyWheelRewards:</strong> Phần thưởng đã trúng, chờ nhận (Status: pending/claimed)</li>
+                            <li><strong>LuckyWheelAccumulatedItems:</strong> Danh sách phần thưởng tích lũy</li>
+                            <li><strong>LuckyWheelAccumulatedLog:</strong> Log nhận phần thưởng tích lũy (unique: UserJID + AccumulatedItemId)</li>
+                            <li><strong>TB_User.TotalSpins:</strong> Tổng số vòng quay của mỗi user</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="config-section">
+                        <h4 style="color: #e8c088; margin-bottom: 15px;">
+                            <i class="fas fa-question-circle"></i> Câu Hỏi Thường Gặp
+                        </h4>
+                        <div style="color: #87ceeb; line-height: 2;">
+                            <p><strong>Q: Làm sao đảm bảo user không claim 2 lần?</strong></p>
+                            <p style="margin-left: 20px; margin-bottom: 15px;">
+                                A: Hệ thống sử dụng transaction + double-check + unique constraint. 
+                                Mỗi reward ID chỉ có thể claim 1 lần (Status: pending → claimed). 
+                                Mỗi accumulated item chỉ có thể claim 1 lần/user (unique constraint ở database).
+                            </p>
+                            
+                            <p><strong>Q: Xóa vật phẩm có ảnh hưởng đến phần thưởng đã trúng không?</strong></p>
+                            <p style="margin-left: 20px; margin-bottom: 15px;">
+                                A: Không. Hệ thống sử dụng soft delete (IsActive = 0). 
+                                Vật phẩm không hiển thị ở admin và user, nhưng data vẫn được giữ để user có thể claim phần thưởng đã trúng.
+                            </p>
+                            
+                            <p><strong>Q: Làm sao tính tỉ lệ quay ra?</strong></p>
+                            <p style="margin-left: 20px;">
+                                A: Hệ thống sử dụng Weighted Random Algorithm. 
+                                Tổng tỉ lệ = tổng WinRate của tất cả vật phẩm active. 
+                                Mỗi vật phẩm có xác suất = WinRate / Tổng tỉ lệ.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -496,6 +650,10 @@ require_once __DIR__ . '/auth_check.php';
                 $('.tab').eq(2).addClass('active');
                 $('#accumulatedItemsTab').addClass('active');
                 loadAccumulatedItems();
+            } else if (tabName === 'guide') {
+                $('.tab').eq(3).addClass('active');
+                $('#guideTab').addClass('active');
+                // Guide tab doesn't need to load data
             }
         }
         

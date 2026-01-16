@@ -85,9 +85,24 @@ try {
     }
     
     // Use tichnap workflow to give item
+    // Transaction ensures atomicity: either both item delivery and status update succeed, or both fail
     $accountDb->beginTransaction();
     
     try {
+        // Double-check status within transaction to prevent race condition
+        // This ensures the reward is still pending when we process it
+        $checkStmt = $accountDb->prepare("
+            SELECT Id, Status 
+            FROM LuckyWheelRewards 
+            WHERE Id = ? AND UserJID = ? AND Status = 'pending'
+        ");
+        $checkStmt->execute([$rewardId, $userJID]);
+        $checkReward = $checkStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$checkReward) {
+            throw new Exception('Phần thưởng không tồn tại hoặc đã được nhận');
+        }
+        
         // Prepare item data for addMultipleItemsToCharacter
         $itemsToAdd = [[
             'codeName' => $reward['ItemCode'],
@@ -113,13 +128,19 @@ try {
             throw new Exception($errorMsg);
         }
         
-        // Mark as claimed
+        // Mark as claimed (only update if still pending - prevents double claim)
+        // This ensures only one claim per reward ID
         $updateStmt = $accountDb->prepare("
             UPDATE LuckyWheelRewards
             SET Status = 'claimed', ClaimedDate = GETDATE()
-            WHERE Id = ?
+            WHERE Id = ? AND Status = 'pending'
         ");
         $updateStmt->execute([$rewardId]);
+        
+        // Verify update succeeded (if 0 rows affected, someone else claimed it)
+        if ($updateStmt->rowCount() === 0) {
+            throw new Exception('Phần thưởng đã được nhận bởi người khác hoặc đã hết hạn');
+        }
         
         $accountDb->commit();
         

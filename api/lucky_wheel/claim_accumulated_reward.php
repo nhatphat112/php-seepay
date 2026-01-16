@@ -180,10 +180,17 @@ try {
     }
     
     // 6. Bắt đầu transaction
+    // Transaction ensures atomicity: either both item delivery and log insert succeed, or both fail
     $db->beginTransaction();
     
     try {
-        // 7. Thêm item vào game qua bảng _InstantItemDelivery
+        // 7. Double-check claim status within transaction to prevent race condition
+        // This ensures the reward hasn't been claimed between the initial check and transaction start
+        if (hasClaimedAccumulatedReward($userJID, $accumulatedItemId)) {
+            throw new Exception('Bạn đã nhận phần thưởng này rồi');
+        }
+        
+        // 8. Thêm item vào game qua bảng _InstantItemDelivery
         $itemsToAdd = [[
             'codeName' => $item['ItemCode'],
             'codeItem' => $item['ItemCode'],
@@ -207,24 +214,35 @@ try {
             throw new Exception($errorMsg);
         }
         
-        // 8. Ghi log đã nhận (đảm bảo chỉ nhận được 1 lần)
-        $stmt = $db->prepare("
-            INSERT INTO LuckyWheelAccumulatedLog (
-                UserJID, AccumulatedItemId, ItemName, ItemCode, Quantity, RequiredSpins, TotalSpinsAtClaim, CharName, ClaimedDate
-            ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, GETDATE()
-            )
-        ");
-        $stmt->execute([
-            $userJID,
-            $accumulatedItemId,
-            $item['ItemName'],
-            $item['ItemCode'],
-            intval($item['Quantity']),
-            intval($item['RequiredSpins']),
-            $totalSpins,
-            $charNames
-        ]);
+        // 9. Ghi log đã nhận (đảm bảo chỉ nhận được 1 lần)
+        // Unique constraint on (UserJID, AccumulatedItemId) prevents double claim at database level
+        try {
+            $stmt = $db->prepare("
+                INSERT INTO LuckyWheelAccumulatedLog (
+                    UserJID, AccumulatedItemId, ItemName, ItemCode, Quantity, RequiredSpins, TotalSpinsAtClaim, CharName, ClaimedDate
+                ) VALUES (
+                    ?, ?, ?, ?, ?, ?, ?, ?, GETDATE()
+                )
+            ");
+            $stmt->execute([
+                $userJID,
+                $accumulatedItemId,
+                $item['ItemName'],
+                $item['ItemCode'],
+                intval($item['Quantity']),
+                intval($item['RequiredSpins']),
+                $totalSpins,
+                $charNames
+            ]);
+        } catch (PDOException $e) {
+            // Check if error is due to unique constraint violation (double claim attempt)
+            if (strpos($e->getMessage(), 'IX_LuckyWheelAccumulatedLog_User_Item') !== false || 
+                strpos($e->getMessage(), 'UNIQUE') !== false ||
+                $e->getCode() == 23000) {
+                throw new Exception('Bạn đã nhận phần thưởng này rồi (duplicate claim prevented)');
+            }
+            throw $e;
+        }
         
         // Commit transaction
         $db->commit();
