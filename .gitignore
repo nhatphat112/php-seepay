@@ -1,0 +1,26 @@
+# Ignore all files ending with .log in any directory
+*.log
+
+# Ignore a specific file
+secrets.json
+
+# Ignore the entire 'node_modules' directory in the project root
+/node_modules/
+
+# Ignore a 'build' or 'dist' directory at any level
+**/build/
+**/dist/
+
+# Ignore all files in the 'temp' directory
+temp/*
+
+# Exception: include a specific log file even if *.log is ignored
+!important.log
+
+# Ignore operating system generated files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE specific configuration files
+.vscode/
+.idea/

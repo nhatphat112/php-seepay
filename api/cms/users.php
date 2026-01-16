@@ -56,38 +56,61 @@ try {
     $whereClause = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
     
     // Get total count
-    $countSql = "
-        SELECT COUNT(*) as total
-        FROM TB_User u
-        $whereClause
-    ";
+    if (empty($whereClause)) {
+        $countSql = "SELECT COUNT(*) as total FROM [dbo].[TB_User]";
+        $countStmt = $accountDb->prepare($countSql);
+        $countStmt->execute();
+    } else {
+        $countSql = "
+            SELECT COUNT(*) as total
+            FROM [dbo].[TB_User] u
+            $whereClause
+        ";
+        $countStmt = $accountDb->prepare($countSql);
+        $countStmt->execute($params);
+    }
     
-    $countStmt = $accountDb->prepare($countSql);
-    $countStmt->execute($params);
-    $totalCount = $countStmt->fetch()['total'];
+    $countResult = $countStmt->fetch(PDO::FETCH_ASSOC);
+    $totalCount = $countResult ? intval($countResult['total']) : 0;
     
     // Get users with silk
-    $sql = "
-        SELECT 
-            u.JID,
-            u.StrUserID as username,
-            u.Email,
-            ISNULL(s.silk_own, 0) as silk_own,
-            u.role,
-            u.regtime
-        FROM TB_User u
-        LEFT JOIN SK_Silk s ON s.JID = u.JID
-        $whereClause
-        ORDER BY u.regtime DESC
-        OFFSET ? ROWS
-        FETCH NEXT ? ROWS ONLY
-    ";
-    
-    $params[] = $offset;
-    $params[] = $limit;
+    if (empty($whereClause)) {
+        $sql = "
+            SELECT 
+                u.JID,
+                u.StrUserID as username,
+                u.Email,
+                ISNULL(s.silk_own, 0) as silk_own,
+                ISNULL(u.role, 'user') as role,
+                u.regtime
+            FROM [dbo].[TB_User] u
+            LEFT JOIN [dbo].[SK_Silk] s ON s.JID = u.JID
+            ORDER BY u.regtime DESC
+            OFFSET ? ROWS
+            FETCH NEXT ? ROWS ONLY
+        ";
+        $queryParams = [$offset, $limit];
+    } else {
+        $sql = "
+            SELECT 
+                u.JID,
+                u.StrUserID as username,
+                u.Email,
+                ISNULL(s.silk_own, 0) as silk_own,
+                ISNULL(u.role, 'user') as role,
+                u.regtime
+            FROM [dbo].[TB_User] u
+            LEFT JOIN [dbo].[SK_Silk] s ON s.JID = u.JID
+            $whereClause
+            ORDER BY u.regtime DESC
+            OFFSET ? ROWS
+            FETCH NEXT ? ROWS ONLY
+        ";
+        $queryParams = array_merge($params, [$offset, $limit]);
+    }
     
     $stmt = $accountDb->prepare($sql);
-    $stmt->execute($params);
+    $stmt->execute($queryParams);
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Format results

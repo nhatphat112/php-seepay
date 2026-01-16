@@ -324,12 +324,28 @@ require_once __DIR__ . '/auth_check.php';
                         displayUsers(response.data);
                         displayPagination(response.pagination);
                     } else {
-                        showAlert('error', response.error || 'Có lỗi xảy ra');
+                        showAlert('error', response.error || response.message || 'Có lỗi xảy ra');
+                        $('#usersTableBody').html('<tr><td colspan="7" style="text-align: center; padding: 20px; color: #ff6b6b;">' + (response.error || response.message || 'Có lỗi xảy ra') + '</td></tr>');
                     }
                 },
                 error: function(xhr, status, error) {
                     $('#loading').hide();
-                    showAlert('error', 'Lỗi kết nối: ' + error);
+                    let errorMsg = 'Lỗi kết nối: ' + error;
+                    
+                    if (xhr.responseJSON) {
+                        errorMsg = xhr.responseJSON.error || xhr.responseJSON.message || errorMsg;
+                    } else if (xhr.responseText) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            errorMsg = response.error || response.message || errorMsg;
+                        } catch (e) {
+                            errorMsg = 'Lỗi: ' + xhr.status + ' - ' + xhr.statusText;
+                        }
+                    }
+                    
+                    showAlert('error', errorMsg);
+                    $('#usersTableBody').html('<tr><td colspan="7" style="text-align: center; padding: 20px; color: #ff6b6b;">' + errorMsg + '</td></tr>');
+                    console.error('Users API Error:', xhr);
                 }
             });
         }
