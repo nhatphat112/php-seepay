@@ -189,6 +189,7 @@ require_once __DIR__ . '/../auth_check.php';
                 <li><a href="/admin/qrcode.php"><i class="fas fa-qrcode"></i> QR Code</a></li>
                 <li><a href="/admin/orders.php"><i class="fas fa-shopping-cart"></i> Lịch Sử Giao Dịch</a></li>
                 <li><a href="/admin/users.php"><i class="fas fa-users"></i> Quản Lý User</a></li>
+                <li><a href="/admin/lucky_wheel.php"><i class="fas fa-dharmachakra"></i> Vòng Quay May Mắn</a></li>
                 <li><a href="/admin/tichnap/index.php"><i class="fas fa-gift"></i> Mốc Nạp Tích Lũy</a></li>
             </ul>
         </aside>
@@ -270,6 +271,15 @@ require_once __DIR__ . '/../auth_check.php';
                     <h3>Quản Lý User</h3>
                     <p>Xem danh sách user, cộng silk, đổi mật khẩu</p>
                     <a href="/admin/users.php">Quản lý →</a>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="dashboard-card-icon">
+                        <i class="fas fa-dharmachakra"></i>
+                    </div>
+                    <h3>Vòng Quay May Mắn</h3>
+                    <p>Quản lý vật phẩm và cấu hình vòng quay</p>
+                    <a href="/admin/lucky_wheel.php">Quản lý →</a>
                 </div>
                 
                 <div class="dashboard-card">
