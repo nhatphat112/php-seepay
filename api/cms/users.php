@@ -74,6 +74,11 @@ try {
     $totalCount = $countResult ? intval($countResult['total']) : 0;
     
     // Get users with silk
+    // Note: SQL Server requires OFFSET and FETCH NEXT to be integers
+    // We need to embed them directly in SQL (safely, since we've already validated them)
+    $offset = (int)$offset;
+    $limit = (int)$limit;
+    
     if (empty($whereClause)) {
         $sql = "
             SELECT 
@@ -86,10 +91,9 @@ try {
             FROM [dbo].[TB_User] u
             LEFT JOIN [dbo].[SK_Silk] s ON s.JID = u.JID
             ORDER BY u.regtime DESC
-            OFFSET ? ROWS
-            FETCH NEXT ? ROWS ONLY
+            OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY
         ";
-        $queryParams = [$offset, $limit];
+        $queryParams = [];
     } else {
         $sql = "
             SELECT 
@@ -103,10 +107,9 @@ try {
             LEFT JOIN [dbo].[SK_Silk] s ON s.JID = u.JID
             $whereClause
             ORDER BY u.regtime DESC
-            OFFSET ? ROWS
-            FETCH NEXT ? ROWS ONLY
+            OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY
         ";
-        $queryParams = array_merge($params, [$offset, $limit]);
+        $queryParams = $params;
     }
     
     $stmt = $accountDb->prepare($sql);

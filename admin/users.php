@@ -184,14 +184,12 @@ require_once __DIR__ . '/auth_check.php';
             <!-- Alert Messages -->
             <div id="alertMessage" class="alert" style="display: none;"></div>
             
-            <!-- Loading -->
-            <div id="loading" class="loading" style="display: none;">
-                <i class="fas fa-spinner fa-spin"></i> Đang tải...
-            </div>
-            
             <!-- Users Table -->
             <div class="table-container">
-                <table id="usersTable">
+                <div class="loading" id="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Đang tải...
+                </div>
+                <table id="usersTable" style="display: none;">
                     <thead>
                         <tr>
                             <th>JID</th>
@@ -204,13 +202,12 @@ require_once __DIR__ . '/auth_check.php';
                         </tr>
                     </thead>
                     <tbody id="usersTableBody">
-                        <tr>
-                            <td colspan="7" style="text-align: center; padding: 20px; color: #87ceeb;">
-                                Nhấn "Tìm Kiếm" để hiển thị danh sách user
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
+                <div id="noData" style="display: none; text-align: center; padding: 40px; color: #87ceeb;">
+                    <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <p>Không tìm thấy user nào</p>
+                </div>
             </div>
             
             <!-- Pagination -->
@@ -225,7 +222,7 @@ require_once __DIR__ . '/auth_check.php';
                 <h3><i class="fas fa-coins"></i> Cộng Silk</h3>
                 <span class="close" onclick="closeModal('addSilkModal')">&times;</span>
             </div>
-            <form id="addSilkForm" onsubmit="addSilk(event)">
+            <form id="addSilkForm" onsubmit="addSilk(event); return false;">
                 <div class="form-group">
                     <label>Username</label>
                     <input type="text" id="addSilkUsername" readonly style="background: #0f1624; color: #87ceeb;">
@@ -259,7 +256,7 @@ require_once __DIR__ . '/auth_check.php';
                 <h3><i class="fas fa-key"></i> Đổi Mật Khẩu</h3>
                 <span class="close" onclick="closeModal('changePasswordModal')">&times;</span>
             </div>
-            <form id="changePasswordForm" onsubmit="changePassword(event)">
+            <form id="changePasswordForm" onsubmit="changePassword(event); return false;">
                 <div class="form-group">
                     <label>Username</label>
                     <input type="text" id="changePasswordUsername" readonly style="background: #0f1624; color: #87ceeb;">
@@ -291,200 +288,219 @@ require_once __DIR__ . '/auth_check.php';
         </div>
     </div>
     
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         let currentPage = 1;
-        let currentSearch = '';
+        let totalPages = 1;
         
-        // Search users
-        function searchUsers(page = 1) {
-            currentPage = page;
-            currentSearch = $('#search').val().trim();
+        // Load users on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUsers();
             
-            $('#loading').show();
-            $('#usersTableBody').html('<tr><td colspan="7" style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>');
+            // Allow Enter key to search
+            const searchInput = document.getElementById('search');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchUsers();
+                    }
+                });
+            }
+        });
+        
+        // Load users
+        async function loadUsers(page = 1) {
+            const loading = document.getElementById('loading');
+            const table = document.getElementById('usersTable');
+            const tbody = document.getElementById('usersTableBody');
+            const pagination = document.getElementById('pagination');
+            const noData = document.getElementById('noData');
+            
+            loading.style.display = 'block';
+            table.style.display = 'none';
+            noData.style.display = 'none';
+            pagination.style.display = 'none';
             
             const params = new URLSearchParams({
                 page: page,
                 limit: 20
             });
             
-            if (currentSearch) {
-                params.append('search', currentSearch);
+            const search = document.getElementById('search').value.trim();
+            if (search) {
+                params.append('search', search);
             }
             
-            $.ajax({
-                url: '/api/cms/users.php?' + params.toString(),
-                method: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    $('#loading').hide();
+            try {
+                const response = await fetch(`../api/cms/users.php?${params}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const users = result.data;
+                    totalPages = result.pagination.total_pages;
+                    currentPage = result.pagination.page;
                     
-                    if (response.success) {
-                        displayUsers(response.data);
-                        displayPagination(response.pagination);
+                    // Store result for summary
+                    window.lastResult = result;
+                    
+                    if (users.length > 0) {
+                        displayUsers(users);
+                        table.style.display = 'table';
+                        noData.style.display = 'none';
+                        updatePagination();
                     } else {
-                        showAlert('error', response.error || response.message || 'Có lỗi xảy ra');
-                        $('#usersTableBody').html('<tr><td colspan="7" style="text-align: center; padding: 20px; color: #ff6b6b;">' + (response.error || response.message || 'Có lỗi xảy ra') + '</td></tr>');
+                        table.style.display = 'none';
+                        noData.style.display = 'block';
+                        updatePagination();
                     }
-                },
-                error: function(xhr, status, error) {
-                    $('#loading').hide();
-                    let errorMsg = 'Lỗi kết nối: ' + error;
-                    
-                    if (xhr.responseJSON) {
-                        errorMsg = xhr.responseJSON.error || xhr.responseJSON.message || errorMsg;
-                    } else if (xhr.responseText) {
-                        try {
-                            const response = JSON.parse(xhr.responseText);
-                            errorMsg = response.error || response.message || errorMsg;
-                        } catch (e) {
-                            errorMsg = 'Lỗi: ' + xhr.status + ' - ' + xhr.statusText;
-                        }
-                    }
-                    
-                    showAlert('error', errorMsg);
-                    $('#usersTableBody').html('<tr><td colspan="7" style="text-align: center; padding: 20px; color: #ff6b6b;">' + errorMsg + '</td></tr>');
-                    console.error('Users API Error:', xhr);
+                } else {
+                    alert('Lỗi: ' + (result.error || result.message || 'Có lỗi xảy ra'));
+                    table.style.display = 'none';
+                    noData.style.display = 'block';
+                    noData.innerHTML = '<i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px; color: #ff6b6b;"></i><p>' + (result.error || result.message || 'Có lỗi xảy ra') + '</p>';
                 }
-            });
+            } catch (error) {
+                alert('Lỗi kết nối: ' + error.message);
+                table.style.display = 'none';
+                noData.style.display = 'block';
+                noData.innerHTML = '<i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px; color: #ff6b6b;"></i><p>Lỗi kết nối: ' + error.message + '</p>';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+        
+        // Search users
+        function searchUsers() {
+            loadUsers(1);
         }
         
         // Display users in table
         function displayUsers(users) {
-            const tbody = $('#usersTableBody');
-            tbody.empty();
-            
-            if (users.length === 0) {
-                tbody.html('<tr><td colspan="7" style="text-align: center; padding: 20px; color: #87ceeb;">Không tìm thấy user nào</td></tr>');
-                return;
-            }
-            
-            users.forEach(function(user) {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = users.map(user => {
                 const roleClass = user.role === 'admin' ? 'role-admin' : 'role-user';
                 const roleText = user.role === 'admin' ? 'Admin' : 'User';
-                const regtime = user.regtime ? new Date(user.regtime).toLocaleString('vi-VN') : '-';
+                const regtime = user.regtime ? formatDate(user.regtime) : '-';
+                const username = escapeHtml(user.username);
+                const email = escapeHtml(user.email || '-');
                 
-                const row = `
+                return `
                     <tr>
                         <td>${user.jid}</td>
-                        <td>${escapeHtml(user.username)}</td>
-                        <td>${escapeHtml(user.email || '-')}</td>
+                        <td>${username}</td>
+                        <td>${email}</td>
                         <td><strong style="color: #e8c088;">${numberFormat(user.silk_own)}</strong></td>
                         <td><span class="role-badge ${roleClass}">${roleText}</span></td>
                         <td>${regtime}</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn btn-sm btn-primary" onclick="openAddSilkModal(${user.jid}, '${escapeHtml(user.username)}', ${user.silk_own})">
+                                <button class="btn btn-sm btn-primary" onclick="openAddSilkModal(${user.jid}, '${username}', ${user.silk_own})">
                                     <i class="fas fa-coins"></i> Cộng Silk
                                 </button>
-                                <button class="btn btn-sm btn-secondary" onclick="openChangePasswordModal('${escapeHtml(user.username)}', '${escapeHtml(user.email || '')}')">
+                                <button class="btn btn-sm btn-secondary" onclick="openChangePasswordModal('${username}', '${email}')">
                                     <i class="fas fa-key"></i> Đổi MK
                                 </button>
                             </div>
                         </td>
                     </tr>
                 `;
-                tbody.append(row);
-            });
+            }).join('');
         }
         
-        // Display pagination
-        function displayPagination(pagination) {
-            const paginationDiv = $('#pagination');
+        // Update pagination
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
             
-            if (pagination.total_pages <= 1) {
-                paginationDiv.hide();
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
                 return;
             }
             
-            paginationDiv.show();
-            paginationDiv.empty();
-            
-            // Previous button
-            paginationDiv.append(`
-                <button onclick="searchUsers(${pagination.page - 1})" ${pagination.page <= 1 ? 'disabled' : ''}>
+            pagination.style.display = 'flex';
+            pagination.innerHTML = `
+                <button onclick="changePage(-1)" id="prevBtn" ${currentPage <= 1 ? 'disabled' : ''}>
                     <i class="fas fa-chevron-left"></i> Trước
                 </button>
-            `);
-            
-            // Page info
-            paginationDiv.append(`
                 <span class="pagination-info">
-                    Trang ${pagination.page} / ${pagination.total_pages} (Tổng: ${numberFormat(pagination.total)} user)
+                    Trang ${currentPage} / ${totalPages} (Tổng: ${numberFormat(window.lastResult?.pagination?.total || 0)} user)
                 </span>
-            `);
-            
-            // Next button
-            paginationDiv.append(`
-                <button onclick="searchUsers(${pagination.page + 1})" ${pagination.page >= pagination.total_pages ? 'disabled' : ''}>
+                <button onclick="changePage(1)" id="nextBtn" ${currentPage >= totalPages ? 'disabled' : ''}>
                     Sau <i class="fas fa-chevron-right"></i>
                 </button>
-            `);
+            `;
+        }
+        
+        // Change page
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                loadUsers(newPage);
+            }
         }
         
         // Open Add Silk Modal
         function openAddSilkModal(jid, username, currentSilk) {
-            $('#addSilkJID').val(jid);
-            $('#addSilkUsername').val(username);
-            $('#addSilkCurrent').val(numberFormat(currentSilk));
-            $('#addSilkAmount').val('');
-            $('#addSilkModal').show();
+            document.getElementById('addSilkJID').value = jid;
+            document.getElementById('addSilkUsername').value = username;
+            document.getElementById('addSilkCurrent').value = numberFormat(currentSilk);
+            document.getElementById('addSilkAmount').value = '';
+            document.getElementById('addSilkModal').style.display = 'block';
         }
         
         // Add Silk
-        function addSilk(event) {
+        async function addSilk(event) {
             event.preventDefault();
             
-            const jid = parseInt($('#addSilkJID').val());
-            const amount = parseInt($('#addSilkAmount').val());
+            const jid = parseInt(document.getElementById('addSilkJID').value);
+            const amount = parseInt(document.getElementById('addSilkAmount').value);
+            const username = document.getElementById('addSilkUsername').value;
             
             if (amount <= 0 || amount > 10000000) {
                 showAlert('error', 'Số lượng silk không hợp lệ (1 - 10,000,000)');
                 return;
             }
             
-            if (!confirm(`Xác nhận cộng ${numberFormat(amount)} silk cho user ${$('#addSilkUsername').val()}?`)) {
+            if (!confirm(`Xác nhận cộng ${numberFormat(amount)} silk cho user ${username}?`)) {
                 return;
             }
             
-            $.ajax({
-                url: '/api/cms/add_silk.php',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ jid: jid, amount: amount }),
-                success: function(response) {
-                    if (response.success) {
-                        showAlert('success', response.message);
-                        closeModal('addSilkModal');
-                        searchUsers(currentPage); // Refresh list
-                    } else {
-                        showAlert('error', response.error || 'Có lỗi xảy ra');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    const response = xhr.responseJSON;
-                    showAlert('error', response?.error || 'Lỗi kết nối: ' + error);
+            try {
+                const response = await fetch('../api/cms/add_silk.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ jid: jid, amount: amount })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', result.message);
+                    closeModal('addSilkModal');
+                    loadUsers(currentPage); // Refresh list
+                } else {
+                    showAlert('error', result.error || 'Có lỗi xảy ra');
                 }
-            });
+            } catch (error) {
+                showAlert('error', 'Lỗi kết nối: ' + error.message);
+            }
         }
         
         // Open Change Password Modal
         function openChangePasswordModal(username, email) {
-            $('#changePasswordUsername').val(username);
-            $('#changePasswordEmail').val(email);
-            $('#changePasswordNew').val('');
-            $('#changePasswordConfirm').val('');
-            $('#changePasswordModal').show();
+            document.getElementById('changePasswordUsername').value = username;
+            document.getElementById('changePasswordEmail').value = email;
+            document.getElementById('changePasswordNew').value = '';
+            document.getElementById('changePasswordConfirm').value = '';
+            document.getElementById('changePasswordModal').style.display = 'block';
         }
         
         // Change Password
-        function changePassword(event) {
+        async function changePassword(event) {
             event.preventDefault();
             
-            const email = $('#changePasswordEmail').val().trim();
-            const newPassword = $('#changePasswordNew').val();
-            const confirmPassword = $('#changePasswordConfirm').val();
+            const email = document.getElementById('changePasswordEmail').value.trim();
+            const newPassword = document.getElementById('changePasswordNew').value;
+            const confirmPassword = document.getElementById('changePasswordConfirm').value;
+            const username = document.getElementById('changePasswordUsername').value;
             
             if (newPassword !== confirmPassword) {
                 showAlert('error', 'Mật khẩu xác nhận không khớp');
@@ -496,54 +512,53 @@ require_once __DIR__ . '/auth_check.php';
                 return;
             }
             
-            if (!confirm(`Xác nhận đổi mật khẩu cho user ${$('#changePasswordUsername').val()}?`)) {
+            if (!confirm(`Xác nhận đổi mật khẩu cho user ${username}?`)) {
                 return;
             }
             
-            $.ajax({
-                url: '/api/cms/change_password.php',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    email: email,
-                    new_password: newPassword
-                }),
-                success: function(response) {
-                    if (response.success) {
-                        showAlert('success', response.message);
-                        closeModal('changePasswordModal');
-                    } else {
-                        showAlert('error', response.error || 'Có lỗi xảy ra');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    const response = xhr.responseJSON;
-                    showAlert('error', response?.error || 'Lỗi kết nối: ' + error);
+            try {
+                const response = await fetch('../api/cms/change_password.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        new_password: newPassword
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', result.message);
+                    closeModal('changePasswordModal');
+                } else {
+                    showAlert('error', result.error || 'Có lỗi xảy ra');
                 }
-            });
+            } catch (error) {
+                showAlert('error', 'Lỗi kết nối: ' + error.message);
+            }
         }
         
         // Close Modal
         function closeModal(modalId) {
-            $('#' + modalId).hide();
+            document.getElementById(modalId).style.display = 'none';
         }
         
         // Reset Search
         function resetSearch() {
-            $('#search').val('');
-            searchUsers(1);
+            document.getElementById('search').value = '';
+            loadUsers(1);
         }
         
         // Show Alert
         function showAlert(type, message) {
-            const alertDiv = $('#alertMessage');
-            alertDiv.removeClass('alert-success alert-error');
-            alertDiv.addClass('alert-' + type);
-            alertDiv.html('<i class="fas fa-' + (type === 'success' ? 'check-circle' : 'exclamation-circle') + '"></i> ' + escapeHtml(message));
-            alertDiv.show();
+            const alertDiv = document.getElementById('alertMessage');
+            alertDiv.className = 'alert alert-' + type;
+            alertDiv.innerHTML = '<i class="fas fa-' + (type === 'success' ? 'check-circle' : 'exclamation-circle') + '"></i> ' + escapeHtml(message);
+            alertDiv.style.display = 'block';
             
             setTimeout(function() {
-                alertDiv.fadeOut();
+                alertDiv.style.display = 'none';
             }, 5000);
         }
         
@@ -563,19 +578,18 @@ require_once __DIR__ . '/auth_check.php';
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
         
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleString('vi-VN');
+        }
+        
         // Close modal when clicking outside
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
                 event.target.style.display = 'none';
             }
         }
-        
-        // Enter key to search
-        $('#search').on('keypress', function(e) {
-            if (e.which === 13) {
-                searchUsers(1);
-            }
-        });
     </script>
 </body>
 </html>
