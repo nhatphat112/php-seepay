@@ -434,6 +434,7 @@ $user_role = getUserRole();
                 <li><a href="transaction_history.php" class="<?php echo getNavActiveClass('transaction_history.php'); ?>"><i class="fas fa-history"></i> Lịch Sử Giao Dịch</a></li>
                 <li><a href="payment.php" class="<?php echo getNavActiveClass('payment.php'); ?>"><i class="fas fa-credit-card"></i> Nạp Tiền</a></li>
                 <li><a href="tichnap.php" class="<?php echo getNavActiveClass('tichnap.php'); ?>"><i class="fas fa-gift"></i> Nạp Tích Lũy</a></li>
+                <li><a href="lucky_wheel.php" class="<?php echo getNavActiveClass('lucky_wheel.php'); ?>"><i class="fas fa-dharmachakra"></i> Vòng Quay May Mắn</a></li>
                 <li><a href="download.php" class="<?php echo getNavActiveClass('download.php'); ?>"><i class="fas fa-download"></i> Tải Game</a></li>
                 <li><a href="ranking.php" class="<?php echo getNavActiveClass('ranking.php'); ?>"><i class="fas fa-trophy"></i> Xếp Hạng</a></li>
                 <?php if (isAdmin()): ?>

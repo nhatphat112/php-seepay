@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/home_content.php';
+require_once __DIR__ . '/includes/lucky_wheel_helper.php';
 
 // Load content from database
 $sliders = HomeContent::getSliders();
@@ -11,6 +12,9 @@ $newsAll = HomeContent::getNews();
 $newsHot = HomeContent::getNews('Tin Nóng');
 $newsEvent = HomeContent::getNews('Sự Kiện');
 $newsUpdate = HomeContent::getNews('Cập Nhật');
+
+// Load lucky wheel rare wins (server-side)
+$rareWins = getRecentRareWins(20);
 
 // Server info is just plain text, no parsing needed
 ?>
@@ -206,6 +210,13 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
             margin: 0 8px;
         }
         
+        .ticker-item .time-ago {
+            color: rgba(135, 206, 235, 0.7);
+            font-size: 13px;
+            margin-left: 8px;
+            font-style: italic;
+        }
+        
         @media (max-width: 768px) {
             .ticker-container {
                 flex-direction: column;
@@ -317,7 +328,43 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
                 <i class="fas fa-trophy"></i> Vật Phẩm Hiếm:
             </div>
             <div class="ticker-content" id="tickerContent">
-                <div class="ticker-item">Đang tải...</div>
+                <?php if (!empty($rareWins)): ?>
+                    <div class="ticker-scroll">
+                        <?php 
+                        // Duplicate items for seamless loop
+                        $duplicatedWins = array_merge($rareWins, $rareWins);
+                        foreach ($duplicatedWins as $win): 
+                            // Format time ago
+                            $wonDate = new DateTime($win['WonDate']);
+                            $now = new DateTime();
+                            $diff = $now->diff($wonDate);
+                            
+                            $timeAgo = '';
+                            if ($diff->days > 0) {
+                                if ($diff->days < 7) {
+                                    $timeAgo = $diff->days . ' ngày trước';
+                                } else {
+                                    $timeAgo = $wonDate->format('d/m') . ($wonDate->format('Y') !== $now->format('Y') ? '/' . $wonDate->format('Y') : '');
+                                }
+                            } elseif ($diff->h > 0) {
+                                $timeAgo = $diff->h . ' giờ trước';
+                            } elseif ($diff->i > 0) {
+                                $timeAgo = $diff->i . ' phút trước';
+                            } else {
+                                $timeAgo = 'vừa xong';
+                            }
+                        ?>
+                            <div class="ticker-item">
+                                <span class="username"><?php echo htmlspecialchars($win['Username']); ?></span>
+                                <span class="separator">đã trúng</span>
+                                <span class="item-name"><?php echo htmlspecialchars($win['ItemName']); ?></span>
+                                <span class="time-ago">(<?php echo $timeAgo; ?>)</span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="ticker-item">Chưa có người chơi nào trúng vật phẩm hiếm</div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -1264,46 +1311,80 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
     <script type="text/javascript" src="assets/js/app.js"></script>
 
     <script>
-        // Lucky Wheel Ticker
-        function loadLuckyWheelTicker() {
+        // Lucky Wheel Ticker - Auto-refresh (optional, data already loaded from server)
+        function refreshLuckyWheelTicker() {
             $.ajax({
                 url: '/api/lucky_wheel/get_recent_rare_wins.php?limit=20',
                 method: 'GET',
                 dataType: 'json',
+                timeout: 10000,
                 success: function(response) {
-                    if (response.success && response.data.length > 0) {
-                        const tickerContent = $('#tickerContent');
-                        tickerContent.empty();
-                        
+                    const tickerContent = $('#tickerContent');
+                    if (tickerContent.length === 0) return;
+                    
+                    tickerContent.empty();
+                    
+                    if (response.success && response.data && response.data.length > 0) {
                         const scrollDiv = $('<div>').addClass('ticker-scroll');
                         
                         // Duplicate items for seamless loop
                         const items = [...response.data, ...response.data];
                         
                         items.forEach(function(win) {
+                            const timeAgo = formatTimeAgo(win.won_date);
                             const item = $('<div>')
                                 .addClass('ticker-item')
                                 .html(
                                     '<span class="username">' + escapeHtml(win.username) + '</span>' +
                                     '<span class="separator">đã trúng</span>' +
-                                    '<span class="item-name">' + escapeHtml(win.item_name) + '</span>'
+                                    '<span class="item-name">' + escapeHtml(win.item_name) + '</span>' +
+                                    '<span class="time-ago">(' + timeAgo + ')</span>'
                                 );
                             scrollDiv.append(item);
                         });
                         
                         tickerContent.append(scrollDiv);
                     } else {
-                        $('#tickerContent').html('<div class="ticker-item">Chưa có người chơi nào trúng vật phẩm hiếm</div>');
+                        tickerContent.html('<div class="ticker-item">Chưa có người chơi nào trúng vật phẩm hiếm</div>');
                     }
                 },
                 error: function() {
-                    $('#tickerContent').html('<div class="ticker-item">Không thể tải dữ liệu</div>');
+                    // Silently fail on refresh, keep existing content
                 }
             });
         }
         
-        // Escape HTML
+        // Format time ago (X phút/giờ/ngày trước) - for auto-refresh
+        function formatTimeAgo(dateString) {
+            if (!dateString) return '';
+            
+            const now = new Date();
+            const date = new Date(dateString);
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) {
+                return 'vừa xong';
+            } else if (diffMins < 60) {
+                return diffMins + ' phút trước';
+            } else if (diffHours < 24) {
+                return diffHours + ' giờ trước';
+            } else if (diffDays < 7) {
+                return diffDays + ' ngày trước';
+            } else {
+                // Format date if more than 7 days
+                const day = date.getDate();
+                const month = date.getMonth() + 1;
+                const year = date.getFullYear();
+                return day + '/' + month + (year !== now.getFullYear() ? '/' + year : '');
+            }
+        }
+        
+        // Escape HTML - for auto-refresh
         function escapeHtml(text) {
+            if (!text) return '';
             const map = {
                 '&': '&amp;',
                 '<': '&lt;',
@@ -1311,15 +1392,13 @@ $newsUpdate = HomeContent::getNews('Cập Nhật');
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return text.replace(/[&<>"']/g, m => map[m]);
+            return String(text).replace(/[&<>"']/g, m => map[m]);
         }
         
-        // Load ticker on page load
+        // Auto-refresh ticker every 60 seconds (optional)
         $(document).ready(function() {
-            loadLuckyWheelTicker();
-            
             // Auto-refresh every 60 seconds
-            setInterval(loadLuckyWheelTicker, 60000);
+            setInterval(refreshLuckyWheelTicker, 60000);
         });
         
         // Smooth scroll for anchor links

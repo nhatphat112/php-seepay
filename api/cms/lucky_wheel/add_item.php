@@ -47,7 +47,7 @@ try {
     $quantity = intval($input['quantity'] ?? $_POST['quantity'] ?? 1);
     $isRare = isset($input['is_rare']) ? (bool)$input['is_rare'] : (isset($_POST['is_rare']) ? $_POST['is_rare'] === '1' : false);
     $winRate = floatval($input['win_rate'] ?? $_POST['win_rate'] ?? 0);
-    $displayOrder = intval($input['display_order'] ?? $_POST['display_order'] ?? 0);
+    // Display order is automatically calculated (max + 1)
     
     // Validation
     if (empty($itemName)) {
@@ -83,6 +83,11 @@ try {
     if ($checkStmt->fetch()['cnt'] > 0) {
         throw new Exception('Mã vật phẩm đã tồn tại');
     }
+    
+    // Calculate display order automatically (max + 1)
+    $maxOrderStmt = $accountDb->query("SELECT ISNULL(MAX(DisplayOrder), 0) as max_order FROM LuckyWheelItems");
+    $maxOrder = intval($maxOrderStmt->fetch()['max_order']);
+    $displayOrder = $maxOrder + 1;
     
     // Insert new item
     $insertStmt = $accountDb->prepare("

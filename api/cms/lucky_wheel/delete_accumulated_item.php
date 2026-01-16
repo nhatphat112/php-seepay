@@ -1,9 +1,9 @@
 <?php
 /**
- * API: Xóa vật phẩm vòng quay (Admin only)
+ * API: Xóa vật phẩm mốc quay (Admin only)
  * Soft delete - set IsActive = 0
  * Item will not be displayed in admin or user interface
- * Rewards are preserved in LuckyWheelRewards table, so users can still claim from their own rewards
+ * Logs are preserved in LuckyWheelAccumulatedLog, so users can still claim from their own logs
  */
 
 error_reporting(E_ALL);
@@ -12,6 +12,7 @@ ini_set('log_errors', 1);
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST');
 
 session_start();
 
@@ -48,14 +49,14 @@ try {
     $accountDb = ConnectionManager::getAccountDB();
     
     // Check if item exists
-    $checkStmt = $accountDb->prepare("SELECT Id FROM LuckyWheelItems WHERE Id = ?");
+    $checkStmt = $accountDb->prepare("SELECT Id FROM LuckyWheelAccumulatedItems WHERE Id = ?");
     $checkStmt->execute([$itemId]);
     if (!$checkStmt->fetch()) {
         throw new Exception('Vật phẩm không tồn tại');
     }
     
-    // Check if item is used in any pending rewards
-    $checkUsedStmt = $accountDb->prepare("SELECT COUNT(*) as cnt FROM LuckyWheelRewards WHERE ItemId = ? AND Status = 'pending'");
+    // Check if item is used in any claims
+    $checkUsedStmt = $accountDb->prepare("SELECT COUNT(*) as cnt FROM LuckyWheelAccumulatedLog WHERE AccumulatedItemId = ?");
     $checkUsedStmt->execute([$itemId]);
     $usedCount = $checkUsedStmt->fetch()['cnt'];
     
@@ -63,9 +64,9 @@ try {
     
     // Soft delete - set IsActive = 0
     // Item will not be displayed in admin or user interface (filtered by IsActive = 1)
-    // Rewards are preserved in LuckyWheelRewards table, so users can still claim from their own rewards
+    // Logs are preserved in LuckyWheelAccumulatedLog, so users can still claim from their own logs
     $updateStmt = $accountDb->prepare("
-        UPDATE LuckyWheelItems 
+        UPDATE LuckyWheelAccumulatedItems 
         SET IsActive = 0, 
             UpdatedDate = GETDATE(),
             UpdatedBy = ?
@@ -73,16 +74,13 @@ try {
     ");
     $updateStmt->execute([$adminJID, $itemId]);
     
-    $message = 'Đã xóa vật phẩm vòng quay (không hiển thị ở admin và user)';
-    if ($usedCount > 0) {
-        $message .= ' (có ' . $usedCount . ' phần thưởng đang chờ nhận - người dùng vẫn có thể nhận từ log riêng)';
-    }
+    $message = 'Đã xóa vật phẩm mốc quay';
     
     echo json_encode([
         'success' => true,
         'message' => $message,
         'soft_delete' => true,
-        'pending_rewards_count' => $usedCount
+        'claims_count' => $usedCount
     ], JSON_UNESCAPED_UNICODE);
     
 } catch (Exception $e) {

@@ -14,6 +14,42 @@ require_once __DIR__ . '/auth_check.php';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="admin_common.css">
     <style>
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #0f1624;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #87ceeb;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            color: #e8c088;
+        }
+        
+        .tab.active {
+            color: #e8c088;
+            border-bottom-color: #e8c088;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
         .config-section {
             background: #16213e;
             padding: 20px;
@@ -197,84 +233,191 @@ require_once __DIR__ . '/auth_check.php';
                 <p>Bật/tắt tính năng, thêm/sửa/xóa vật phẩm trong vòng quay</p>
             </div>
             
-            <!-- Configuration Section -->
-            <div class="config-section">
-                <h3 style="color: #e8c088; margin-bottom: 20px;">
-                    <i class="fas fa-cog"></i> Cấu Hình
-                </h3>
-                
-                <div class="config-row">
-                    <div>
-                        <div class="config-label">Trạng thái tính năng</div>
-                        <div class="config-value" style="font-size: 0.9rem; margin-top: 5px;">
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="featureToggle" onchange="toggleFeature()">
-                                <span class="toggle-slider"></span>
-                            </label>
-                            <span id="featureStatus" style="margin-left: 10px;">Đang tải...</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="config-row">
-                    <div>
-                        <div class="config-label">Giá quay (Silk/lần)</div>
-                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
-                            <input type="number" id="spinCost" min="1" max="1000" class="form-control" style="width: 150px;">
-                            <button class="btn btn-primary btn-sm" onclick="updateSpinCost()">
-                                <i class="fas fa-save"></i> Lưu
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
             <!-- Alert Messages -->
             <div id="alertMessage" class="alert" style="display: none;"></div>
             
-            <!-- Items Management -->
-            <div class="form-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3 style="color: #e8c088; margin: 0;">
-                        <i class="fas fa-list"></i> Danh Sách Vật Phẩm
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('config')">
+                    <i class="fas fa-cog"></i> Cấu Hình
+                </button>
+                <button class="tab" onclick="switchTab('wheel-items')">
+                    <i class="fas fa-list"></i> Vật Phẩm Vòng Quay
+                </button>
+                <button class="tab" onclick="switchTab('accumulated-items')">
+                    <i class="fas fa-gift"></i> Vật Phẩm Mốc Quay
+                </button>
+            </div>
+            
+            <!-- Tab: Cấu Hình -->
+            <div id="configTab" class="tab-content active">
+                <!-- Configuration Section -->
+                <div class="config-section">
+                    <h3 style="color: #e8c088; margin-bottom: 20px;">
+                        <i class="fas fa-cog"></i> Cấu Hình
                     </h3>
-                    <button class="btn btn-primary" onclick="openAddItemModal()">
-                        <i class="fas fa-plus"></i> Thêm Vật Phẩm
-                    </button>
+                    
+                    <div class="config-row">
+                        <div>
+                            <div class="config-label">Trạng thái tính năng</div>
+                            <div class="config-value" style="font-size: 0.9rem; margin-top: 5px;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="featureToggle" onchange="toggleFeature()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="featureStatus" style="margin-left: 10px;">Đang tải...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="config-row">
+                        <div>
+                            <div class="config-label">Giá quay (Silk/lần)</div>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                                <input type="number" id="spinCost" min="1" max="1000" class="form-control" style="width: 150px;">
+                                <button class="btn btn-primary btn-sm" onclick="updateSpinCost()">
+                                    <i class="fas fa-save"></i> Lưu
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+            
+            <!-- Tab: Vật Phẩm Vòng Quay -->
+            <div id="wheelItemsTab" class="tab-content">
+                <div class="form-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="color: #e8c088; margin: 0;">
+                            <i class="fas fa-list"></i> Danh Sách Vật Phẩm Vòng Quay
+                        </h3>
+                        <button class="btn btn-primary" onclick="openAddItemModal()">
+                            <i class="fas fa-plus"></i> Thêm Vật Phẩm
+                        </button>
+                    </div>
                 
-                <!-- Loading -->
-                <div id="loading" class="loading" style="display: none;">
-                    <i class="fas fa-spinner fa-spin"></i> Đang tải...
+                    <!-- Loading -->
+                    <div id="loading" class="loading" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i> Đang tải...
+                    </div>
+                    
+                    <!-- Items Table -->
+                    <div class="table-container">
+                        <table id="itemsTable">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên vật phẩm</th>
+                                    <th>Mã vật phẩm</th>
+                                    <th>Số lượng</th>
+                                    <th>Vật phẩm hiếm</th>
+                                    <th>Tỉ lệ quay ra (%)</th>
+                                    <th>Thứ tự</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemsTableBody">
+                                <tr>
+                                    <td colspan="9" style="text-align: center; padding: 20px; color: #87ceeb;">
+                                        Đang tải...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                
-                <!-- Items Table -->
-                <div class="table-container">
-                    <table id="itemsTable">
-                        <thead>
-                            <tr>
-                                <th>STT</th>
-                                <th>Tên vật phẩm</th>
-                                <th>Mã vật phẩm</th>
-                                <th>Số lượng</th>
-                                <th>Vật phẩm hiếm</th>
-                                <th>Tỉ lệ quay ra (%)</th>
-                                <th>Thứ tự</th>
-                                <th>Trạng thái</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody id="itemsTableBody">
-                            <tr>
-                                <td colspan="9" style="text-align: center; padding: 20px; color: #87ceeb;">
-                                    Đang tải...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            </div>
+            
+            <!-- Tab: Vật Phẩm Mốc Quay -->
+            <div id="accumulatedItemsTab" class="tab-content">
+                <div class="form-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="color: #e8c088; margin: 0;">
+                            <i class="fas fa-gift"></i> Vật Phẩm Mốc Quay (Quay Tích Lũy)
+                        </h3>
+                        <button class="btn btn-primary" onclick="openAddAccumulatedItemModal()">
+                            <i class="fas fa-plus"></i> Thêm Vật Phẩm Mốc Quay
+                        </button>
+                    </div>
+                    
+                    <!-- Loading -->
+                    <div id="loadingAccumulated" class="loading" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i> Đang tải...
+                    </div>
+                    
+                    <!-- Accumulated Items Table -->
+                    <div class="table-container">
+                        <table id="accumulatedItemsTable">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên vật phẩm</th>
+                                    <th>Mã vật phẩm</th>
+                                    <th>Số lượng</th>
+                                    <th>Mức đạt (vòng)</th>
+                                    <th>Thứ tự</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accumulatedItemsTableBody">
+                                <tr>
+                                    <td colspan="8" style="text-align: center; padding: 20px; color: #87ceeb;">
+                                        Đang tải...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </main>
+    </div>
+    
+    <!-- Modal: Add/Edit Accumulated Item -->
+    <div id="accumulatedItemModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="accumulatedModalTitle"><i class="fas fa-plus"></i> Thêm Vật Phẩm Mốc Quay</h3>
+                <span class="close" onclick="closeModal('accumulatedItemModal')">&times;</span>
+            </div>
+            <form id="accumulatedItemForm" onsubmit="saveAccumulatedItem(event)">
+                <div class="form-group">
+                    <label for="accumulatedItemName">Tên vật phẩm *</label>
+                    <input type="text" id="accumulatedItemName" required maxlength="100" placeholder="Nhập tên vật phẩm (tối đa 100 ký tự)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="accumulatedItemCode">Mã vật phẩm *</label>
+                    <input type="text" id="accumulatedItemCode" required maxlength="50" placeholder="Nhập mã vật phẩm (tối đa 50 ký tự)">
+                    <small>Mã code của vật phẩm trong game</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="accumulatedQuantity">Số lượng *</label>
+                    <input type="number" id="accumulatedQuantity" required min="1" value="1">
+                    <small>Số lượng vật phẩm nhận được khi đạt mức</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="requiredSpins">Mức đạt (số vòng) *</label>
+                    <input type="number" id="requiredSpins" required min="1" placeholder="Ví dụ: 10, 50, 100">
+                    <small>Số vòng quay cần đạt để nhận phần thưởng này</small>
+                </div>
+                
+                <input type="hidden" id="accumulatedItemId">
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Lưu
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('accumulatedItemModal')">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
     
     <!-- Modal: Add/Edit Item -->
@@ -288,7 +431,6 @@ require_once __DIR__ . '/auth_check.php';
                 <div class="form-group">
                     <label for="itemName">Tên vật phẩm *</label>
                     <input type="text" id="itemName" required maxlength="100" placeholder="Nhập tên vật phẩm (tối đa 100 ký tự)">
-                    <small>Ví dụ: iPhone 16 Pro, MacBook Air, Voucher 500K</small>
                 </div>
                 
                 <div class="form-group">
@@ -305,7 +447,7 @@ require_once __DIR__ . '/auth_check.php';
                 
                 <div class="form-group">
                     <label>
-                        <input type="checkbox" id="isRare" style="width: auto; margin-right: 8px;">
+                        <input type="checkbox" id="isRare" style="width: auto; margin-right: 8px; cursor: pointer;">
                         Vật phẩm hiếm
                     </label>
                     <small>Đánh dấu vật phẩm hiếm sẽ hiển thị trên ticker trang chủ</small>
@@ -317,11 +459,8 @@ require_once __DIR__ . '/auth_check.php';
                     <small>Tỉ lệ phần trăm để quay ra vật phẩm này (0.01 - 100)</small>
                 </div>
                 
-                <div class="form-group">
-                    <label for="displayOrder">Thứ tự hiển thị</label>
-                    <input type="number" id="displayOrder" min="0" value="0">
-                    <small>Thứ tự hiển thị trên vòng quay (số nhỏ hơn hiển thị trước)</small>
-                </div>
+                <!-- Display order is automatically managed by the system -->
+                <input type="hidden" id="displayOrder" value="0">
                 
                 <input type="hidden" id="itemId">
                 
@@ -339,10 +478,31 @@ require_once __DIR__ . '/auth_check.php';
     
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        // Switch tabs
+        function switchTab(tabName) {
+            // Remove active class from all tabs and contents
+            $('.tab').removeClass('active');
+            $('.tab-content').removeClass('active');
+            
+            if (tabName === 'config') {
+                $('.tab').eq(0).addClass('active');
+                $('#configTab').addClass('active');
+                loadConfig();
+            } else if (tabName === 'wheel-items') {
+                $('.tab').eq(1).addClass('active');
+                $('#wheelItemsTab').addClass('active');
+                loadItems();
+            } else if (tabName === 'accumulated-items') {
+                $('.tab').eq(2).addClass('active');
+                $('#accumulatedItemsTab').addClass('active');
+                loadAccumulatedItems();
+            }
+        }
+        
         // Load config and items on page load
         $(document).ready(function() {
+            // Only load data for active tab on page load
             loadConfig();
-            loadItems();
         });
         
         // Load configuration
@@ -426,8 +586,9 @@ require_once __DIR__ . '/auth_check.php';
             $('#loading').show();
             $('#itemsTableBody').html('<tr><td colspan="9" style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>');
             
+            // Only load active items (not include inactive/deleted items)
             $.ajax({
-                url: '/api/cms/lucky_wheel/get_items.php?include_inactive=1',
+                url: '/api/cms/lucky_wheel/get_items.php?include_inactive=0',
                 method: 'GET',
                 dataType: 'json',
                 success: function(response) {
@@ -458,8 +619,10 @@ require_once __DIR__ . '/auth_check.php';
             }
             
             items.forEach(function(item, index) {
-                const rareClass = item.IsRare ? 'rare-yes' : 'rare-no';
-                const rareText = item.IsRare ? 'Có' : 'Không';
+                // Convert IsRare to boolean (handle both 0/1 and true/false)
+                const isRare = item.IsRare === true || item.IsRare === 1 || item.IsRare === '1';
+                const rareClass = isRare ? 'rare-yes' : 'rare-no';
+                const rareText = isRare ? 'Có' : 'Không';
                 const activeText = item.IsActive ? 'Hoạt động' : 'Vô hiệu';
                 const activeClass = item.IsActive ? 'success' : 'error';
                 
@@ -495,13 +658,17 @@ require_once __DIR__ . '/auth_check.php';
             $('#itemForm')[0].reset();
             $('#itemId').val('');
             $('#quantity').val(1);
+            // Display order is automatically managed by backend
             $('#displayOrder').val(0);
-            $('#isRare').prop('checked', false);
+            // Ensure checkbox is unchecked and enabled
+            $('#isRare').prop('checked', false).prop('disabled', false);
             $('#itemModal').show();
         }
         
         // Open edit item modal
         function openEditItemModal(itemId) {
+            // Load with inactive to allow editing items that might be inactive
+            // But in practice, we only show active items, so this should only be called for active items
             $.ajax({
                 url: '/api/cms/lucky_wheel/get_items.php?include_inactive=1',
                 method: 'GET',
@@ -515,8 +682,11 @@ require_once __DIR__ . '/auth_check.php';
                             $('#itemName').val(item.ItemName);
                             $('#itemCode').val(item.ItemCode);
                             $('#quantity').val(item.Quantity);
-                            $('#isRare').prop('checked', item.IsRare);
+                            // Convert IsRare to boolean (handle both 0/1 and true/false)
+                            const isRare = item.IsRare === true || item.IsRare === 1 || item.IsRare === '1';
+                            $('#isRare').prop('checked', isRare).prop('disabled', false);
                             $('#winRate').val(item.WinRate);
+                            // Display order is read-only (automatically managed by backend)
                             $('#displayOrder').val(item.DisplayOrder);
                             $('#itemModal').show();
                         }
@@ -535,8 +705,8 @@ require_once __DIR__ . '/auth_check.php';
                 item_code: $('#itemCode').val().trim(),
                 quantity: parseInt($('#quantity').val()),
                 is_rare: $('#isRare').is(':checked'),
-                win_rate: parseFloat($('#winRate').val()),
-                display_order: parseInt($('#displayOrder').val() || 0)
+                win_rate: parseFloat($('#winRate').val())
+                // display_order is automatically managed by backend
             };
             
             const url = itemId ? '/api/cms/lucky_wheel/update_item.php' : '/api/cms/lucky_wheel/add_item.php';
@@ -619,6 +789,185 @@ require_once __DIR__ . '/auth_check.php';
                 "'": '&#039;'
             };
             return text.replace(/[&<>"']/g, m => map[m]);
+        }
+        
+        // ========== Accumulated Items Management ==========
+        
+        // Load accumulated items
+        function loadAccumulatedItems() {
+            const tbody = $('#accumulatedItemsTableBody');
+            if (tbody.length === 0) {
+                console.error('accumulatedItemsTableBody not found');
+                return;
+            }
+            
+            $('#loadingAccumulated').show();
+            tbody.html('<tr><td colspan="8" style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>');
+            
+            // Only load active items (not include inactive/deleted items)
+            $.ajax({
+                url: '/api/cms/lucky_wheel/get_accumulated_items.php?include_inactive=0',
+                method: 'GET',
+                dataType: 'json',
+                timeout: 10000,
+                success: function(response) {
+                    $('#loadingAccumulated').hide();
+                    
+                    if (response.success) {
+                        displayAccumulatedItems(response.data);
+                    } else {
+                        tbody.html('<tr><td colspan="8" style="text-align: center; padding: 20px; color: #ff6b6b;">' + (response.error || 'Có lỗi xảy ra') + '</td></tr>');
+                        showAlert('error', response.error || 'Có lỗi xảy ra');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $('#loadingAccumulated').hide();
+                    const response = xhr.responseJSON;
+                    const errorMsg = response?.error || 'Lỗi kết nối: ' + error + ' (Status: ' + xhr.status + ')';
+                    tbody.html('<tr><td colspan="8" style="text-align: center; padding: 20px; color: #ff6b6b;">' + errorMsg + '</td></tr>');
+                    showAlert('error', errorMsg);
+                }
+            });
+        }
+        
+        // Display accumulated items in table
+        function displayAccumulatedItems(items) {
+            const tbody = $('#accumulatedItemsTableBody');
+            if (tbody.length === 0) {
+                console.error('accumulatedItemsTableBody not found');
+                return;
+            }
+            
+            tbody.empty();
+            
+            if (!items || items.length === 0) {
+                tbody.html('<tr><td colspan="8" style="text-align: center; padding: 20px; color: #87ceeb;">Chưa có vật phẩm mốc quay nào</td></tr>');
+                return;
+            }
+            
+            items.forEach(function(item, index) {
+                const activeText = item.IsActive ? 'Hoạt động' : 'Vô hiệu';
+                const activeClass = item.IsActive ? 'success' : 'error';
+                
+                const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${escapeHtml(item.ItemName)}</td>
+                        <td><code style="color: #87ceeb;">${escapeHtml(item.ItemCode)}</code></td>
+                        <td>${item.Quantity}</td>
+                        <td><span class="win-rate-badge">${item.RequiredSpins} vòng</span></td>
+                        <td>${item.DisplayOrder}</td>
+                        <td><span class="alert alert-${activeClass}" style="padding: 4px 12px; display: inline-block; margin: 0;">${activeText}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-primary" onclick="openEditAccumulatedItemModal(${item.Id})">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteAccumulatedItem(${item.Id}, '${escapeHtml(item.ItemName)}')">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody.append(row);
+            });
+        }
+        
+        // Open add accumulated item modal
+        function openAddAccumulatedItemModal() {
+            $('#accumulatedModalTitle').html('<i class="fas fa-plus"></i> Thêm Vật Phẩm Mốc Quay');
+            $('#accumulatedItemForm')[0].reset();
+            $('#accumulatedItemId').val('');
+            $('#accumulatedQuantity').val(1);
+            $('#accumulatedItemModal').show();
+        }
+        
+        // Open edit accumulated item modal
+        function openEditAccumulatedItemModal(itemId) {
+            $.ajax({
+                url: '/api/cms/lucky_wheel/get_accumulated_items.php?include_inactive=1',
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        const item = response.data.find(i => i.Id == itemId);
+                        if (item) {
+                            $('#accumulatedModalTitle').html('<i class="fas fa-edit"></i> Sửa Vật Phẩm Mốc Quay');
+                            $('#accumulatedItemId').val(item.Id);
+                            $('#accumulatedItemName').val(item.ItemName);
+                            $('#accumulatedItemCode').val(item.ItemCode);
+                            $('#accumulatedQuantity').val(item.Quantity);
+                            $('#requiredSpins').val(item.RequiredSpins);
+                            $('#accumulatedItemModal').show();
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Save accumulated item
+        function saveAccumulatedItem(event) {
+            event.preventDefault();
+            
+            const itemId = $('#accumulatedItemId').val();
+            const data = {
+                item_name: $('#accumulatedItemName').val().trim(),
+                item_code: $('#accumulatedItemCode').val().trim(),
+                quantity: parseInt($('#accumulatedQuantity').val()),
+                required_spins: parseInt($('#requiredSpins').val())
+            };
+            
+            const url = itemId ? '/api/cms/lucky_wheel/update_accumulated_item.php' : '/api/cms/lucky_wheel/add_accumulated_item.php';
+            if (itemId) {
+                data.id = parseInt(itemId);
+            }
+            
+            $.ajax({
+                url: url,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(response) {
+                    if (response.success) {
+                        showAlert('success', response.message);
+                        closeModal('accumulatedItemModal');
+                        loadAccumulatedItems();
+                    } else {
+                        showAlert('error', response.error);
+                    }
+                },
+                error: function(xhr) {
+                    const response = xhr.responseJSON;
+                    showAlert('error', response?.error || 'Có lỗi xảy ra');
+                }
+            });
+        }
+        
+        // Delete accumulated item
+        function deleteAccumulatedItem(itemId, itemName) {
+            if (!confirm(`Xác nhận xóa vật phẩm mốc quay "${itemName}"?`)) {
+                return;
+            }
+            
+            $.ajax({
+                url: '/api/cms/lucky_wheel/delete_accumulated_item.php',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ id: itemId }),
+                success: function(response) {
+                    if (response.success) {
+                        showAlert('success', response.message);
+                        loadAccumulatedItems();
+                    } else {
+                        showAlert('error', response.error);
+                    }
+                },
+                error: function(xhr) {
+                    const response = xhr.responseJSON;
+                    showAlert('error', response?.error || 'Có lỗi xảy ra');
+                }
+            });
         }
         
         // Close modal when clicking outside

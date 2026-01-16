@@ -50,7 +50,7 @@ try {
     $accountDb = ConnectionManager::getAccountDB();
     $shardDb = ConnectionManager::getShardDB();
     
-    // Get reward info
+    // Get reward info (include IsRare to ensure it's preserved)
     $stmt = $accountDb->prepare("
         SELECT 
             Id,
@@ -58,6 +58,7 @@ try {
             ItemCode,
             Quantity,
             ItemName,
+            IsRare,
             Status
         FROM LuckyWheelRewards
         WHERE Id = ? AND UserJID = ? AND Status = 'pending'

@@ -189,6 +189,14 @@ function processSpin($userJID, $spinCount = 1) {
             $updateSilk = $db->prepare("UPDATE SK_Silk SET silk_own = silk_own - ? WHERE JID = ?");
             $updateSilk->execute([$totalCost, $userJID]);
             
+            // Update total spins (accumulate)
+            $updateSpins = $db->prepare("
+                UPDATE TB_User 
+                SET TotalSpins = ISNULL(TotalSpins, 0) + ?
+                WHERE JID = ?
+            ");
+            $updateSpins->execute([$spinCount, $userJID]);
+            
             $results = [];
             
             // Process each spin
@@ -197,6 +205,16 @@ function processSpin($userJID, $spinCount = 1) {
                 $wonItem = calculateSpinResult();
                 
                 // Create log entry
+                // Convert IsRare to integer (handle both boolean and integer from database)
+                $isRare = 0;
+                if (isset($wonItem['IsRare'])) {
+                    if (is_bool($wonItem['IsRare'])) {
+                        $isRare = $wonItem['IsRare'] ? 1 : 0;
+                    } else {
+                        $isRare = (intval($wonItem['IsRare']) == 1) ? 1 : 0;
+                    }
+                }
+                
                 $logStmt = $db->prepare("
                     INSERT INTO LuckyWheelLog 
                     (UserJID, ItemId, ItemName, ItemCode, Quantity, IsRare, SpinDate)
@@ -208,12 +226,22 @@ function processSpin($userJID, $spinCount = 1) {
                     $wonItem['ItemName'],
                     $wonItem['ItemCode'],
                     $wonItem['Quantity'],
-                    $wonItem['IsRare'] ? 1 : 0
+                    $isRare
                 ]);
                 
                 $logId = $db->lastInsertId();
                 
                 // Create reward entry
+                // Convert IsRare to integer (handle both boolean and integer from database)
+                $isRare = 0;
+                if (isset($wonItem['IsRare'])) {
+                    if (is_bool($wonItem['IsRare'])) {
+                        $isRare = $wonItem['IsRare'] ? 1 : 0;
+                    } else {
+                        $isRare = (intval($wonItem['IsRare']) == 1) ? 1 : 0;
+                    }
+                }
+                
                 $rewardStmt = $db->prepare("
                     INSERT INTO LuckyWheelRewards
                     (UserJID, LogId, ItemId, ItemName, ItemCode, Quantity, IsRare, Status, WonDate)
@@ -226,7 +254,7 @@ function processSpin($userJID, $spinCount = 1) {
                     $wonItem['ItemName'],
                     $wonItem['ItemCode'],
                     $wonItem['Quantity'],
-                    $wonItem['IsRare'] ? 1 : 0
+                    $isRare
                 ]);
                 
                 $results[] = [
@@ -296,22 +324,117 @@ function getRecentRareWins($limit = 20) {
     try {
         $db = ConnectionManager::getAccountDB();
         
+        // Query rare wins - hiển thị khi user quay trúng vật phẩm hiếm
+        // Ưu tiên hiển thị những reward đã claim (ClaimedDate), nếu chưa claim thì dùng WonDate
+        // IsRare is BIT type in SQL Server - direct comparison works
+        // Sắp xếp theo ngày mới nhất (ClaimedDate nếu có, nếu không thì WonDate)
+        // SQL Server requires FETCH parameter to be explicitly bound as INT
+        $limit = max(1, min(100, intval($limit))); // Ensure limit is between 1 and 100
+        
         $stmt = $db->prepare("
-            SELECT TOP ?
+            SELECT 
                 lw.UserJID,
                 u.StrUserID as Username,
                 lw.ItemName,
-                lw.WonDate
+                CASE 
+                    WHEN lw.ClaimedDate IS NOT NULL THEN lw.ClaimedDate
+                    ELSE lw.WonDate
+                END as WonDate
             FROM LuckyWheelRewards lw
-            JOIN TB_User u ON u.JID = lw.UserJID
+            INNER JOIN TB_User u ON u.JID = lw.UserJID
             WHERE lw.IsRare = 1
-            ORDER BY lw.WonDate DESC
+            ORDER BY 
+                CASE 
+                    WHEN lw.ClaimedDate IS NOT NULL THEN lw.ClaimedDate
+                    ELSE lw.WonDate
+                END DESC
+            OFFSET 0 ROWS
+            FETCH NEXT ? ROWS ONLY
         ");
-        $stmt->execute([$limit]);
         
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Bind parameter as INT (required by SQL Server for FETCH)
+        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Log for debugging
+        if (empty($results)) {
+            error_log("No rare wins found in database. Checking if any rare items exist...");
+            
+            // Debug query 1: Check total rewards and rare counts (using direct BIT comparison)
+            try {
+                $debugStmt = $db->query("
+                    SELECT 
+                        COUNT(*) as total, 
+                        SUM(CASE WHEN IsRare = 1 THEN 1 ELSE 0 END) as rare_count,
+                        SUM(CASE WHEN IsRare = 1 AND Status = 'claimed' THEN 1 ELSE 0 END) as rare_claimed_count,
+                        SUM(CASE WHEN IsRare = 1 AND Status = 'pending' THEN 1 ELSE 0 END) as rare_pending_count
+                    FROM LuckyWheelRewards
+                ");
+                $debug = $debugStmt->fetch(PDO::FETCH_ASSOC);
+                error_log("Total rewards: " . ($debug['total'] ?? 0) . 
+                         ", Rare rewards: " . ($debug['rare_count'] ?? 0) . 
+                         ", Rare claimed: " . ($debug['rare_claimed_count'] ?? 0) .
+                         ", Rare pending: " . ($debug['rare_pending_count'] ?? 0));
+            } catch (Exception $e) {
+                error_log("Error in debug query 1: " . $e->getMessage());
+            }
+            
+            // Debug query 2: Check sample rare rewards (using direct BIT comparison)
+            try {
+                $sampleStmt = $db->query("
+                    SELECT TOP 5
+                        Id, UserJID, ItemName, 
+                        IsRare,
+                        Status, WonDate, ClaimedDate
+                    FROM LuckyWheelRewards
+                    WHERE IsRare = 1
+                    ORDER BY WonDate DESC
+                ");
+                $samples = $sampleStmt->fetchAll(PDO::FETCH_ASSOC);
+                if (!empty($samples)) {
+                    error_log("Sample rare rewards found: " . count($samples));
+                    foreach ($samples as $sample) {
+                        // Convert BIT to readable value
+                        $isRareValue = $sample['IsRare'];
+                        if (is_bool($isRareValue)) {
+                            $isRareValue = $isRareValue ? 1 : 0;
+                        } elseif (is_string($isRareValue)) {
+                            $isRareValue = ($isRareValue === '1' || $isRareValue === 'true') ? 1 : 0;
+                        }
+                        error_log("  - ID: " . $sample['Id'] . 
+                                 ", Status: " . $sample['Status'] . 
+                                 ", IsRare: " . $isRareValue .
+                                 ", ClaimedDate: " . ($sample['ClaimedDate'] ?? 'NULL'));
+                    }
+                } else {
+                    error_log("No rare rewards found in sample query");
+                }
+            } catch (Exception $e) {
+                error_log("Error in debug query 2: " . $e->getMessage());
+            }
+            
+            // Debug query 3: Check if there are any claimed rewards at all
+            try {
+                $claimedStmt = $db->query("
+                    SELECT COUNT(*) as claimed_count
+                    FROM LuckyWheelRewards
+                    WHERE Status = 'claimed' AND ClaimedDate IS NOT NULL
+                ");
+                $claimed = $claimedStmt->fetch(PDO::FETCH_ASSOC);
+                error_log("Total claimed rewards: " . ($claimed['claimed_count'] ?? 0));
+            } catch (Exception $e) {
+                error_log("Error in debug query 3: " . $e->getMessage());
+            }
+        } else {
+            error_log("Found " . count($results) . " rare wins");
+        }
+        
+        return $results;
     } catch (Exception $e) {
         error_log("Error getting recent rare wins: " . $e->getMessage());
+        error_log("Stack trace: " . $e->getTraceAsString());
         return [];
     }
 }
@@ -360,6 +483,139 @@ function claimLuckyWheelReward($userJID, $rewardId) {
     } catch (Exception $e) {
         error_log("Error claiming reward: " . $e->getMessage());
         throw $e;
+    }
+}
+
+/**
+ * Get accumulated spin items (for admin and user)
+ */
+function getAccumulatedSpinItems($includeInactive = false) {
+    try {
+        $db = ConnectionManager::getAccountDB();
+        
+        $sql = "
+            SELECT 
+                Id,
+                ItemName,
+                ItemCode,
+                Quantity,
+                RequiredSpins,
+                DisplayOrder,
+                IsActive
+            FROM LuckyWheelAccumulatedItems
+        ";
+        
+        if (!$includeInactive) {
+            $sql .= " WHERE IsActive = 1";
+        }
+        
+        $sql .= " ORDER BY RequiredSpins ASC, DisplayOrder ASC, Id ASC";
+        
+        $stmt = $db->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        error_log("Error getting accumulated spin items: " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Get user's total spins
+ */
+function getUserTotalSpins($userJID) {
+    try {
+        $db = ConnectionManager::getAccountDB();
+        
+        $stmt = $db->prepare("
+            SELECT ISNULL(TotalSpins, 0) as TotalSpins
+            FROM TB_User
+            WHERE JID = ?
+        ");
+        $stmt->execute([$userJID]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return intval($result['TotalSpins'] ?? 0);
+    } catch (Exception $e) {
+        error_log("Error getting user total spins: " . $e->getMessage());
+        return 0;
+    }
+}
+
+/**
+ * Get available accumulated rewards for user
+ * Returns items that user has reached but not yet claimed
+ */
+function getAvailableAccumulatedRewards($userJID) {
+    try {
+        $db = ConnectionManager::getAccountDB();
+        
+        $totalSpins = getUserTotalSpins($userJID);
+        
+        // Get all active accumulated items from table
+        $items = getAccumulatedSpinItems(false);
+        
+        // Get items user has already claimed
+        $claimedStmt = $db->prepare("
+            SELECT AccumulatedItemId
+            FROM LuckyWheelAccumulatedLog
+            WHERE UserJID = ?
+        ");
+        $claimedStmt->execute([$userJID]);
+        $claimedItems = $claimedStmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        // Only return items from active table (not from log)
+        // Deleted items (IsActive = 0) will not be displayed, but users can still claim from their rewards
+        // Rewards are stored in LuckyWheelAccumulatedLog with full item info, so claim API can work independently
+        $allItems = $items;
+        
+        // Return ALL items with can_claim status
+        // This allows UI to show progress for all rewards, not just claimable ones
+        $available = [];
+        foreach ($allItems as $item) {
+            $itemId = intval($item['Id']);
+            $requiredSpins = intval($item['RequiredSpins']);
+            $hasReached = $totalSpins >= $requiredSpins;
+            $hasClaimed = in_array($itemId, $claimedItems);
+            $canClaim = $hasReached && !$hasClaimed;
+            
+            $available[] = [
+                'id' => $itemId,
+                'item_name' => $item['ItemName'],
+                'item_code' => $item['ItemCode'],
+                'quantity' => intval($item['Quantity']),
+                'required_spins' => $requiredSpins,
+                'total_spins' => $totalSpins,
+                'progress' => min(100, ($totalSpins / $requiredSpins) * 100),
+                'can_claim' => (bool)$canClaim  // Explicitly cast to boolean for JSON
+            ];
+        }
+        
+        return $available;
+    } catch (Exception $e) {
+        error_log("Error getting available accumulated rewards: " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Check if user has already claimed an accumulated reward
+ */
+function hasClaimedAccumulatedReward($userJID, $accumulatedItemId) {
+    try {
+        $db = ConnectionManager::getAccountDB();
+        
+        $stmt = $db->prepare("
+            SELECT COUNT(*) as count
+            FROM LuckyWheelAccumulatedLog
+            WHERE UserJID = ? AND AccumulatedItemId = ?
+        ");
+        $stmt->execute([$userJID, $accumulatedItemId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return intval($result['count'] ?? 0) > 0;
+    } catch (Exception $e) {
+        error_log("Error checking claimed accumulated reward: " . $e->getMessage());
+        return false;
     }
 }
 

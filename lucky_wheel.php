@@ -186,78 +186,165 @@ try {
         }
         
         .lucky-wheel-header h1 {
-            font-size: 48px;
-            background: linear-gradient(180deg, #ffd700, #ffed4e);
+            font-size: 52px;
+            background: linear-gradient(180deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin: 10px 0;
-            text-shadow: 0 2px 10px rgba(255, 200, 0, 0.3);
-            font-weight: bold;
-            letter-spacing: 3px;
+            text-shadow: 0 0 20px rgba(255, 200, 0, 0.6), 0 0 40px rgba(255, 200, 0, 0.4);
+            font-weight: 900;
+            letter-spacing: 4px;
             text-transform: uppercase;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes titleGlow {
+            0% {
+                filter: drop-shadow(0 0 10px rgba(255, 200, 0, 0.5));
+            }
+            100% {
+                filter: drop-shadow(0 0 25px rgba(255, 200, 0, 0.9));
+            }
         }
         
         .silk-balance {
             display: inline-block;
-            background: rgba(255, 215, 0, 0.1);
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
             border: 2px solid #ffd700;
-            padding: 10px 20px;
-            border-radius: 25px;
+            padding: 12px 25px;
+            border-radius: 30px;
             color: #ffd700;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             margin-top: 15px;
-            box-shadow: 0 2px 10px rgba(255, 200, 0, 0.3);
+            box-shadow: 
+                0 0 15px rgba(255, 200, 0, 0.4),
+                0 4px 15px rgba(255, 200, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            text-shadow: 0 0 10px rgba(255, 200, 0, 0.6);
+            backdrop-filter: blur(10px);
         }
         
-        .spin-buttons {
+        .spin-controls {
             display: flex;
+            flex-direction: column;
             justify-content: center;
-            gap: 15px;
+            align-items: center;
+            gap: 20px;
             margin-bottom: 30px;
+        }
+        
+        .spin-options {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
             flex-wrap: wrap;
         }
         
-        .spin-btn {
+        .spin-option-btn {
             padding: 12px 30px;
-            background: linear-gradient(180deg, #ffd700, #ffed4e);
-            border: none;
+            background: hsl(0, 30%, 25%);
+            color: #87ceeb;
+            border: 2px solid #87ceeb;
             border-radius: 8px;
-            color: hsl(0, 40%, 15%);
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
             min-width: 150px;
-            box-shadow: 0 4px 15px rgba(255, 200, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .spin-option-btn:hover:not(:disabled) {
+            background: hsl(0, 30%, 30%);
+            border-color: #ffd700;
+            color: #ffd700;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 200, 0, 0.3);
+        }
+        
+        .spin-option-btn.active {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
+            color: hsl(0, 40%, 15%);
+            border-color: #ffd700;
+            box-shadow: 
+                0 0 15px rgba(255, 200, 0, 0.5),
+                0 4px 15px rgba(255, 200, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            font-weight: 900;
+        }
+        
+        .spin-option-btn.active:hover:not(:disabled) {
+            background: linear-gradient(135deg, #ffed4e 0%, #ffd700 50%, #ffed4e 100%);
+            transform: translateY(-3px);
+            box-shadow: 
+                0 0 20px rgba(255, 200, 0, 0.6),
+                0 6px 20px rgba(255, 200, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+        
+        .spin-option-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .spin-btn {
+            padding: 18px 60px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
+            border: none;
+            border-radius: 12px;
+            color: hsl(0, 40%, 15%);
+            font-size: 22px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 220px;
+            box-shadow: 
+                0 0 20px rgba(255, 200, 0, 0.5),
+                0 6px 20px rgba(255, 200, 0, 0.4),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .spin-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+        }
+        
+        .spin-btn:hover:not(:disabled)::before {
+            left: 100%;
         }
         
         .spin-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 200, 0, 0.5);
-            background: linear-gradient(180deg, #ffed4e, #ffd700);
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 
+                0 0 30px rgba(255, 200, 0, 0.7),
+                0 8px 30px rgba(255, 200, 0, 0.6),
+                inset 0 2px 0 rgba(255, 255, 255, 0.4);
+            background: linear-gradient(135deg, #ffed4e 0%, #ffd700 50%, #ffed4e 100%);
         }
         
-        .spin-btn.active {
-            background: linear-gradient(180deg, #ffed4e, #ffd700);
-        }
-        
-        .multi-spin-group {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .spin-select {
-            background: hsl(0, 30%, 25%);
-            color: #ffd700;
-            border: 2px solid #ffd700;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 14px;
-            cursor: pointer;
-            font-weight: bold;
+        .spin-btn:active:not(:disabled) {
+            transform: translateY(-1px);
         }
         
         .spin-btn:disabled {
@@ -298,34 +385,68 @@ try {
             display: flex;
             justify-content: center;
             align-items: center;
+            filter: drop-shadow(0 0 50px rgba(255, 200, 0, 0.4));
         }
         
         .wheel-wrapper {
             position: relative;
             width: 500px;
             height: 500px;
+            max-width: 100%;
+            max-height: 100%;
         }
         
         #wheelCanvas {
             border-radius: 50%;
             box-shadow: 
-                0 0 0 8px #ffd700,
-                0 0 0 12px hsl(0, 85%, 45%),
-                0 0 30px rgba(255, 200, 0, 0.5);
-            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+                0 0 0 10px #ffd700,
+                0 0 0 14px hsl(0, 85%, 45%),
+                0 0 0 18px #ffd700,
+                0 0 50px rgba(255, 200, 0, 0.6),
+                0 0 100px rgba(255, 200, 0, 0.4),
+                inset 0 0 30px rgba(255, 200, 0, 0.2);
+            transition: transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
             background: transparent;
+            position: relative;
         }
         
         .wheel-pointer {
             position: absolute;
-            top: -30px;
+            top: -45px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 50px;
-            color: #ffd700;
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-top: 40px solid #ffd700;
             z-index: 10;
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.8));
-            text-shadow: 0 0 10px rgba(255, 200, 0, 0.8);
+            filter: drop-shadow(0 0 15px rgba(255, 200, 0, 0.8));
+            animation: pointerPulse 2s ease-in-out infinite;
+        }
+        
+        .wheel-pointer::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -20px;
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid rgba(255, 215, 0, 0.6);
+            filter: blur(5px);
+        }
+        
+        @keyframes pointerPulse {
+            0%, 100% {
+                transform: translateX(-50%) scale(1);
+                filter: drop-shadow(0 0 15px rgba(255, 200, 0, 0.8));
+            }
+            50% {
+                transform: translateX(-50%) scale(1.1);
+                filter: drop-shadow(0 0 25px rgba(255, 200, 0, 1));
+            }
         }
         
         .wheel-center {
@@ -333,25 +454,49 @@ try {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 100px;
-            height: 100px;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
-            background: linear-gradient(180deg, #ffd700, #ffed4e);
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 5;
-            box-shadow: 0 0 20px rgba(255, 200, 0, 0.5);
-            border: 3px solid hsl(0, 40%, 15%);
+            box-shadow: 
+                0 0 30px rgba(255, 200, 0, 0.8),
+                0 0 60px rgba(255, 200, 0, 0.5),
+                inset 0 2px 10px rgba(255, 255, 255, 0.3),
+                inset 0 -2px 10px rgba(0, 0, 0, 0.3);
+            border: 4px solid hsl(0, 40%, 15%);
+            padding: 15px;
+            box-sizing: border-box;
+            animation: centerGlow 3s ease-in-out infinite alternate;
         }
         
-        .wheel-center-text {
-            color: hsl(0, 40%, 15%);
-            font-weight: bold;
-            font-size: 12px;
-            text-align: center;
-            line-height: 1.2;
+        @keyframes centerGlow {
+            0% {
+                box-shadow: 
+                    0 0 30px rgba(255, 200, 0, 0.8),
+                    0 0 60px rgba(255, 200, 0, 0.5),
+                    inset 0 2px 10px rgba(255, 255, 255, 0.3),
+                    inset 0 -2px 10px rgba(0, 0, 0, 0.3);
+            }
+            100% {
+                box-shadow: 
+                    0 0 40px rgba(255, 200, 0, 1),
+                    0 0 80px rgba(255, 200, 0, 0.7),
+                    inset 0 2px 10px rgba(255, 255, 255, 0.4),
+                    inset 0 -2px 10px rgba(0, 0, 0, 0.3);
+            }
+        }
+        
+        .wheel-center img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
         }
         
         .info-panels {
@@ -359,18 +504,141 @@ try {
             gap: 20px;
             margin-top: 30px;
             flex-wrap: wrap;
+            justify-content: center;
         }
         
         .info-panel {
             flex: 1;
             min-width: 300px;
-            background: linear-gradient(180deg, hsl(0, 30%, 25%), hsl(0, 40%, 15%));
+            background: linear-gradient(135deg, hsl(0, 30%, 25%) 0%, hsl(0, 40%, 15%) 100%);
             border: 2px solid #ffd700;
-            border-radius: 12px;
-            padding: 20px;
-            max-height: 400px;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 
+                0 0 20px rgba(255, 200, 0, 0.3),
+                0 8px 25px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .rewards-panel {
+            max-width: 100%;
+            width: 100%;
+        }
+        
+        .rewards-panel #pendingRewards,
+        .rewards-panel #accumulatedRewards {
+            max-height: 600px;
             overflow-y: auto;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            padding-right: 10px;
+        }
+        
+        .rewards-panel #pendingRewards::-webkit-scrollbar,
+        .rewards-panel #accumulatedRewards::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .rewards-panel #pendingRewards::-webkit-scrollbar-track,
+        .rewards-panel #accumulatedRewards::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+        
+        .rewards-panel #pendingRewards::-webkit-scrollbar-thumb,
+        .rewards-panel #accumulatedRewards::-webkit-scrollbar-thumb {
+            background: #ffd700;
+            border-radius: 4px;
+        }
+        
+        .rewards-panel #pendingRewards::-webkit-scrollbar-thumb:hover,
+        .rewards-panel #accumulatedRewards::-webkit-scrollbar-thumb:hover {
+            background: #ffed4e;
+        }
+        
+        .total-spins-display {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 200, 0, 0.1);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 200, 0, 0.3);
+        }
+        
+        .total-spins-label {
+            color: #87ceeb;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .total-spins-value {
+            color: #ffd700;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 200, 0, 0.5);
+        }
+        
+        .accumulated-reward-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, rgba(255, 200, 0, 0.1), rgba(255, 200, 0, 0.05));
+            border: 1px solid rgba(255, 200, 0, 0.3);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        
+        .accumulated-reward-item:hover {
+            background: linear-gradient(135deg, rgba(255, 200, 0, 0.15), rgba(255, 200, 0, 0.1));
+            border-color: rgba(255, 200, 0, 0.5);
+            transform: translateX(5px);
+        }
+        
+        .accumulated-reward-info {
+            flex: 1;
+        }
+        
+        .accumulated-reward-name {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .accumulated-reward-details {
+            color: #87ceeb;
+            font-size: 13px;
+        }
+        
+        .accumulated-reward-progress {
+            color: #e8c088;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .claim-accumulated-btn {
+            padding: 10px 20px;
+            background: linear-gradient(180deg, #ffd700, #ffed4e);
+            color: hsl(0, 40%, 15%);
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(255, 200, 0, 0.4);
+            white-space: nowrap;
+        }
+        
+        .claim-accumulated-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 200, 0, 0.5);
+        }
+        
+        .claim-accumulated-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
         .info-panel h3 {
@@ -386,12 +654,19 @@ try {
         .won-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px;
-            margin-bottom: 10px;
+            gap: 15px;
+            padding: 15px;
+            margin-bottom: 12px;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 8px;
             border-left: 3px solid #ffd700;
+            transition: all 0.3s;
+        }
+        
+        .won-item:hover {
+            background: rgba(0, 0, 0, 0.5);
+            border-left-color: #ffed4e;
+            transform: translateX(5px);
         }
         
         .won-item-dot {
@@ -412,26 +687,37 @@ try {
         }
         
         .claim-btn {
-            padding: 5px 15px;
+            padding: 8px 20px;
             background: linear-gradient(180deg, #ffd700, #ffed4e);
             color: hsl(0, 40%, 15%);
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 14px;
             transition: all 0.3s;
             box-shadow: 0 2px 8px rgba(255, 200, 0, 0.3);
+            white-space: nowrap;
         }
         
         .claim-btn:hover:not(:disabled) {
             transform: scale(1.05);
             box-shadow: 0 3px 10px rgba(255, 200, 0, 0.5);
+            background: linear-gradient(180deg, #ffed4e, #ffd700);
+        }
+        
+        .claim-btn:active:not(:disabled) {
+            transform: scale(0.95);
         }
         
         .claim-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+        
+        .claim-btn.claiming {
+            opacity: 0.7;
+            cursor: wait;
         }
         
         .leaderboard-item {
@@ -507,14 +793,30 @@ try {
         }
         
         .modal-content {
-            background: linear-gradient(180deg, hsl(0, 30%, 25%), hsl(0, 40%, 15%));
+            background: linear-gradient(135deg, hsl(0, 30%, 25%) 0%, hsl(0, 40%, 15%) 100%);
             margin: 50px auto;
             padding: 0;
             border: 4px solid #ffd700;
-            border-radius: 15px;
+            border-radius: 20px;
             width: 90%;
-            max-width: 600px;
-            box-shadow: 0 0 50px rgba(255, 200, 0, 0.5);
+            max-width: 650px;
+            box-shadow: 
+                0 0 60px rgba(255, 200, 0, 0.6),
+                0 0 100px rgba(255, 200, 0, 0.4),
+                0 10px 40px rgba(0, 0, 0, 0.6);
+            animation: modalAppear 0.4s ease-out;
+            backdrop-filter: blur(15px);
+        }
+        
+        @keyframes modalAppear {
+            0% {
+                transform: scale(0.8) translateY(-50px);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
         }
         
         .modal-header {
@@ -569,35 +871,84 @@ try {
             display: flex;
             align-items: center;
             gap: 15px;
-            padding: 15px;
-            margin-bottom: 10px;
-            background: rgba(26, 26, 46, 0.6);
-            border-radius: 8px;
-            border: 2px solid rgba(232, 192, 136, 0.3);
+            padding: 18px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8), rgba(20, 20, 35, 0.6));
+            border-radius: 12px;
+            border: 2px solid rgba(255, 200, 0, 0.4);
+            box-shadow: 
+                0 2px 10px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .result-item:hover {
+            transform: translateX(5px);
+            border-color: rgba(255, 200, 0, 0.6);
+            box-shadow: 
+                0 4px 15px rgba(255, 200, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
         
         .result-item-dot {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
+            box-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.3),
+                inset 0 2px 5px rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
         
-        .result-item-dot.red { background: #ff0000; }
-        .result-item-dot.orange { background: #ff8c00; }
-        .result-item-dot.green { background: #00ff00; }
-        .result-item-dot.yellow { background: #ffff00; }
-        .result-item-dot.purple { background: #9370db; }
+        .result-item-dot.red { 
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            box-shadow: 0 0 15px rgba(255, 68, 68, 0.6);
+        }
+        .result-item-dot.orange { 
+            background: linear-gradient(135deg, #ffaa44, #ff8c00);
+            box-shadow: 0 0 15px rgba(255, 170, 68, 0.6);
+        }
+        .result-item-dot.green { 
+            background: linear-gradient(135deg, #44ff44, #00cc00);
+            box-shadow: 0 0 15px rgba(68, 255, 68, 0.6);
+        }
+        .result-item-dot.yellow { 
+            background: linear-gradient(135deg, #ffff44, #cccc00);
+            box-shadow: 0 0 15px rgba(255, 255, 68, 0.6);
+        }
+        .result-item-dot.purple { 
+            background: linear-gradient(135deg, #aa44ff, #9370db);
+            box-shadow: 0 0 15px rgba(170, 68, 255, 0.6);
+        }
         
         .result-item-name {
             flex: 1;
             color: #fff;
-            font-weight: bold;
-            font-size: 16px;
+            font-weight: 700;
+            font-size: 17px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
         }
         
         .result-item-name.rare {
             color: #ffd700;
-            text-shadow: 0 0 10px rgba(255, 200, 0, 0.5);
+            text-shadow: 
+                0 0 15px rgba(255, 200, 0, 0.8),
+                0 2px 5px rgba(0, 0, 0, 0.5);
+            animation: rareGlow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes rareGlow {
+            0% {
+                text-shadow: 
+                    0 0 15px rgba(255, 200, 0, 0.8),
+                    0 2px 5px rgba(0, 0, 0, 0.5);
+            }
+            100% {
+                text-shadow: 
+                    0 0 25px rgba(255, 200, 0, 1),
+                    0 0 35px rgba(255, 200, 0, 0.6),
+                    0 2px 5px rgba(0, 0, 0, 0.5);
+            }
         }
         
         .modal-footer {
@@ -681,35 +1032,135 @@ try {
             .lucky-wheel-container {
                 margin-left: 0;
                 width: 100%;
+                padding: 20px 15px;
             }
             
             .menu-toggle {
                 display: block;
             }
             
+            .lucky-wheel-header h1 {
+                font-size: 32px;
+                letter-spacing: 2px;
+            }
+            
+            .silk-balance {
+                font-size: 16px;
+                padding: 10px 18px;
+            }
+            
+            .wheel-section {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .wheel-main {
+                min-width: 100%;
+                width: 100%;
+            }
+            
             .wheel-container {
                 width: 100%;
-                max-width: 400px;
+                max-width: 100%;
+                height: auto;
+                aspect-ratio: 1;
+                max-width: min(90vw, 400px);
+                margin: 10px auto;
             }
             
             .wheel-wrapper {
                 width: 100%;
-                max-width: 400px;
+                height: 100%;
+                position: relative;
+                aspect-ratio: 1;
             }
             
             #wheelCanvas {
-                width: 100%;
-                height: auto;
-                max-width: 400px;
-                max-height: 400px;
+                width: 100% !important;
+                height: 100% !important;
+                max-width: 100%;
+                max-height: 100%;
             }
             
-            .spin-buttons {
+            .wheel-pointer {
+                top: -25px;
+                border-left-width: 18px;
+                border-right-width: 18px;
+                border-top-width: 30px;
+            }
+            
+            .wheel-center {
+                width: 110px;
+                height: 110px;
+                padding: 12px;
+            }
+            
+            .spin-controls {
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .spin-options {
+                width: 100%;
                 flex-direction: column;
+                gap: 10px;
+            }
+            
+            .spin-option-btn {
+                width: 100%;
+                max-width: 100%;
+                padding: 14px 20px;
+                font-size: 15px;
             }
             
             .spin-btn {
                 width: 100%;
+                max-width: 100%;
+                padding: 16px 30px;
+                font-size: 18px;
+            }
+            
+            .info-panels {
+                width: 100%;
+            }
+            
+            .info-panel {
+                min-width: 100%;
+                width: 100%;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 20px auto;
+                padding: 20px;
+            }
+            
+            .modal-header h2 {
+                font-size: 22px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .lucky-wheel-header h1 {
+                font-size: 24px;
+                letter-spacing: 1px;
+            }
+            
+            .wheel-container {
+                max-width: min(85vw, 350px);
+            }
+            
+            .wheel-center {
+                width: 90px;
+                height: 90px;
+                padding: 10px;
+            }
+            
+            .wheel-pointer {
+                top: -20px;
+                border-left-width: 15px;
+                border-right-width: 15px;
+                border-top-width: 25px;
             }
         }
     </style>
@@ -747,21 +1198,19 @@ try {
                 </div>
             </div>
             
-            <!-- Spin Buttons -->
-            <div class="spin-buttons">
-                <button class="spin-btn" onclick="spin(1)" id="spinBtn1">
-                    🎯 Quay 1 lần
-                </button>
-                <div class="multi-spin-group">
-                    <button class="spin-btn" onclick="spinMultiple()" id="btnSpinMulti">
-                        🔄 Quay nhiều lần
+            <!-- Spin Controls -->
+            <div class="spin-controls">
+                <div class="spin-options">
+                    <button class="spin-option-btn active" data-count="1" onclick="selectSpinOption(1)">
+                        <i class="fas fa-dice-one"></i> Quay 1 lần
                     </button>
-                    <select id="spinCount" class="spin-select">
-                        <?php for($i = 2; $i <= 20; $i++): ?>
-                            <option value="<?= $i ?>"><?= $i ?> lần</option>
-                        <?php endfor; ?>
-                    </select>
+                    <button class="spin-option-btn" data-count="20" onclick="selectSpinOption(20)">
+                        <i class="fas fa-dice"></i> Quay 20 lần
+                    </button>
                 </div>
+                <button class="spin-btn" onclick="spin()" id="spinBtn">
+                    <i class="fas fa-dharmachakra"></i> QUAY NGAY
+                </button>
             </div>
             
             <!-- Spin Status -->
@@ -771,11 +1220,11 @@ try {
             <div class="wheel-section">
                 <div class="wheel-main">
                     <div class="wheel-container">
-                        <div class="wheel-pointer">▼</div>
+                        <div class="wheel-pointer"></div>
                         <div class="wheel-wrapper">
                             <canvas id="wheelCanvas" width="500" height="500"></canvas>
                             <div class="wheel-center">
-                                <div class="wheel-center-text">LUCKY<br>WHEEL</div>
+                                <img src="assets/images/icon-game.png" alt="Game Icon">
                             </div>
                         </div>
                     </div>
@@ -783,20 +1232,24 @@ try {
                 
                 <!-- Info Panels -->
                 <div class="info-panels">
-                    <!-- Pending Rewards -->
-                    <div class="info-panel">
-                        <h3><i class="fas fa-trophy"></i> Vật Phẩm Đã Trúng</h3>
-                        <div id="pendingRewards">
+                    <!-- Accumulated Rewards -->
+                    <div class="info-panel rewards-panel">
+                        <h3><i class="fas fa-gift"></i> Phần Thưởng Tích Lũy</h3>
+                        <div id="totalSpinsDisplay" class="total-spins-display">
+                            <div class="total-spins-label">Tổng số vòng quay</div>
+                            <div class="total-spins-value" id="totalSpinsValue">0</div>
+                        </div>
+                        <div id="accumulatedRewards">
                             <div class="loading">
                                 <i class="fas fa-spinner fa-spin"></i> Đang tải...
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Top Players -->
-                    <div class="info-panel">
-                        <h3><i class="fas fa-crown"></i> Top Người Chơi</h3>
-                        <div id="topPlayers">
+                    <!-- Pending Rewards -->
+                    <div class="info-panel rewards-panel">
+                        <h3><i class="fas fa-trophy"></i> Vật Phẩm Đã Trúng</h3>
+                        <div id="pendingRewards">
                             <div class="loading">
                                 <i class="fas fa-spinner fa-spin"></i> Đang tải...
                             </div>
@@ -836,13 +1289,19 @@ try {
         let isSpinning = false;
         let spinCost = 10;
         let currentSilk = <?php echo $silk; ?>;
+        let selectedSpinCount = 1; // Default: 1 lần
         
         // Load initial data
         $(document).ready(function() {
+            // Initial canvas resize
+            setTimeout(function() {
+                resizeCanvas();
+            }, 100);
+            
             loadConfig();
             loadItems();
             loadPendingRewards();
-            loadTopPlayers();
+            loadAccumulatedRewards();
         });
         
         // Load config
@@ -871,27 +1330,86 @@ try {
                 success: function(response) {
                     if (response.success) {
                         wheelItems = response.data;
-                        renderWheel();
+                        // Resize and render wheel
+                        resizeCanvas();
                     }
                 }
             });
         }
         
-        // Wheel colors
+        // Handle window resize for responsive canvas
+        let resizeTimeout;
+        $(window).on('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                resizeCanvas();
+            }, 250);
+        });
+        
+        // Initial resize on page load
+        $(window).on('load', function() {
+            setTimeout(resizeCanvas, 100);
+        });
+        
+        // Wheel colors - Deep rich reds and vibrant colors
         const WHEEL_COLORS = [
-            "hsl(0, 85%, 55%)",    // Red
-            "hsl(210, 90%, 55%)",  // Blue
-            "hsl(140, 70%, 45%)",  // Green
-            "hsl(45, 100%, 50%)",  // Gold
-            "hsl(280, 80%, 55%)",  // Purple
-            "hsl(25, 95%, 55%)",   // Orange
-            "hsl(330, 85%, 60%)",  // Pink
-            "hsl(180, 80%, 50%)",  // Cyan
-            "hsl(50, 95%, 55%)",   // Yellow
-            "hsl(260, 70%, 50%)",  // Violet
+            "hsl(0, 85%, 45%)",     // Deep Red
+            "hsl(0, 80%, 50%)",     // Medium Red
+            "hsl(0, 75%, 48%)",     // Dark Red
+            "hsl(0, 85%, 52%)",     // Bright Red
+            "hsl(210, 90%, 50%)",   // Deep Blue
+            "hsl(140, 70%, 40%)",   // Deep Green
+            "hsl(45, 100%, 45%)",   // Rich Gold
+            "hsl(280, 80%, 50%)",   // Deep Purple
+            "hsl(25, 95%, 50%)",    // Deep Orange
+            "hsl(330, 85%, 55%)",   // Deep Pink
         ];
         
         let currentRotation = 0;
+        
+        // Helper function to adjust brightness of HSL color
+        function adjustBrightness(hslColor, amount) {
+            const match = hslColor.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+            if (!match) return hslColor;
+            const h = parseInt(match[1]);
+            const s = parseInt(match[2]);
+            let l = parseInt(match[3]) + amount;
+            l = Math.max(0, Math.min(100, l));
+            return `hsl(${h}, ${s}%, ${l}%)`;
+        }
+        
+        // Resize canvas for responsive design
+        function resizeCanvas() {
+            const canvas = document.getElementById('wheelCanvas');
+            if (!canvas) return;
+            
+            const wrapper = canvas.parentElement; // wheel-wrapper
+            if (!wrapper) return;
+            
+            // Get wrapper size (it's responsive via CSS)
+            const wrapperWidth = wrapper.clientWidth || wrapper.offsetWidth;
+            const wrapperHeight = wrapper.clientHeight || wrapper.offsetHeight;
+            
+            // Use the smaller dimension to maintain square aspect ratio
+            // Max 500px for desktop, responsive for mobile
+            const maxSize = window.innerWidth <= 768 ? Math.min(window.innerWidth * 0.9, 400) : 500;
+            const size = Math.min(wrapperWidth, wrapperHeight, maxSize);
+            
+            if (size > 0) {
+                // Set canvas size (internal resolution - for drawing)
+                canvas.width = size;
+                canvas.height = size;
+                
+                // Set CSS size (display size - for layout)
+                canvas.style.width = size + 'px';
+                canvas.style.height = size + 'px';
+                
+                // Re-render wheel with new size if items are loaded
+                if (wheelItems.length > 0) {
+                    renderWheel();
+                }
+            }
+        }
         
         // Render wheel with Canvas
         function renderWheel() {
@@ -922,43 +1440,90 @@ try {
                 // Get color
                 let color = WHEEL_COLORS[index % WHEEL_COLORS.length];
                 if (item.is_rare) {
-                    color = "hsl(280, 80%, 55%)"; // Purple for rare items
+                    color = "hsl(280, 85%, 60%)"; // Bright Purple for rare items
                 }
+                
+                // Create gradient for depth
+                const gradient = ctx.createRadialGradient(
+                    centerX, centerY, radius * 0.3,
+                    centerX, centerY, radius
+                );
+                gradient.addColorStop(0, color);
+                gradient.addColorStop(1, adjustBrightness(color, -15));
                 
                 // Draw segment
                 ctx.beginPath();
                 ctx.moveTo(centerX, centerY);
                 ctx.arc(centerX, centerY, radius, startAngle, endAngle);
                 ctx.closePath();
-                ctx.fillStyle = color;
+                ctx.fillStyle = gradient;
                 ctx.fill();
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.lineWidth = 2;
+                
+                // Enhanced border
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.lineWidth = 2.5;
                 ctx.stroke();
                 
-                // Draw text
+                // Inner highlight
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius * 0.95, startAngle, endAngle);
+                ctx.stroke();
+                
+                // Draw text with enhanced styling
                 ctx.save();
                 ctx.translate(centerX, centerY);
                 ctx.rotate(startAngle + segmentAngle / 2);
                 ctx.textAlign = 'right';
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 13px Arial';
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-                ctx.shadowBlur = 3;
                 
-                const text = item.item_name.length > 15 
-                    ? item.item_name.substring(0, 13) + '...' 
+                // Text shadow for better readability
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetX = 1;
+                ctx.shadowOffsetY = 1;
+                
+                // Main text - adjust font size based on canvas size
+                const fontSize = Math.max(10, Math.min(14, canvas.width / 35));
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold ' + fontSize + 'px Arial';
+                
+                // Adjust text length based on canvas size
+                const maxTextLength = canvas.width < 400 ? 12 : 15;
+                const text = item.item_name.length > maxTextLength 
+                    ? item.item_name.substring(0, maxTextLength - 2) + '...' 
                     : item.item_name;
-                ctx.fillText(text, radius - 15, 5);
+                ctx.fillText(text, radius - (canvas.width < 400 ? 15 : 20), 5);
+                
+                // Rare item indicator
+                if (item.is_rare) {
+                    ctx.fillStyle = '#ffd700';
+                    ctx.font = 'bold ' + Math.max(10, fontSize - 2) + 'px Arial';
+                    ctx.fillText('⭐', radius - (canvas.width < 400 ? 3 : 5), -8);
+                }
+                
                 ctx.restore();
             });
         }
         
+        // Select spin option
+        function selectSpinOption(count) {
+            if (isSpinning) return;
+            
+            selectedSpinCount = count;
+            
+            // Update active state
+            $('.spin-option-btn').removeClass('active');
+            $(`.spin-option-btn[data-count="${count}"]`).addClass('active');
+        }
+        
         // Spin function
-        function spin(count) {
+        function spin() {
             if (isSpinning) {
                 return;
             }
+            
+            const count = selectedSpinCount;
             
             const totalCost = spinCost * count;
             if (currentSilk < totalCost) {
@@ -980,7 +1545,7 @@ try {
             }
         }
         
-        // Spin single
+        // Spin single - Rewritten with improved rotation calculation
         function spinSingle() {
             $('#spinStatus').text('Đang quay...');
             
@@ -990,130 +1555,166 @@ try {
                 contentType: 'application/json',
                 data: JSON.stringify({ spin_count: 1 }),
                 dataType: 'json',
+                timeout: 30000,
                 success: function(response) {
-                    if (response.success) {
-                        const result = response.data.results[0];
-                        const itemIndex = wheelItems.findIndex(i => i.id === result.item_id);
-                        
-                        if (itemIndex !== -1) {
-                            const segmentAngle = 360 / wheelItems.length;
-                            const prizeAngle = itemIndex * segmentAngle + segmentAngle / 2;
-                            const rotations = 5 + Math.random() * 3; // 5-8 vòng
-                            const targetRotation = currentRotation + 360 * rotations + (360 - prizeAngle);
+                    try {
+                        if (response && response.success && response.data && response.data.results && response.data.results.length > 0) {
+                            const result = response.data.results[0];
+                            const itemIndex = wheelItems.findIndex(i => i.id === result.item_id);
                             
-                            const canvas = document.getElementById('wheelCanvas');
-                            canvas.style.transform = `rotate(${targetRotation}deg)`;
-                            currentRotation = targetRotation;
-                            
-                            setTimeout(function() {
-                                updateSilkBalance(response.data.total_cost);
-                                showResult([result]);
-                                showConfetti();
-                                loadPendingRewards();
+                            if (itemIndex === -1) {
+                                alert('Không tìm thấy vật phẩm trong danh sách!');
                                 isSpinning = false;
                                 disableSpinButtons(false);
-                                $('#spinStatus').text('🎉 Chúc mừng! Bạn đã trúng: ' + result.item_name);
-                                
-                                // Reset wheel after 2 seconds
-                                setTimeout(function() {
-                                    canvas.style.transform = 'rotate(0deg)';
-                                    currentRotation = 0;
-                                }, 2000);
-                            }, 4000);
+                                $('#spinStatus').text('');
+                                return;
+                            }
+                            
+                            // Calculate rotation to stop at the correct item
+                            // Wheel rendering: segments start from -90 degrees (top position)
+                            // Pointer: fixed at top (0 degrees)
+                            // Goal: rotate wheel so winning segment's center aligns with pointer (top)
+                            
+                            const canvas = document.getElementById('wheelCanvas');
+                            const totalItems = wheelItems.length;
+                            const segmentAngle = 360 / totalItems;
+                            
+                            // Calculate the angle of the winning segment's center
+                            // Each segment starts at: (index * segmentAngle - 90) degrees
+                            // Segment center is at: startAngle + segmentAngle/2
+                            const segmentStartAngle = (itemIndex * segmentAngle) - 90;
+                            const segmentCenterAngle = segmentStartAngle + (segmentAngle / 2);
+                            
+                            // To align segment center with pointer (top = 0 degrees):
+                            // We need to rotate by: 360 - segmentCenterAngle
+                            // But since wheel is already at currentRotation, we need:
+                            // finalRotation = currentRotation + additionalRotation
+                            // where additionalRotation = 360 - segmentCenterAngle
+                            
+                            // Add multiple full rotations for visual effect (5-8 rotations)
+                            const fullRotations = 5 + Math.random() * 3;
+                            const additionalRotation = (360 * fullRotations) + (360 - segmentCenterAngle);
+                            const finalRotation = currentRotation + additionalRotation;
+                            
+                            // Apply rotation with CSS transition
+                            canvas.style.transition = 'transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+                            canvas.style.transform = `rotate(${finalRotation}deg)`;
+                            
+                            // Update current rotation (normalize to 0-360 range for next spin)
+                            currentRotation = finalRotation % 360;
+                            
+                            // Wait for animation to complete (5 seconds)
+                            setTimeout(function() {
+                                try {
+                                    updateSilkBalance(response.data.total_cost);
+                                    showResultsModal([result], 1);
+                                    showConfetti();
+                                    loadPendingRewards();
+                                    loadAccumulatedRewards();
+                                } catch (e) {
+                                    console.error('Error processing spin result:', e);
+                                } finally {
+                                    isSpinning = false;
+                                    disableSpinButtons(false);
+                                    $('#spinStatus').text('');
+                                }
+                            }, 5000);
+                        } else {
+                            const errorMsg = response?.error || 'Có lỗi xảy ra khi quay';
+                            alert('Lỗi: ' + errorMsg);
+                            isSpinning = false;
+                            disableSpinButtons(false);
+                            $('#spinStatus').text('');
                         }
-                    } else {
-                        alert('Lỗi: ' + response.error);
+                    } catch (e) {
+                        console.error('Error processing spin response:', e);
+                        alert('Lỗi xử lý kết quả quay');
                         isSpinning = false;
                         disableSpinButtons(false);
                         $('#spinStatus').text('');
                     }
                 },
-                error: function(xhr) {
-                    const response = xhr.responseJSON;
-                    alert('Lỗi: ' + (response?.error || 'Có lỗi xảy ra'));
+                error: function(xhr, status, error) {
                     isSpinning = false;
                     disableSpinButtons(false);
                     $('#spinStatus').text('');
+                    
+                    let errorMsg = 'Có lỗi xảy ra';
+                    if (status === 'timeout') {
+                        errorMsg = 'Quá thời gian chờ. Vui lòng thử lại.';
+                    } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMsg = xhr.responseJSON.error;
+                    } else if (error) {
+                        errorMsg = error;
+                    }
+                    alert('Lỗi: ' + errorMsg);
                 }
             });
         }
         
-        // Spin multiple
+        // Spin multiple - Rewritten with improved error handling
         function spinMultiple(count) {
-            if (count === undefined) {
-                count = parseInt($('#spinCount').val());
-            }
+            $('#spinStatus').text('Đang quay ' + count + ' lần...');
             
-            if (isSpinning) return;
-            
-            const totalCost = spinCost * count;
-            if (currentSilk < totalCost) {
-                alert('Không đủ Silk! Bạn cần ' + totalCost + ' Silk để quay ' + count + ' lần.');
-                return;
-            }
-            
-            if (!confirm('Bạn có chắc muốn quay ' + count + ' lần? Tổng cộng: ' + totalCost + ' Silk')) {
-                return;
-            }
-            
-            isSpinning = true;
-            disableSpinButtons(true);
-            
-            $('#spinStatus').text('Đang quay lượt 0/' + count);
-            
-            // Symbolic animation
+            // Symbolic animation - chỉ quay 1 vòng tượng trưng
             const canvas = document.getElementById('wheelCanvas');
-            let rotation = 0;
-            const animateInterval = setInterval(function() {
-                rotation += 30;
-                canvas.style.transform = `rotate(${rotation}deg)`;
-            }, 50);
+            const startRotation = currentRotation;
+            const targetRotation = startRotation + 360; // Quay đúng 1 vòng
             
+            // Apply CSS transition for smooth rotation
+            canvas.style.transition = 'transform 2s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+            canvas.style.transform = `rotate(${targetRotation}deg)`;
+            currentRotation = targetRotation % 360;
+            
+            // Call API while animation is running
             $.ajax({
                 url: '/api/lucky_wheel/spin.php',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ spin_count: count }),
                 dataType: 'json',
+                timeout: 30000,
                 success: function(response) {
-                    clearInterval(animateInterval);
-                    
-                    if (response.success) {
-                        updateSilkBalance(response.data.total_cost);
-                        showResultsModal(response.data.results, count);
-                        showConfetti();
-                        loadPendingRewards();
-                        isSpinning = false;
-                        disableSpinButtons(false);
-                        $('#spinStatus').text('Hoàn thành! Đã quay ' + count + ' lần');
-                        
-                        // Reset wheel
-                        setTimeout(function() {
-                            canvas.style.transform = 'rotate(0deg)';
-                            currentRotation = 0;
-                        }, 1000);
-                    } else {
-                        alert('Lỗi: ' + response.error);
-                        isSpinning = false;
-                        disableSpinButtons(false);
-                        $('#spinStatus').text('');
-                    }
+                    // Wait for animation to complete (2 seconds)
+                    setTimeout(function() {
+                        try {
+                            if (response && response.success && response.data && response.data.results) {
+                                updateSilkBalance(response.data.total_cost);
+                                showResultsModal(response.data.results, count);
+                                showConfetti();
+                                loadPendingRewards();
+                                loadAccumulatedRewards();
+                            } else {
+                                const errorMsg = response?.error || 'Có lỗi xảy ra khi quay';
+                                alert('Lỗi: ' + errorMsg);
+                            }
+                        } catch (e) {
+                            console.error('Error processing spin result:', e);
+                            alert('Lỗi xử lý kết quả quay');
+                        } finally {
+                            isSpinning = false;
+                            disableSpinButtons(false);
+                            $('#spinStatus').text('');
+                        }
+                    }, 2000);
                 },
-                error: function(xhr) {
-                    clearInterval(animateInterval);
-                    const response = xhr.responseJSON;
-                    alert('Lỗi: ' + (response?.error || 'Có lỗi xảy ra'));
+                error: function(xhr, status, error) {
+                    // Reset immediately on error
                     isSpinning = false;
                     disableSpinButtons(false);
                     $('#spinStatus').text('');
+                    
+                    let errorMsg = 'Có lỗi xảy ra';
+                    if (status === 'timeout') {
+                        errorMsg = 'Quá thời gian chờ. Vui lòng thử lại.';
+                    } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMsg = xhr.responseJSON.error;
+                    } else if (error) {
+                        errorMsg = error;
+                    }
+                    alert('Lỗi: ' + errorMsg);
                 }
             });
-        }
-        
-        // Show single result
-        function showResult(results) {
-            // Could show a notification here
-            console.log('Won items:', results);
         }
         
         // Show results modal
@@ -1196,11 +1797,149 @@ try {
             });
         }
         
+        // Load accumulated rewards
+        function loadAccumulatedRewards() {
+            console.log('Loading accumulated rewards...');
+            
+            const container = $('#accumulatedRewards');
+            if (container.length === 0) {
+                console.error('accumulatedRewards container not found');
+                return;
+            }
+            
+            // Show loading state
+            container.html('<div class="loading"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>');
+            
+            $.ajax({
+                url: '/api/lucky_wheel/get_available_accumulated_rewards.php',
+                method: 'GET',
+                dataType: 'json',
+                timeout: 10000,
+                success: function(response) {
+                    console.log('Accumulated rewards response:', response);
+                    
+                    container.empty();
+                    
+                    if (response.success && response.data) {
+                        // Update total spins display
+                        const totalSpins = response.data.total_spins || 0;
+                        const totalSpinsValue = $('#totalSpinsValue');
+                        if (totalSpinsValue.length > 0) {
+                            totalSpinsValue.text(totalSpins.toLocaleString('vi-VN'));
+                        }
+                        
+                        const rewards = response.data.rewards || [];
+                        console.log('Found', rewards.length, 'accumulated rewards');
+                        
+                        if (rewards.length > 0) {
+                            rewards.forEach(function(reward) {
+                                const progressPercent = Math.round(reward.progress || 0);
+                                // Handle boolean conversion (may come as string "true"/"false" or boolean)
+                                const canClaim = reward.can_claim === true || reward.can_claim === 'true' || reward.can_claim === 1;
+                                const hasReached = reward.total_spins >= reward.required_spins;
+                                
+                                // Determine button text and state
+                                let buttonHtml = '';
+                                if (canClaim) {
+                                    // Can claim: reached requirement and not yet claimed
+                                    buttonHtml = '<button class="claim-accumulated-btn" onclick="claimAccumulatedReward(' + reward.id + ', \'' + escapeHtml(reward.item_name) + '\')">Nhận</button>';
+                                } else if (hasReached) {
+                                    // Already claimed: reached but can't claim (already claimed)
+                                    buttonHtml = '<button class="claim-accumulated-btn" disabled style="opacity: 0.5; cursor: not-allowed; background: #696969;">Đã nhận</button>';
+                                } else {
+                                    // Not reached yet
+                                    buttonHtml = '<button class="claim-accumulated-btn" disabled style="opacity: 0.5; cursor: not-allowed;">Chưa đạt</button>';
+                                }
+                                
+                                const item = $('<div>')
+                                    .addClass('accumulated-reward-item')
+                                    .html(
+                                        '<div class="accumulated-reward-info">' +
+                                        '<div class="accumulated-reward-name">' + escapeHtml(reward.item_name) + ' x' + reward.quantity + '</div>' +
+                                        '<div class="accumulated-reward-details">Mức đạt: ' + reward.required_spins + ' vòng</div>' +
+                                        '<div class="accumulated-reward-progress">Tiến độ: ' + reward.total_spins + ' / ' + reward.required_spins + ' vòng (' + progressPercent + '%)</div>' +
+                                        '</div>' +
+                                        buttonHtml
+                                    );
+                                container.append(item);
+                            });
+                        } else {
+                            container.html('<div class="empty-state">Chưa có phần thưởng tích lũy nào</div>');
+                        }
+                    } else {
+                        console.error('Response not successful:', response);
+                        container.html('<div class="empty-state">' + (response.error || 'Lỗi tải dữ liệu') + '</div>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading accumulated rewards:', status, error, xhr);
+                    const errorMsg = xhr.responseJSON?.error || 'Lỗi kết nối: ' + error;
+                    container.html('<div class="empty-state">' + errorMsg + '</div>');
+                }
+            });
+        }
+        
+        // Claim accumulated reward
+        function claimAccumulatedReward(accumulatedItemId, itemName) {
+            if (!confirm('Xác nhận nhận phần thưởng "' + itemName + '"?')) {
+                return;
+            }
+            
+            // Disable button
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Đang xử lý...';
+            
+            $.ajax({
+                url: '/api/lucky_wheel/claim_accumulated_reward.php',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    accumulated_item_id: accumulatedItemId
+                }),
+                success: function(response) {
+                    if (response.success) {
+                        alert('Đã nhận phần thưởng thành công!');
+                        // Reload accumulated rewards to update list
+                        loadAccumulatedRewards();
+                    } else {
+                        alert('Lỗi: ' + (response.error || 'Không thể nhận phần thưởng'));
+                        btn.disabled = false;
+                        btn.textContent = originalText;
+                    }
+                },
+                error: function(xhr) {
+                    const response = xhr.responseJSON;
+                    const errorMsg = response?.error || 'Lỗi kết nối';
+                    alert('Lỗi: ' + errorMsg);
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
+            });
+        }
+        
+        // Escape HTML helper
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+        
         // Claim reward
         function claimReward(rewardId) {
             if (!confirm('Xác nhận nhận phần thưởng này?')) {
                 return;
             }
+            
+            // Disable button and show loading
+            const btn = $('button[onclick="claimReward(' + rewardId + ')"]');
+            btn.prop('disabled', true).addClass('claiming').text('Đang xử lý...');
             
             $.ajax({
                 url: '/api/lucky_wheel/claim_reward.php',
@@ -1210,54 +1949,27 @@ try {
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
-                        alert('Đã nhận phần thưởng thành công!');
+                        // Show success message
+                        $('#spinStatus').text('🎉 Đã nhận phần thưởng thành công!');
+                        setTimeout(function() {
+                            $('#spinStatus').text('');
+                        }, 3000);
+                        
+                        // Reload rewards list
                         loadPendingRewards();
                     } else {
                         alert('Lỗi: ' + response.error);
+                        btn.prop('disabled', false).removeClass('claiming').text('Nhận');
                     }
                 },
                 error: function(xhr) {
                     const response = xhr.responseJSON;
                     alert('Lỗi: ' + (response?.error || 'Có lỗi xảy ra'));
+                    btn.prop('disabled', false).removeClass('claiming').text('Nhận');
                 }
             });
         }
         
-        // Load top players
-        function loadTopPlayers() {
-            $.ajax({
-                url: '/api/lucky_wheel/get_recent_rare_wins.php?limit=10',
-                method: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    const container = $('#topPlayers');
-                    container.empty();
-                    
-                    if (response.success && response.data.length > 0) {
-                        response.data.forEach(function(player, index) {
-                            const rank = index + 1;
-                            const rankClass = rank === 1 ? 'rank-1' : (rank === 2 ? 'rank-2' : (rank === 3 ? 'rank-3' : 'rank-other'));
-                            
-                            const item = $('<div>')
-                                .addClass('leaderboard-item')
-                                .html(
-                                    '<div class="leaderboard-rank ' + rankClass + '">' + rank + '</div>' +
-                                    '<div class="leaderboard-info">' +
-                                    '<div class="leaderboard-name">' + player.username + '</div>' +
-                                    '<div class="leaderboard-item-name">' + player.item_name + '</div>' +
-                                    '</div>'
-                                );
-                            container.append(item);
-                        });
-                    } else {
-                        container.html('<div class="empty-state">Chưa có dữ liệu</div>');
-                    }
-                },
-                error: function() {
-                    $('#topPlayers').html('<div class="empty-state">Lỗi tải dữ liệu</div>');
-                }
-            });
-        }
         
         // Update silk balance
         function updateSilkBalance(deducted) {
@@ -1267,8 +1979,14 @@ try {
         
         // Disable/enable spin buttons
         function disableSpinButtons(disable) {
-            $('.spin-btn').prop('disabled', disable);
-            $('#spinCount').prop('disabled', disable);
+            $('#spinBtn').prop('disabled', disable);
+            $('.spin-option-btn').prop('disabled', disable);
+            
+            if (disable) {
+                $('#spinBtn').html('<i class="fas fa-spinner fa-spin"></i> Đang quay...');
+            } else {
+                $('#spinBtn').html('<i class="fas fa-dharmachakra"></i> QUAY NGAY');
+            }
         }
         
         // Show confetti

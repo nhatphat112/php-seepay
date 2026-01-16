@@ -249,6 +249,106 @@ try {
         output("  ✓ LuckyWheelRewards table already exists", 'success');
     }
     
+    // Step 5: Add TotalSpins column to TB_User (if not exists)
+    output("", 'info');
+    output("Step 5: Adding TotalSpins column to TB_User...", 'info');
+    
+    if (!columnExists($accountDb, '[dbo].[TB_User]', 'TotalSpins')) {
+        $accountDb->exec("
+            ALTER TABLE [dbo].[TB_User]
+            ADD [TotalSpins] INT DEFAULT 0
+        ");
+        output("  ✓ TotalSpins column added to TB_User", 'success');
+    } else {
+        output("  ✓ TotalSpins column already exists in TB_User", 'success');
+    }
+    
+    // Step 6: Create LuckyWheelAccumulatedItems table
+    output("", 'info');
+    output("Step 6: Creating LuckyWheelAccumulatedItems table...", 'info');
+    
+    if (!tableExists($accountDb, '[dbo].[LuckyWheelAccumulatedItems]')) {
+        $accountDb->exec("
+            CREATE TABLE [dbo].[LuckyWheelAccumulatedItems] (
+                [Id] INT PRIMARY KEY IDENTITY(1,1),
+                [ItemName] NVARCHAR(100) NOT NULL,
+                [ItemCode] NVARCHAR(50) NOT NULL,
+                [Quantity] INT NOT NULL DEFAULT 1,
+                [RequiredSpins] INT NOT NULL,
+                [DisplayOrder] INT DEFAULT 0,
+                [IsActive] BIT DEFAULT 1,
+                [CreatedDate] DATETIME DEFAULT GETDATE(),
+                [UpdatedDate] DATETIME DEFAULT GETDATE(),
+                [CreatedBy] INT NULL,
+                [UpdatedBy] INT NULL
+            )
+        ");
+        
+        // Create indexes
+        try {
+            $accountDb->exec("CREATE NONCLUSTERED INDEX [IX_LuckyWheelAccumulatedItems_IsActive] ON [dbo].[LuckyWheelAccumulatedItems] ([IsActive])");
+        } catch (Exception $e) {
+            // Index might already exist
+        }
+        
+        try {
+            $accountDb->exec("CREATE NONCLUSTERED INDEX [IX_LuckyWheelAccumulatedItems_RequiredSpins] ON [dbo].[LuckyWheelAccumulatedItems] ([RequiredSpins])");
+        } catch (Exception $e) {
+            // Index might already exist
+        }
+        
+        output("  ✓ LuckyWheelAccumulatedItems table created with indexes", 'success');
+    } else {
+        output("  ✓ LuckyWheelAccumulatedItems table already exists", 'success');
+    }
+    
+    // Step 7: Create LuckyWheelAccumulatedLog table
+    output("", 'info');
+    output("Step 7: Creating LuckyWheelAccumulatedLog table...", 'info');
+    
+    if (!tableExists($accountDb, '[dbo].[LuckyWheelAccumulatedLog]')) {
+        $accountDb->exec("
+            CREATE TABLE [dbo].[LuckyWheelAccumulatedLog] (
+                [Id] INT PRIMARY KEY IDENTITY(1,1),
+                [UserJID] INT NOT NULL,
+                [AccumulatedItemId] INT NOT NULL,
+                [ItemName] NVARCHAR(100) NOT NULL,
+                [ItemCode] NVARCHAR(50) NOT NULL,
+                [Quantity] INT NOT NULL,
+                [RequiredSpins] INT NOT NULL,
+                [TotalSpinsAtClaim] INT NOT NULL,
+                [CharName] NVARCHAR(50) NOT NULL,
+                [ClaimedDate] DATETIME DEFAULT GETDATE(),
+                FOREIGN KEY ([UserJID]) REFERENCES [dbo].[TB_User]([JID]),
+                FOREIGN KEY ([AccumulatedItemId]) REFERENCES [dbo].[LuckyWheelAccumulatedItems]([Id])
+            )
+        ");
+        
+        // Create indexes
+        try {
+            $accountDb->exec("CREATE NONCLUSTERED INDEX [IX_LuckyWheelAccumulatedLog_UserJID] ON [dbo].[LuckyWheelAccumulatedLog] ([UserJID])");
+        } catch (Exception $e) {
+            // Index might already exist
+        }
+        
+        try {
+            $accountDb->exec("CREATE NONCLUSTERED INDEX [IX_LuckyWheelAccumulatedLog_AccumulatedItemId] ON [dbo].[LuckyWheelAccumulatedLog] ([AccumulatedItemId])");
+        } catch (Exception $e) {
+            // Index might already exist
+        }
+        
+        // Unique constraint: User can only claim each accumulated item once
+        try {
+            $accountDb->exec("CREATE UNIQUE NONCLUSTERED INDEX [IX_LuckyWheelAccumulatedLog_User_Item] ON [dbo].[LuckyWheelAccumulatedLog] ([UserJID], [AccumulatedItemId])");
+        } catch (Exception $e) {
+            // Index might already exist
+        }
+        
+        output("  ✓ LuckyWheelAccumulatedLog table created with indexes", 'success');
+    } else {
+        output("  ✓ LuckyWheelAccumulatedLog table already exists", 'success');
+    }
+    
     // Summary
     output("", 'info');
     output("==========================================", 'success');
@@ -260,6 +360,9 @@ try {
     output("  ✓ LuckyWheelItems (Vật phẩm trong vòng quay)", 'success');
     output("  ✓ LuckyWheelLog (Log quay vòng)", 'success');
     output("  ✓ LuckyWheelRewards (Vật phẩm đã trúng, chờ nhận)", 'success');
+    output("  ✓ TB_User.TotalSpins (Tổng số vòng quay của user)", 'success');
+    output("  ✓ LuckyWheelAccumulatedItems (Vật phẩm tích lũy)", 'success');
+    output("  ✓ LuckyWheelAccumulatedLog (Log nhận phần thưởng tích lũy)", 'success');
     output("", 'info');
     output("✓ No data was deleted", 'success');
     output("✓ Safe migration completed!", 'success');
