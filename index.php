@@ -118,9 +118,7 @@ $rareWins = getRecentRareWins(20);
         /* Lucky Wheel Ticker Styles */
         .lucky-wheel-ticker {
             background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
-            border-top: 2px solid #e8c088;
-            border-bottom: 2px solid #e8c088;
-            padding: 12px 0;
+            border: 6px solid #e8c088;
             overflow: hidden;
             position: relative;
             box-shadow: 0 2px 10px rgba(232, 192, 136, 0.2);
@@ -131,7 +129,6 @@ $rareWins = getRecentRareWins(20);
             align-items: center;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 20px;
         }
         
         .ticker-label {
@@ -144,6 +141,10 @@ $rareWins = getRecentRareWins(20);
             align-items: center;
             gap: 8px;
             flex-shrink: 0;
+            padding: 8px 16px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
         }
         
         .ticker-label i {
@@ -226,11 +227,16 @@ $rareWins = getRecentRareWins(20);
             .ticker-label {
                 margin-right: 0;
                 font-size: 14px;
+                padding: 6px 12px;
             }
             
             .ticker-item {
                 font-size: 13px;
                 padding: 4px 12px;
+            }
+            
+            .ticker-scroll {
+                animation: scroll 240s linear infinite;
             }
         }
     </style>
@@ -319,13 +325,10 @@ $rareWins = getRecentRareWins(20);
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Lucky Wheel Ticker -->
-    <div class="lucky-wheel-ticker" id="luckyWheelTicker">
+        <div class="lucky-wheel-ticker container" id="luckyWheelTicker">
         <div class="ticker-container">
             <div class="ticker-label">
-                <i class="fas fa-trophy"></i> Vật Phẩm Hiếm:
+                <i class="fas fa-trophy"></i> Vòng quay may mắn
             </div>
             <div class="ticker-content" id="tickerContent">
                 <?php if (!empty($rareWins)): ?>
@@ -368,6 +371,9 @@ $rareWins = getRecentRareWins(20);
             </div>
         </div>
     </div>
+    </div>
+
+    <!-- Lucky Wheel Ticker -->
 
     <div class="new-home" id="news">
         <div class="title-frame t-center t-upper d-flex a-center j-center">
@@ -454,6 +460,7 @@ $rareWins = getRecentRareWins(20);
                 </div>
             </section>
         </div>
+
     </div>
 
     <style>
