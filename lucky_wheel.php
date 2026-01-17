@@ -669,6 +669,39 @@ try {
             transform: translateX(5px);
         }
         
+        .won-item.rare {
+            border: 2px solid #ff0000;
+            border-left: 4px solid #ff0000;
+            box-shadow: 
+                0 0 5px rgba(255, 0, 0, 0.5),
+                0 0 10px rgba(255, 0, 0, 0.3),
+                inset 0 0 5px rgba(255, 0, 0, 0.2);
+            animation: rareShimmer 2s ease-in-out infinite;
+        }
+        
+        .won-item.rare:hover {
+            border-color: #ff3333;
+            box-shadow: 
+                0 0 8px rgba(255, 0, 0, 0.7),
+                0 0 15px rgba(255, 0, 0, 0.5),
+                inset 0 0 8px rgba(255, 0, 0, 0.3);
+        }
+        
+        @keyframes rareShimmer {
+            0%, 100% {
+                box-shadow: 
+                    0 0 5px rgba(255, 0, 0, 0.5),
+                    0 0 10px rgba(255, 0, 0, 0.3),
+                    inset 0 0 5px rgba(255, 0, 0, 0.2);
+            }
+            50% {
+                box-shadow: 
+                    0 0 10px rgba(255, 0, 0, 0.8),
+                    0 0 20px rgba(255, 0, 0, 0.6),
+                    inset 0 0 10px rgba(255, 0, 0, 0.4);
+            }
+        }
+        
         .won-item-dot {
             width: 12px;
             height: 12px;
@@ -1888,8 +1921,11 @@ try {
                             const wonDate = new Date(reward.won_date);
                             const timeStr = wonDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
                             
+                            // Check if item is rare
+                            const isRare = reward.is_rare === true || reward.is_rare === 1 || reward.is_rare === '1';
+                            
                             const item = $('<div>')
-                                .addClass('won-item')
+                                .addClass('won-item' + (isRare ? ' rare' : ''))
                                 .html(
                                     '<div class="won-item-dot"></div>' +
                                     '<div class="won-item-name">' + reward.item_name + '</div>' +
