@@ -136,7 +136,6 @@ function deductSilk($userJID, $silkAmount) {
         
         // Log transaction
         error_log("Silk deduction - OrderID: $orderID, UserJID: $userJID, Username: $username, Amount: $silkAmount, Result: $resultString");
-        
         return $resultString;
         
     } catch (Exception $e) {
@@ -288,6 +287,7 @@ function processSpin($userJID, $spinCount = 1) {
             // Trừ silk trong game bằng stored procedure
             // Note: deductSilk will get username from userJID internally
             $silkResult = deductSilk($userJID, -$totalCost); // Negative value to deduct
+            error_log("LuckyWheel processSpin: silkResult = " . var_export($silkResult, true));
             
             if (empty($silkResult)) {
                 throw new Exception("Lỗi khi trừ silk trong game, thử lại sau!");
