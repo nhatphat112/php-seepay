@@ -977,6 +977,66 @@ try {
             box-shadow: 0 6px 20px rgba(255, 200, 0, 0.5);
         }
         
+        /* Rules Section */
+        .rules-section {
+            margin: 30px 0;
+            width: 100%;
+        }
+        
+        .rules-box {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(22, 33, 62, 0.95));
+            border: 2px solid #ffd700;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .rules-title {
+            color: #ffd700;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-align: center;
+            justify-content: center;
+        }
+        
+        .rules-title i {
+            font-size: 26px;
+        }
+        
+        .rules-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .rules-list li {
+            color: #87ceeb;
+            font-size: 15px;
+            line-height: 1.8;
+            margin-bottom: 12px;
+            padding-left: 28px;
+            position: relative;
+        }
+        
+        .rules-list li:before {
+            content: "•";
+            color: #ffd700;
+            font-size: 22px;
+            position: absolute;
+            left: 0;
+            top: -2px;
+        }
+        
+        .rules-list li:last-child {
+            margin-bottom: 0;
+        }
+        
         /* Confetti */
         #confetti {
             position: fixed;
@@ -1047,6 +1107,33 @@ try {
             .silk-balance {
                 font-size: 16px;
                 padding: 10px 18px;
+            }
+            
+            .rules-section {
+                margin: 20px 0;
+            }
+            
+            .rules-box {
+                padding: 18px;
+            }
+            
+            .rules-title {
+                font-size: 18px;
+            }
+            
+            .rules-title i {
+                font-size: 22px;
+            }
+            
+            .rules-list li {
+                font-size: 13px;
+                line-height: 1.6;
+                margin-bottom: 10px;
+                padding-left: 24px;
+            }
+            
+            .rules-list li:before {
+                font-size: 18px;
             }
             
             .wheel-section {
@@ -1226,6 +1313,30 @@ try {
                             <div class="wheel-center">
                                 <img src="assets/images/icon-game.png" alt="Game Icon">
                             </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Rules Section -->
+                    <div class="rules-section">
+                        <div class="rules-box">
+                            <h3 class="rules-title">
+                                <i class="fas fa-info-circle"></i>
+                                Quy tắc chơi
+                            </h3>
+                            <ul class="rules-list">
+                                <li>
+                                    Mũi tên và phần thưởng mang tính chất tượng trưng, Mũi tên có thể chỉ vào ô " vật phẩm hiếm " nhưng phần thưởng bạn nhận được sẽ là phần thưởng có thông báo trong khung thông báo, tránh trường hợp thấy mũi tên chỉ vào đồ SUN mà thông báo là nhận búa sửa chữa sảy ra kiện cáo.
+                                </li>
+                                <li>
+                                    Người chơi khi nhận vật phẩm có thể ở bãi train hoặc ở thành
+                                </li>
+                                <li>
+                                    Khi đạt mốc lượt quay tích luỹ, sẽ nhận được phần thưởng quay tích luỹ
+                                </li>
+                                <li>
+                                    Người chơi quay nhiều sẽ có tên trong BXH người chơi có số lần quay nhiều nhất
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
