@@ -67,52 +67,81 @@ function getLastOrderId() {
 /**
  * Deduct silk using stored procedure CGI.CGI_WebPurchaseSilk
  * 
- * @param string $strUserID User ID (JID as string)
+ * @param int $userJID User JID (integer ID)
  * @param int $silkAmount Amount to deduct (negative value)
  * @return string Result from stored procedure, empty string on error
  */
-function deductSilk($strUserID, $silkAmount) {
+function deductSilk($userJID, $silkAmount) {
     try {
         $db = ConnectionManager::getAccountDB();
+        
+        // Get username from userJID
+        // @UserID in stored procedure is username (varchar), not JID
+        $userStmt = $db->prepare("SELECT StrUserID FROM TB_User WHERE JID = ?");
+        $userStmt->execute([$userJID]);
+        $user = $userStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$user || empty($user['StrUserID'])) {
+            throw new Exception("User not found or username is empty for JID: $userJID");
+        }
+        
+        $username = $user['StrUserID']; // This is the username, not JID
         
         // Get order ID
         $orderID = getLastOrderId();
         
         // Prepare stored procedure call
-        $query = "EXEC CGI.CGI_WebPurchaseSilk @OrderID = ?, @StrUserID = ?, @Param1 = ?, @SilkAmount = ?, @Param2 = ?";
+        // Parameters from system query: @OrderID, @UserID (username), @PkgID, @NumSilk, @Price
+        $query = "EXEC CGI.CGI_WebPurchaseSilk @OrderID = ?, @UserID = ?, @PkgID = ?, @NumSilk = ?, @Price = ?";
         
         $stmt = $db->prepare($query);
         
-        // Parameters: @OrderID, @StrUserID, @Param1, @SilkAmount, @Param2
+        // Parameters based on stored procedure signature
         $stmt->execute([
-            $orderID,           // @OrderID
-            $strUserID,         // @StrUserID
-            1,                  // @Param1
-            $silkAmount,        // @SilkAmount (negative to deduct)
-            1                   // @Param2
+            $orderID,           // @OrderID (varchar, 25)
+            $username,          // @UserID (varchar, 25) - username, not JID
+            0,                  // @PkgID (int) - package ID, set to 0 for lucky wheel
+            $silkAmount,        // @NumSilk (int) - negative to deduct
+            abs($silkAmount)    // @Price (int) - absolute value, positive
         ]);
         
-        // Get result from stored procedure
-        $result = $stmt->fetchColumn(0);
+        // Stored procedure may not return a result set
+        // If execution succeeds without exception, consider it successful
+        $resultString = 'SUCCESS';
         
-        // If no result returned, check if execution was successful
-        if ($result === false) {
-            // Try to get result from next result set if available
-            $stmt->nextRowset();
-            $result = $stmt->fetchColumn(0);
+        // Try to get result if available (some stored procedures return values)
+        try {
+            // Check if there's a result set
+            if ($stmt->columnCount() > 0) {
+                $result = $stmt->fetchColumn(0);
+                if ($result !== false) {
+                    $resultString = (string)$result;
+                }
+            } else {
+                // Try next result set if available
+                if ($stmt->nextRowset()) {
+                    if ($stmt->columnCount() > 0) {
+                        $result = $stmt->fetchColumn(0);
+                        if ($result !== false) {
+                            $resultString = (string)$result;
+                        }
+                    }
+                }
+            }
+        } catch (Exception $fetchError) {
+            // If no result set, that's okay - stored procedure executed successfully
+            // The absence of exception means the procedure completed
+            error_log("Stored procedure executed but no result set returned (this may be normal): " . $fetchError->getMessage());
         }
         
-        // Convert result to string
-        $resultString = $result !== false ? (string)$result : '';
-        
         // Log transaction
-        error_log("Silk deduction - OrderID: $orderID, UserID: $strUserID, Amount: $silkAmount, Result: $resultString");
+        error_log("Silk deduction - OrderID: $orderID, UserJID: $userJID, Username: $username, Amount: $silkAmount, Result: $resultString");
         
         return $resultString;
         
     } catch (Exception $e) {
         error_log("Error deducting silk via stored procedure: " . $e->getMessage());
-        error_log("  - UserID: $strUserID, Amount: $silkAmount");
+        error_log("  - UserJID: $userJID, Amount: $silkAmount");
         return '';
     }
 }
@@ -256,13 +285,9 @@ function processSpin($userJID, $spinCount = 1) {
         $db->beginTransaction();
         
         try {
-            // Flow cũ: Trừ silk trên web
-            $updateSilk = $db->prepare("UPDATE SK_Silk SET silk_own = silk_own - ? WHERE JID = ?");
-            $updateSilk->execute([$totalCost, $userJID]);
-            
-            // Flow bổ sung: Trừ silk trong game bằng stored procedure
-            $strUserID = (string)$userJID; // Convert to string as required by stored procedure
-            $silkResult = deductSilk($strUserID, -$totalCost); // Negative value to deduct
+            // Trừ silk trong game bằng stored procedure
+            // Note: deductSilk will get username from userJID internally
+            $silkResult = deductSilk($userJID, -$totalCost); // Negative value to deduct
             
             if (empty($silkResult)) {
                 throw new Exception("Lỗi khi trừ silk trong game, thử lại sau!");
