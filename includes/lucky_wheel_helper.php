@@ -47,6 +47,77 @@ function getLuckyWheelItems($includeInactive = false) {
 }
 
 /**
+ * Get last order ID for silk transaction
+ * Returns a new order ID based on timestamp
+ */
+function getLastOrderId() {
+    try {
+        // Generate order ID based on timestamp and random number
+        // Format: LW{timestamp}{random} (LW = Lucky Wheel)
+        $timestamp = time();
+        $random = mt_rand(1000, 9999);
+        return 'LW' . $timestamp . $random;
+    } catch (Exception $e) {
+        error_log("Error generating order ID: " . $e->getMessage());
+        // Fallback: use timestamp only
+        return 'LW' . time();
+    }
+}
+
+/**
+ * Deduct silk using stored procedure CGI.CGI_WebPurchaseSilk
+ * 
+ * @param string $strUserID User ID (JID as string)
+ * @param int $silkAmount Amount to deduct (negative value)
+ * @return string Result from stored procedure, empty string on error
+ */
+function deductSilk($strUserID, $silkAmount) {
+    try {
+        $db = ConnectionManager::getAccountDB();
+        
+        // Get order ID
+        $orderID = getLastOrderId();
+        
+        // Prepare stored procedure call
+        $query = "EXEC CGI.CGI_WebPurchaseSilk @OrderID = ?, @StrUserID = ?, @Param1 = ?, @SilkAmount = ?, @Param2 = ?";
+        
+        $stmt = $db->prepare($query);
+        
+        // Parameters: @OrderID, @StrUserID, @Param1, @SilkAmount, @Param2
+        $stmt->execute([
+            $orderID,           // @OrderID
+            $strUserID,         // @StrUserID
+            1,                  // @Param1
+            $silkAmount,        // @SilkAmount (negative to deduct)
+            1                   // @Param2
+        ]);
+        
+        // Get result from stored procedure
+        $result = $stmt->fetchColumn(0);
+        
+        // If no result returned, check if execution was successful
+        if ($result === false) {
+            // Try to get result from next result set if available
+            $stmt->nextRowset();
+            $result = $stmt->fetchColumn(0);
+        }
+        
+        // Convert result to string
+        $resultString = $result !== false ? (string)$result : '';
+        
+        // Log transaction
+        error_log("Silk deduction - OrderID: $orderID, UserID: $strUserID, Amount: $silkAmount, Result: $resultString");
+        
+        return $resultString;
+        
+    } catch (Exception $e) {
+        error_log("Error deducting silk via stored procedure: " . $e->getMessage());
+        error_log("  - UserID: $strUserID, Amount: $silkAmount");
+        return '';
+    }
+}
+
+/**
  * Get wheel configuration
  */
 function getLuckyWheelConfig() {
@@ -185,9 +256,17 @@ function processSpin($userJID, $spinCount = 1) {
         $db->beginTransaction();
         
         try {
-            // Deduct silk
+            // Flow cũ: Trừ silk trên web
             $updateSilk = $db->prepare("UPDATE SK_Silk SET silk_own = silk_own - ? WHERE JID = ?");
             $updateSilk->execute([$totalCost, $userJID]);
+            
+            // Flow bổ sung: Trừ silk trong game bằng stored procedure
+            $strUserID = (string)$userJID; // Convert to string as required by stored procedure
+            $silkResult = deductSilk($strUserID, -$totalCost); // Negative value to deduct
+            
+            if (empty($silkResult)) {
+                throw new Exception("Lỗi khi trừ silk trong game, thử lại sau!");
+            }
             
             // Update total spins (accumulate)
             $updateSpins = $db->prepare("
