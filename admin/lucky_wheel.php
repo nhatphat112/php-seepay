@@ -247,6 +247,9 @@ require_once __DIR__ . '/auth_check.php';
                 <button class="tab" onclick="switchTab('accumulated-items')">
                     <i class="fas fa-gift"></i> Vật Phẩm Mốc Quay
                 </button>
+                <button class="tab" onclick="switchTab('test-items')">
+                    <i class="fas fa-flask"></i> Test Vật Phẩm
+                </button>
                 <button class="tab" onclick="switchTab('guide')">
                     <i class="fas fa-book"></i> Hướng Dẫn
                 </button>
@@ -328,6 +331,88 @@ require_once __DIR__ . '/auth_check.php';
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab: Test Vật Phẩm -->
+            <div id="testItemsTab" class="tab-content">
+                <div class="form-container">
+                    <h3 style="color: #e8c088; margin-bottom: 20px;">
+                        <i class="fas fa-flask"></i> Test Vật Phẩm Vòng Quay
+                    </h3>
+                    
+                    <div class="config-section" style="margin-bottom: 20px;">
+                        <h4 style="color: #e8c088; margin-bottom: 15px;">
+                            <i class="fas fa-info-circle"></i> Mô Phỏng Quay Vòng
+                        </h4>
+                        <p style="color: #87ceeb; line-height: 1.8; margin-bottom: 15px;">
+                            Nhập số lượng vòng quay để mô phỏng và xem thống kê kết quả. 
+                            Hệ thống sẽ mô phỏng quay nhiều lần và hiển thị tỉ lệ thực tế so với tỉ lệ cấu hình.
+                        </p>
+                        
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 200px;">
+                                <label for="testSpinCount" style="color: #e8c088; font-weight: 600; display: block; margin-bottom: 8px;">
+                                    Số lượng vòng quay
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="testSpinCount" 
+                                    min="1" 
+                                    max="10000" 
+                                    value="1000" 
+                                    class="form-control"
+                                    style="width: 100%;"
+                                    placeholder="Nhập số lần quay (1-10000)"
+                                >
+                                <small style="color: #87ceeb; display: block; margin-top: 5px;">
+                                    Số lần quay để mô phỏng (khuyến nghị: 1000-10000 để có kết quả chính xác)
+                                </small>
+                            </div>
+                            <div style="margin-top: 25px;">
+                                <button class="btn btn-primary" onclick="runTestSpin()" id="testSpinBtn">
+                                    <i class="fas fa-play"></i> Chạy Test
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Loading -->
+                    <div id="loadingTest" class="loading" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i> Đang mô phỏng quay...
+                    </div>
+                    
+                    <!-- Test Results -->
+                    <div id="testResults" style="display: none;">
+                        <div class="config-section" style="margin-bottom: 20px;">
+                            <h4 style="color: #e8c088; margin-bottom: 15px;">
+                                <i class="fas fa-chart-bar"></i> Thống Kê Kết Quả
+                            </h4>
+                            <div id="testSummary" style="color: #87ceeb; line-height: 1.8;"></div>
+                        </div>
+                        
+                        <!-- Statistics Table -->
+                        <div class="table-container">
+                            <table id="testStatisticsTable">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Tên vật phẩm</th>
+                                        <th>Mã vật phẩm</th>
+                                        <th>Số lượng</th>
+                                        <th>Vật phẩm hiếm</th>
+                                        <th>Tỉ lệ cấu hình (%)</th>
+                                        <th>Số lần quay ra</th>
+                                        <th>Tỉ lệ thực tế (%)</th>
+                                        <th>Số lần dự kiến</th>
+                                        <th>Chênh lệch</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="testStatisticsTableBody">
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -650,8 +735,12 @@ require_once __DIR__ . '/auth_check.php';
                 $('.tab').eq(2).addClass('active');
                 $('#accumulatedItemsTab').addClass('active');
                 loadAccumulatedItems();
-            } else if (tabName === 'guide') {
+            } else if (tabName === 'test-items') {
                 $('.tab').eq(3).addClass('active');
+                $('#testItemsTab').addClass('active');
+                // Test tab doesn't need to load data on switch
+            } else if (tabName === 'guide') {
+                $('.tab').eq(4).addClass('active');
                 $('#guideTab').addClass('active');
                 // Guide tab doesn't need to load data
             }
@@ -1133,6 +1222,106 @@ require_once __DIR__ . '/auth_check.php';
             if (event.target.classList.contains('modal')) {
                 event.target.style.display = 'none';
             }
+        }
+        
+        // ========== Test Spin Functions ==========
+        
+        // Run test spin
+        function runTestSpin() {
+            const spinCount = parseInt($('#testSpinCount').val());
+            
+            if (!spinCount || spinCount <= 0 || spinCount > 10000) {
+                showAlert('error', 'Số lần quay phải từ 1 đến 10000');
+                return;
+            }
+            
+            $('#loadingTest').show();
+            $('#testResults').hide();
+            $('#testSpinBtn').prop('disabled', true);
+            
+            $.ajax({
+                url: '/api/cms/lucky_wheel/test_spin.php',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ spin_count: spinCount }),
+                success: function(response) {
+                    $('#loadingTest').hide();
+                    $('#testSpinBtn').prop('disabled', false);
+                    
+                    if (response.success) {
+                        displayTestResults(response.data);
+                    } else {
+                        showAlert('error', response.error || 'Có lỗi xảy ra');
+                    }
+                },
+                error: function(xhr) {
+                    $('#loadingTest').hide();
+                    $('#testSpinBtn').prop('disabled', false);
+                    const response = xhr.responseJSON;
+                    showAlert('error', response?.error || 'Lỗi kết nối');
+                }
+            });
+        }
+        
+        // Display test results
+        function displayTestResults(data) {
+            const tbody = $('#testStatisticsTableBody');
+            tbody.empty();
+            
+            // Display summary
+            const summary = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div>
+                        <strong style="color: #e8c088;">Tổng số lần quay:</strong>
+                        <span style="color: #87ceeb; margin-left: 10px;">${data.spin_count.toLocaleString()}</span>
+                    </div>
+                    <div>
+                        <strong style="color: #e8c088;">Tổng tỉ lệ:</strong>
+                        <span style="color: #87ceeb; margin-left: 10px;">${parseFloat(data.total_rate).toFixed(2)}%</span>
+                    </div>
+                    <div>
+                        <strong style="color: #e8c088;">Số vật phẩm:</strong>
+                        <span style="color: #87ceeb; margin-left: 10px;">${data.items_count}</span>
+                    </div>
+                </div>
+            `;
+            $('#testSummary').html(summary);
+            
+            // Display statistics table
+            if (data.statistics && data.statistics.length > 0) {
+                data.statistics.forEach(function(stat, index) {
+                    const difference = stat.actual_count - stat.expected_count;
+                    const differencePercent = stat.actual_percentage - stat.win_rate;
+                    const diffClass = Math.abs(differencePercent) < 1 ? 'success' : (differencePercent > 0 ? 'warning' : 'error');
+                    const rareClass = stat.is_rare ? 'rare-yes' : 'rare-no';
+                    const rareText = stat.is_rare ? 'Có' : 'Không';
+                    
+                    const row = `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${escapeHtml(stat.item_name)}</td>
+                            <td><code style="color: #87ceeb;">${escapeHtml(stat.item_code)}</code></td>
+                            <td>${stat.quantity}</td>
+                            <td><span class="rare-badge ${rareClass}">${rareText}</span></td>
+                            <td><span class="win-rate-badge">${parseFloat(stat.win_rate).toFixed(2)}%</span></td>
+                            <td><strong style="color: #87ceeb;">${stat.actual_count.toLocaleString()}</strong></td>
+                            <td><span class="win-rate-badge">${parseFloat(stat.actual_percentage).toFixed(2)}%</span></td>
+                            <td>${parseFloat(stat.expected_count).toFixed(2)}</td>
+                            <td>
+                                <span class="alert alert-${diffClass}" style="padding: 4px 8px; display: inline-block; margin: 0; font-size: 0.9rem;">
+                                    ${difference >= 0 ? '+' : ''}${difference.toFixed(2)} 
+                                    (${differencePercent >= 0 ? '+' : ''}${differencePercent.toFixed(2)}%)
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.append(row);
+                });
+            } else {
+                tbody.html('<tr><td colspan="10" style="text-align: center; padding: 20px; color: #87ceeb;">Không có dữ liệu</td></tr>');
+            }
+            
+            $('#testResults').show();
         }
     </script>
 </body>
