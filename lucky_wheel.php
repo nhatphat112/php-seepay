@@ -152,7 +152,7 @@ try {
             flex: 1;
             margin-left: 260px;
             width: calc(100% - 260px);
-            background-image: url('lucky-spin-background.jpg');
+            background-color: #091326;
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -170,7 +170,7 @@ try {
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
+            background-color: #091326;
             z-index: 0;
         }
         

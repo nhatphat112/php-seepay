@@ -19,7 +19,7 @@ require_once __DIR__ . '/auth_check.php';
             padding: 30px;
             border-radius: 10px;
             border: 1px solid #0f1624;
-            max-width: 900px;
+            max-width: 100%;
         }
         
         .form-group {
