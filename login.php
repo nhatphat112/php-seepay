@@ -40,6 +40,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['role'] = $user['role'] ?? 'user';
                 $_SESSION['login_time'] = time();
                 
+                // Check and update season (auto transition if needed)
+                try {
+                    require_once 'includes/lucky_wheel_helper.php';
+                    checkAndUpdateSeason();
+                } catch (Exception $e) {
+                    // Log error but don't affect login
+                    error_log("Error checking season on login: " . $e->getMessage());
+                }
+                
                 // Log login
                 try {
                     $logDb = ConnectionManager::getLogDB();

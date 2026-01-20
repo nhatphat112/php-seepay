@@ -115,6 +115,183 @@ $rareWins = getRecentRareWins(20);
             }
         }
         
+        /* Combined Leaderboard and Slider Container */
+        .leaderboard-slider-container {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            position: relative;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            margin-top:80px;
+        }
+        
+        .leaderboard-section-left {
+            flex: 0 0 40%;
+            min-width: 0;
+            max-width: 40%;
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        
+        .slide-section-right {
+            flex: 1 1 60%;
+            min-width: 0;
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        
+        .slide-section-right .slide-new-info-new-home {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .slide-section-right .slide-hotevent {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .slide-section-right .slide-new-home {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .home-leaderboard-box {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #e8c088;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(232, 192, 136, 0.3);
+            min-height: 200px;
+        }
+        
+        .home-leaderboard-title {
+            color: #e8c088;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 0 15px 0;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .home-leaderboard-title i {
+            color: #ffd700;
+        }
+        
+        .home-leaderboard-list {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .home-leaderboard-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background: rgba(30, 35, 60, 0.6);
+            border-radius: 8px;
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .home-leaderboard-item:hover {
+            background: rgba(30, 35, 60, 0.8);
+            transform: translateX(5px);
+        }
+        
+        .home-leaderboard-item.rank-1 {
+            border-left-color: #ffd700;
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), rgba(30, 35, 60, 0.6));
+        }
+        
+        .home-leaderboard-item.rank-2 {
+            border-left-color: #c0c0c0;
+            background: linear-gradient(90deg, rgba(192, 192, 192, 0.2), rgba(30, 35, 60, 0.6));
+        }
+        
+        .home-leaderboard-item.rank-3 {
+            border-left-color: #cd7f32;
+            background: linear-gradient(90deg, rgba(205, 127, 50, 0.2), rgba(30, 35, 60, 0.6));
+        }
+        
+        .home-leaderboard-rank {
+            font-size: 14px;
+            font-weight: bold;
+            color: #e8c088;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .home-leaderboard-username {
+            flex: 1;
+            color: #87ceeb;
+            font-weight: 500;
+            margin-left: 10px;
+            font-size: 13px;
+        }
+        
+        .home-leaderboard-spins {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 14px;
+            min-width: 70px;
+            text-align: right;
+        }
+        
+        .home-leaderboard-season {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(232, 192, 136, 0.3);
+            color: #87ceeb;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        
+        @media (max-width: 992px) {
+            .leaderboard-slider-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .leaderboard-section-left,
+            .slide-section-right {
+                flex: 1 1 100%;
+                width: 100%;
+                min-width: 100%;
+                max-width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .home-leaderboard-box {
+                padding: 15px;
+            }
+            
+            .home-leaderboard-title {
+                font-size: 16px;
+            }
+            
+            .home-leaderboard-item {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .home-leaderboard-username {
+                font-size: 12px;
+            }
+            
+            .home-leaderboard-spins {
+                font-size: 12px;
+            }
+        }
+        
         /* Lucky Wheel Ticker Styles */
         .lucky-wheel-ticker {
             background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
@@ -307,24 +484,45 @@ $rareWins = getRecentRareWins(20);
         </nav>
     </div>
 
-    <div class="new-home" id="job">
+    <div class="new-home container">
         <!-- <div class="title-frame t-center t-upper d-flex a-center j-center">
             <img src="assets/images/title/img-title3860.png" alt="">
             <div class="name-title vi">Hệ Thống Việc Làm</div>
             <img src="assets/images/title/img-title3860.png" style="transform: scaleX(-1);">
         </div> -->
 
-        <div class="slide-new-info-new-home m-auto" style="zoom: 2.0;">
-            <div class="slide-hotevent p-relative">
-                <div class="slide-new-home slick-custom-dots">
-                    <?php foreach ($sliders as $slider): ?>
-                    <a href="<?php echo htmlspecialchars($slider['LinkURL'] ?: '#'); ?>" class="item-slide-nh">
-                        <img src="<?php echo htmlspecialchars($slider['ImagePath']); ?>" alt="Slider">
-                    </a>
-                    <?php endforeach; ?>
+        <!-- Combined Section: BẢNG XẾP HẠNG (Trái) và SLIDER (Phải) -->
+        <div class="leaderboard-slider-container m-auto">
+            <!-- Bảng Xếp Hạng - Bên Trái -->
+            <div class="leaderboard-section-left">
+                <div class="home-leaderboard-box">
+                    <h3 class="home-leaderboard-title">
+                        <i class="fas fa-trophy"></i> Bảng Xếp Hạng Vòng Quay
+                    </h3>
+                    <div id="homeLeaderboardContent">
+                        <div style="text-align: center; padding: 20px; color: #87ceeb;">
+                            <i class="fas fa-spinner fa-spin"></i> Đang tải...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slider - Bên Phải -->
+            <div class="slide-section-right">
+                <div class="">
+                    <div class="slide-hotevent p-relative">
+                        <div class="slide-new-home slick-custom-dots">
+                            <?php foreach ($sliders as $slider): ?>
+                            <a href="<?php echo htmlspecialchars($slider['LinkURL'] ?: '#'); ?>" class="item-slide-nh">
+                                <img src="<?php echo htmlspecialchars($slider['ImagePath']); ?>" alt="Slider">
+                            </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+        
         <div class="lucky-wheel-ticker container" id="luckyWheelTicker">
         <div class="ticker-container">
             <div class="ticker-label">
@@ -339,7 +537,8 @@ $rareWins = getRecentRareWins(20);
                         foreach ($duplicatedWins as $win): 
                             // Format time ago
                             $wonDate = new DateTime($win['WonDate']);
-                            $now = new DateTime();
+                            // Use date-only "today" to avoid hour/minute affecting the diff output.
+                            $now = new DateTime('today');
                             $diff = $now->diff($wonDate);
                             
                             $timeAgo = '';
@@ -1526,7 +1725,80 @@ $rareWins = getRecentRareWins(20);
                     $('.navbar-content').removeClass('active');
                 }
             });
+            
+            // Load leaderboard automatically on page load
+            loadHomeLeaderboard();
+            
+            // Auto-refresh leaderboard every 60 seconds
+            setInterval(function() {
+                loadHomeLeaderboard();
+            }, 60000);
         });
+        
+        // Load home leaderboard automatically on page load
+        function loadHomeLeaderboard() {
+            $.ajax({
+                url: '/api/lucky_wheel/get_leaderboard.php',
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        displayHomeLeaderboard(response.data);
+                    } else {
+                        $('#homeLeaderboardContent').html('<div style="text-align: center; color: #87ceeb; padding: 20px;">Không có dữ liệu</div>');
+                    }
+                },
+                error: function() {
+                    $('#homeLeaderboardContent').html('<div style="text-align: center; color: #87ceeb; padding: 20px;">Lỗi tải dữ liệu</div>');
+                }
+            });
+        }
+        
+        // Display home leaderboard
+        function displayHomeLeaderboard(data) {
+            const leaderboard = data.leaderboard || [];
+            const season = data.season;
+            
+            if (leaderboard.length === 0) {
+                $('#homeLeaderboardContent').html('<div style="text-align: center; color: #87ceeb; padding: 20px;">Chưa có dữ liệu</div>');
+                return;
+            }
+            
+            let html = '<div class="home-leaderboard-list">';
+            
+            leaderboard.forEach(function(player, index) {
+                const rankClass = 'rank-' + player.rank;
+                html += `
+                    <div class="home-leaderboard-item ${rankClass}">
+                        <span class="home-leaderboard-rank">${index + 1}</span>
+                        <span class="home-leaderboard-username">${escapeHtml(player.username)}</span>
+                        <span class="home-leaderboard-spins">${player.total_spins.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            if (season) {
+                html += `<div class="home-leaderboard-season">Mùa: ${escapeHtml(season.name)}</div>`;
+            }
+            
+            $('#homeLeaderboardContent').html(html);
+        }
+        
+        // Escape HTML helper (if not already defined)
+        if (typeof escapeHtml === 'undefined') {
+            function escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+            }
+        }
     </script>
 </body>
 </html>

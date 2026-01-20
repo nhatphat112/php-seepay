@@ -241,6 +241,9 @@ require_once __DIR__ . '/auth_check.php';
                 <button class="tab active" onclick="switchTab('config')">
                     <i class="fas fa-cog"></i> Cấu Hình
                 </button>
+                <button class="tab" onclick="switchTab('seasons')">
+                    <i class="fas fa-calendar-alt"></i> Quản Lý Mùa
+                </button>
                 <button class="tab" onclick="switchTab('wheel-items')">
                     <i class="fas fa-list"></i> Vật Phẩm Vòng Quay
                 </button>
@@ -418,6 +421,49 @@ require_once __DIR__ . '/auth_check.php';
             </div>
             
             <!-- Tab: Hướng Dẫn -->
+            <!-- Tab: Quản Lý Mùa -->
+            <div id="seasonsTab" class="tab-content">
+                <div class="config-section">
+                    <h3 style="color: #e8c088; margin-bottom: 20px;">
+                        <i class="fas fa-calendar-alt"></i> Quản Lý Mùa Giải
+                    </h3>
+                    
+                    <!-- Danh Sách Mùa (table + modal giống UI vật phẩm) -->
+                    <div class="card" style="background: rgba(30, 35, 60, 0.8); border: 1px solid #444; border-radius: 8px; padding: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h4 style="color: #87ceeb; margin: 0;">
+                                <i class="fas fa-list"></i> Danh Sách Mùa
+                            </h4>
+                            <button class="btn btn-primary" onclick="openSeasonModal()">
+                                <i class="fas fa-plus"></i> Tạo Mùa
+                            </button>
+                        </div>
+                        <div class="table-container">
+                            <table id="seasonsTable">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Tên mùa</th>
+                                        <th>Thời gian</th>
+                                        <th>Trạng thái</th>
+                                        <th>Tổng lượt quay</th>
+                                        <th>Tổng người</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="seasonsTableBody">
+                                    <tr>
+                                        <td colspan="7" style="text-align: center; padding: 20px; color: #87ceeb;">
+                                            <i class="fas fa-spinner fa-spin"></i> Đang tải...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div id="guideTab" class="tab-content">
                 <div class="form-container">
                     <h3 style="color: #e8c088; margin-bottom: 20px;">
@@ -614,6 +660,57 @@ require_once __DIR__ . '/auth_check.php';
         </main>
     </div>
     
+    <!-- Modal: Season create/edit -->
+    <div id="seasonModal" class="modal">
+        <div class="modal-content" style="max-width: 640px;">
+            <div class="modal-header">
+                <h3 id="seasonModalTitle"><i class="fas fa-plus-circle"></i> Tạo Mùa</h3>
+                <span class="close" onclick="closeModal('seasonModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="createSeasonForm">
+                    <div class="form-group">
+                        <label style="color: #e8c088;">Tên Mùa *</label>
+                        <input type="text" id="seasonName" name="season_name" required 
+                               style="width: 100%; padding: 8px; background: rgba(20, 25, 40, 0.8); border: 1px solid #555; border-radius: 4px; color: #fff;"
+                               placeholder="Ví dụ: Mùa 1">
+                    </div>
+                    <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="color: #e8c088;">Ngày Bắt Đầu *</label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <input type="datetime-local" id="startDate" name="start_date" required
+                                       style="width: 100%; padding: 8px; background: rgba(20, 25, 40, 0.8); border: 1px solid #555; border-radius: 4px; color: #fff;">
+                                <button type="button" class="btn btn-secondary" style="padding: 8px 10px;" onclick="openDatePicker('startDate')">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="color: #e8c088;">Ngày Kết Thúc</label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <input type="datetime-local" id="endDate" name="end_date"
+                                       style="width: 100%; padding: 8px; background: rgba(20, 25, 40, 0.8); border: 1px solid #555; border-radius: 4px; color: #fff;">
+                                <button type="button" class="btn btn-secondary" style="padding: 8px 10px;" onclick="openDatePicker('endDate')">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </button>
+                            </div>
+                            <small style="color: #87ceeb; font-size: 0.85rem;">(Để trống để tự động tính)</small>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button type="submit" class="btn btn-primary" style="padding: 10px 16px;">
+                            <i class="fas fa-save"></i> Lưu
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('seasonModal')" style="padding: 10px 16px;">
+                            Đóng
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
     <!-- Modal: Add/Edit Accumulated Item -->
     <div id="accumulatedItemModal" class="modal">
         <div class="modal-content">
@@ -719,6 +816,10 @@ require_once __DIR__ . '/auth_check.php';
     <script>
         // Switch tabs
         function switchTab(tabName) {
+            // Load seasons when switching to seasons tab
+            if (tabName === 'seasons') {
+                loadSeasons();
+            }
             // Remove active class from all tabs and contents
             $('.tab').removeClass('active');
             $('.tab-content').removeClass('active');
@@ -739,8 +840,12 @@ require_once __DIR__ . '/auth_check.php';
                 $('.tab').eq(3).addClass('active');
                 $('#testItemsTab').addClass('active');
                 // Test tab doesn't need to load data on switch
-            } else if (tabName === 'guide') {
+            } else if (tabName === 'seasons') {
                 $('.tab').eq(4).addClass('active');
+                $('#seasonsTab').addClass('active');
+                loadSeasons();
+            } else if (tabName === 'guide') {
+                $('.tab').eq(5).addClass('active');
                 $('#guideTab').addClass('active');
                 // Guide tab doesn't need to load data
             }
@@ -1323,6 +1428,260 @@ require_once __DIR__ . '/auth_check.php';
             
             $('#testResults').show();
         }
+        
+        // ==========================================
+        // Season Management Functions
+        // ==========================================
+        
+        // Load seasons list
+        function loadSeasons() {
+            $('#seasonsTableBody').html('<tr><td colspan="7" style="text-align: center; padding: 20px; color: #87ceeb;"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>');
+            
+            $.ajax({
+                url: '/api/cms/lucky_wheel/get_seasons.php',
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        displaySeasons(response.data);
+                    } else {
+                        $('#seasonsTableBody').html('<tr><td colspan="7" style="text-align: center; padding: 20px; color: #ff6b6b;">Lỗi: ' + (response.error || 'Không thể tải danh sách mùa') + '</td></tr>');
+                    }
+                },
+                error: function() {
+                    $('#seasonsTableBody').html('<tr><td colspan="7" style="text-align: center; padding: 20px; color: #ff6b6b;">Lỗi kết nối</td></tr>');
+                }
+            });
+        }
+        
+        // Display seasons list
+        function displaySeasons(seasons) {
+            const featureEnabled = $('#featureToggle').is(':checked');
+            if (!seasons || seasons.length === 0) {
+                $('#seasonsTableBody').html('<tr><td colspan="7" style="text-align: center; padding: 20px; color: #87ceeb;">Chưa có mùa nào</td></tr>');
+                return;
+            }
+            
+            const tbody = $('#seasonsTableBody');
+            tbody.empty();
+            
+            seasons.forEach(function(season, idx) {
+                const statusClass = season.Status === 'ACTIVE' ? 'success' : 
+                                   season.Status === 'PENDING' ? 'warning' : 'secondary';
+                const statusText = season.Status === 'ACTIVE' ? 'Đang Active' : 
+                                  season.Status === 'PENDING' ? 'Sắp Bắt Đầu' : 'Đã Kết Thúc';
+                const statusIcon = season.Status === 'ACTIVE' ? 'fa-check-circle' : 
+                                  season.Status === 'PENDING' ? 'fa-clock' : 'fa-check';
+                
+                const startDate = new Date(season.StartDate).toLocaleString('vi-VN');
+                const endDate = season.EndDate ? new Date(season.EndDate).toLocaleString('vi-VN') : 'Chưa xác định';
+                
+                const actions = [];
+                // Only allow editing when feature is disabled to avoid runtime conflicts
+                if (!featureEnabled) {
+                    actions.push(`<button class="btn btn-sm" onclick="editSeason(${season.Id})" style="padding: 5px 10px; font-size: 0.85rem;"><i class="fas fa-edit"></i> Sửa</button>`);
+                }
+                actions.push(`<button class="btn btn-sm btn-primary" onclick="viewSeasonDetail(${season.Id})" style="padding: 5px 10px; font-size: 0.85rem;"><i class="fas fa-eye"></i> Chi Tiết</button>`);
+                
+                const row = `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td>${escapeHtml(season.SeasonName)}</td>
+                        <td>
+                            <div>${startDate}</div>
+                            <div>${endDate}</div>
+                        </td>
+                        <td>
+                            <span class="alert alert-${statusClass}" style="padding: 4px 8px; font-size: 0.85rem;">
+                                <i class="fas ${statusIcon}"></i> ${statusText}
+                            </span>
+                        </td>
+                        <td>${(season.total_spins || 0).toLocaleString('vi-VN')}</td>
+                        <td>${season.total_participants || 0}</td>
+                        <td style="display:flex; gap:8px; flex-wrap: wrap;">${actions.join('')}</td>
+                    </tr>
+                `;
+                
+                tbody.append(row);
+            });
+        }
+        
+        // Open native datetime picker (Chrome supports showPicker; fallback to focus)
+        function openDatePicker(inputId) {
+            const el = document.getElementById(inputId);
+            if (!el) return;
+            if (typeof el.showPicker === 'function') {
+                el.showPicker();
+            } else {
+                el.focus();
+                el.click();
+            }
+        }
+        
+        // Open season modal for create
+        function openSeasonModal() {
+            $('#createSeasonForm')[0].reset();
+            $('#createSeasonForm').removeData('edit-id');
+            $('#seasonModalTitle').html('<i class="fas fa-plus-circle"></i> Tạo Mùa');
+            $('#createSeasonForm button[type="submit"]').html('<i class="fas fa-save"></i> Lưu');
+            $('#seasonModal').show();
+        }
+        
+        // Create/Update season form submit (modal)
+        $(document).on('submit', '#createSeasonForm', function(e) {
+            e.preventDefault();
+            
+            const editId = $(this).data('edit-id');
+            
+            const formData = {
+                season_name: $('#seasonName').val().trim(),
+                // Season type is fixed to DAY (UI removed).
+                season_type: 'DAY',
+                start_date: $('#startDate').val(),
+                end_date: $('#endDate').val() || null
+            };
+            
+            if (!formData.season_name || !formData.start_date) {
+                showAlert('error', 'Vui lòng điền đầy đủ thông tin');
+                return;
+            }
+            
+            // If editing, add ID and use update endpoint
+            if (editId) {
+                formData.id = editId;
+                var url = '/api/cms/lucky_wheel/update_season.php';
+            } else {
+                var url = '/api/cms/lucky_wheel/create_season.php';
+            }
+            
+            $.ajax({
+                url: url,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    if (response.success) {
+                        showAlert('success', response.message);
+                        $('#createSeasonForm')[0].reset();
+                        $('#createSeasonForm').removeData('edit-id');
+                        $('#seasonModalTitle').html('<i class="fas fa-plus-circle"></i> Tạo Mùa');
+                        $('#createSeasonForm button[type="submit"]').html('<i class="fas fa-save"></i> Lưu');
+                        closeModal('seasonModal');
+                        loadSeasons();
+                    } else {
+                        showAlert('error', response.error);
+                    }
+                },
+                error: function(xhr) {
+                    const response = xhr.responseJSON;
+                    showAlert('error', response?.error || 'Lỗi kết nối');
+                }
+            });
+        });
+        
+        // Edit season
+        function editSeason(seasonId) {
+            $.ajax({
+                url: '/api/cms/lucky_wheel/get_season_detail.php?season_id=' + seasonId,
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        const season = response.data.season;
+                        $('#seasonName').val(season.SeasonName);
+                        $('#startDate').val(season.StartDate.substring(0, 16));
+                        $('#endDate').val(season.EndDate ? season.EndDate.substring(0, 16) : '');
+                        
+                        // Store season ID for update
+                        $('#createSeasonForm').data('edit-id', seasonId);
+                        $('#seasonModalTitle').html('<i class="fas fa-edit"></i> Chỉnh Sửa Mùa');
+                        $('#createSeasonForm button[type="submit"]').html('<i class="fas fa-save"></i> Cập Nhật');
+                        $('#seasonModal').show();
+                    } else {
+                        showAlert('error', response.error);
+                    }
+                }
+            });
+        }
+        
+        // View season detail
+        function viewSeasonDetail(seasonId) {
+            $.ajax({
+                url: '/api/cms/lucky_wheel/get_season_detail.php?season_id=' + seasonId,
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        const data = response.data;
+                        const season = data.season;
+                        const leaderboard = data.leaderboard;
+                        const stats = data.stats;
+                        
+                        let html = `
+                            <div style="background: rgba(20, 25, 40, 0.9); border: 2px solid #e8c088; border-radius: 8px; padding: 20px; max-width: 800px; margin: 20px auto;">
+                                <h4 style="color: #e8c088; margin-bottom: 15px;">
+                                    <i class="fas fa-info-circle"></i> Chi Tiết Mùa: ${escapeHtml(season.SeasonName)}
+                                </h4>
+                                <div style="color: #87ceeb; margin-bottom: 20px;">
+                                    <div><strong>Bắt đầu:</strong> ${new Date(season.StartDate).toLocaleString('vi-VN')}</div>
+                                    <div><strong>Kết thúc:</strong> ${season.EndDate ? new Date(season.EndDate).toLocaleString('vi-VN') : 'Chưa xác định'}</div>
+                                    <div><strong>Trạng thái:</strong> ${season.Status === 'ACTIVE' ? 'Đang Active' : season.Status === 'PENDING' ? 'Sắp Bắt Đầu' : 'Đã Kết Thúc'}</div>
+                                    <div><strong>Tổng người tham gia:</strong> ${stats.total_participants}</div>
+                                    <div><strong>Tổng lượt quay:</strong> ${stats.total_spins}</div>
+                                </div>
+                                <h5 style="color: #e8c088; margin: 20px 0 10px 0;">Top 5 Người Chơi:</h5>
+                                <div style="display: grid; gap: 10px;">
+                        `;
+                        
+                        if (leaderboard && leaderboard.length > 0) {
+                            leaderboard.forEach(function(player, index) {
+                                html += `
+                                    <div style="background: rgba(30, 35, 60, 0.8); padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                                        <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
+                                            <span style="color: #e8c088; font-weight: bold; min-width: 30px;">${index + 1}</span>
+                                            <span style="color: #87ceeb;">${escapeHtml(player.Username)}</span>
+                                        </div>
+                                        <div style="color: #ffd700; font-weight: bold; min-width: 80px; text-align: right;">${player.TotalSpins.toLocaleString()}</div>
+                                    </div>
+                                `;
+                            });
+                        } else {
+                            html += '<div style="text-align: center; color: #87ceeb; padding: 20px;">Chưa có dữ liệu</div>';
+                        }
+                        
+                        html += `
+                                </div>
+                                <div style="text-align: center; margin-top: 20px;">
+                                    <button class="btn btn-secondary" onclick="closeSeasonDetail()" style="padding: 8px 20px;">
+                                        <i class="fas fa-times"></i> Đóng
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Create modal if not exists
+                        if ($('#seasonDetailModal').length === 0) {
+                            $('body').append('<div id="seasonDetailModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; overflow-y: auto; padding: 20px;"></div>');
+                        }
+                        
+                        $('#seasonDetailModal').html(html).show();
+                    } else {
+                        showAlert('error', response.error);
+                    }
+                }
+            });
+        }
+        
+        function closeSeasonDetail() {
+            $('#seasonDetailModal').hide();
+        }
+        
+        // Close modal on outside click
+        $(document).on('click', '#seasonDetailModal', function(e) {
+            if (e.target.id === 'seasonDetailModal') {
+                closeSeasonDetail();
+            }
+        });
     </script>
 </body>
 </html>

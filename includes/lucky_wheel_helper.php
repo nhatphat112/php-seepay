@@ -280,6 +280,10 @@ function processSpin($userJID, $spinCount = 1) {
             throw new Exception("Not enough silk. Required: $totalCost, Available: " . ($silk['silk_own'] ?? 0));
         }
         
+        // Check and update season before processing spin
+        // This ensures user always spins in the correct active season
+        $currentSeason = checkAndUpdateSeason();
+        
         // Start transaction
         $db->beginTransaction();
         
@@ -301,6 +305,11 @@ function processSpin($userJID, $spinCount = 1) {
             ");
             $updateSpins->execute([$spinCount, $userJID]);
             
+            // Update season log for leaderboard
+            if ($currentSeason) {
+                updateSeasonLog($userJID, $spinCount, $currentSeason['Id']);
+            }
+            
             $results = [];
             
             // Process each spin
@@ -319,19 +328,32 @@ function processSpin($userJID, $spinCount = 1) {
                     }
                 }
                 
+                // Get current season ID for logging
+                $seasonIdForLog = $currentSeason ? $currentSeason['Id'] : null;
+                
+                // Check if SeasonId column exists before inserting
                 $logStmt = $db->prepare("
                     INSERT INTO LuckyWheelLog 
-                    (UserJID, ItemId, ItemName, ItemCode, Quantity, IsRare, SpinDate)
-                    VALUES (?, ?, ?, ?, ?, ?, GETDATE())
+                    (UserJID, ItemId, ItemName, ItemCode, Quantity, IsRare, SpinDate" . 
+                    ($seasonIdForLog !== null ? ", SeasonId" : "") . ")
+                    VALUES (?, ?, ?, ?, ?, ?, GETDATE()" . 
+                    ($seasonIdForLog !== null ? ", ?" : "") . ")
                 ");
-                $logStmt->execute([
+                
+                $logParams = [
                     $userJID,
                     $wonItem['Id'],
                     $wonItem['ItemName'],
                     $wonItem['ItemCode'],
                     $wonItem['Quantity'],
                     $isRare
-                ]);
+                ];
+                
+                if ($seasonIdForLog !== null) {
+                    $logParams[] = $seasonIdForLog;
+                }
+                
+                $logStmt->execute($logParams);
                 
                 $logId = $db->lastInsertId();
                 
@@ -428,12 +450,16 @@ function getRecentRareWins($limit = 20) {
     try {
         $db = ConnectionManager::getAccountDB();
         
-        // Query rare wins - hiển thị khi user quay trúng vật phẩm hiếm
-        // Ưu tiên hiển thị những reward đã claim (ClaimedDate), nếu chưa claim thì dùng WonDate
-        // IsRare is BIT type in SQL Server - direct comparison works
-        // Sắp xếp theo ngày mới nhất (ClaimedDate nếu có, nếu không thì WonDate)
-        // SQL Server requires FETCH parameter to be explicitly bound as INT
+        // Query rare wins for the homepage ticker.
+        // Prefer ClaimedDate if available; otherwise use WonDate.
+        // IsRare is BIT in SQL Server - direct comparison works.
+        // Order by the most recent timestamp (ClaimedDate fallback to WonDate).
+        // SQL Server requires FETCH parameter to be explicitly bound as INT.
         $limit = max(1, min(100, intval($limit))); // Ensure limit is between 1 and 100
+
+        // Filter to "today" only (server timezone). Use a half-open range: [today 00:00, tomorrow 00:00).
+        $todayStart = (new DateTime('today'))->format('Y-m-d H:i:s');
+        $tomorrowStart = (new DateTime('tomorrow'))->format('Y-m-d H:i:s');
         
         $stmt = $db->prepare("
             SELECT 
@@ -447,6 +473,18 @@ function getRecentRareWins($limit = 20) {
             FROM LuckyWheelRewards lw
             INNER JOIN TB_User u ON u.JID = lw.UserJID
             WHERE lw.IsRare = 1
+              AND (
+                CASE 
+                  WHEN lw.ClaimedDate IS NOT NULL THEN lw.ClaimedDate
+                  ELSE lw.WonDate
+                END
+              ) >= ?
+              AND (
+                CASE 
+                  WHEN lw.ClaimedDate IS NOT NULL THEN lw.ClaimedDate
+                  ELSE lw.WonDate
+                END
+              ) < ?
             ORDER BY 
                 CASE 
                     WHEN lw.ClaimedDate IS NOT NULL THEN lw.ClaimedDate
@@ -456,8 +494,10 @@ function getRecentRareWins($limit = 20) {
             FETCH NEXT ? ROWS ONLY
         ");
         
+        $stmt->bindValue(1, $todayStart);
+        $stmt->bindValue(2, $tomorrowStart);
         // Bind parameter as INT (required by SQL Server for FETCH)
-        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        $stmt->bindValue(3, $limit, PDO::PARAM_INT);
         $stmt->execute();
         
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -720,6 +760,305 @@ function hasClaimedAccumulatedReward($userJID, $accumulatedItemId) {
     } catch (Exception $e) {
         error_log("Error checking claimed accumulated reward: " . $e->getMessage());
         return false;
+    }
+}
+
+// ==========================================
+// Leaderboard Functions
+// ==========================================
+
+/**
+ * Get current active season
+ * Returns season array or null if no active season
+ */
+function getCurrentSeason() {
+    try {
+        $db = ConnectionManager::getAccountDB();
+        
+        // Current season = season whose time range wraps "now"
+        $stmt = $db->query("
+            SELECT TOP 1 
+                Id,
+                SeasonName,
+                SeasonType,
+                StartDate,
+                EndDate,
+                IsActive,
+                Status
+            FROM LuckyWheelSeasons
+            WHERE StartDate <= GETDATE()
+              AND EndDate   > GETDATE()
+            ORDER BY StartDate DESC
+        ");
+        
+        $season = $stmt->fetch(PDO::FETCH_ASSOC);
+        $now = (new DateTime())->format('Y-m-d H:i:s');
+        if ($season) {
+            error_log("[getCurrentSeason][$now] Id={$season['Id']}, Name={$season['SeasonName']}, Start={$season['StartDate']}, End={$season['EndDate']}");
+        } else {
+            error_log("[getCurrentSeason][$now] No active season for time window");
+        }
+        return $season ? $season : null;
+    } catch (Exception $e) {
+        error_log("Error getting current season: " . $e->getMessage());
+        return null;
+    }
+}
+
+/**
+ * Check and update season - auto transition to new season if needed
+ * Called when user logs in or spins
+ * 
+ * @return array Current active season
+ */
+function checkAndUpdateSeason() {
+    try {
+        $db = ConnectionManager::getAccountDB();
+        
+        $db->beginTransaction();
+        
+        try {
+            // 1) End any active season whose EndDate has passed
+            $db->prepare("
+                UPDATE LuckyWheelSeasons
+                SET IsActive = 0,
+                    Status = 'ENDED',
+                    UpdatedDate = GETDATE()
+                WHERE Status = 'ACTIVE'
+                  AND EndDate <= GETDATE()
+            ")->execute();
+            
+            // 2) Activate the season that should currently be running (time-based)
+            // Pick the latest that wraps now.
+            $toActivateStmt = $db->query("
+                SELECT TOP 1 Id
+                FROM LuckyWheelSeasons
+                WHERE StartDate <= GETDATE()
+                  AND EndDate   > GETDATE()
+                ORDER BY StartDate DESC
+            ");
+            $seasonToActivate = $toActivateStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($seasonToActivate) {
+                // Deactivate others to keep uniqueness, then activate this one
+                $db->prepare("
+                    UPDATE LuckyWheelSeasons
+                    SET IsActive = 0
+                    WHERE IsActive = 1 AND Id != ?
+                ")->execute([$seasonToActivate['Id']]);
+                
+                $db->prepare("
+                    UPDATE LuckyWheelSeasons
+                    SET IsActive = 1,
+                        Status = 'ACTIVE',
+                        UpdatedDate = GETDATE()
+                    WHERE Id = ?
+                ")->execute([$seasonToActivate['Id']]);
+            } else {
+                // No season wraps now: ensure none marked active
+                $db->prepare("
+                    UPDATE LuckyWheelSeasons
+                    SET IsActive = 0
+                    WHERE IsActive = 1
+                ")->execute();
+            }
+            
+            $db->commit();
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw $e;
+        }
+        
+        // Return current season determined by time window and log snapshot
+        $season = getCurrentSeason();
+        $now = (new DateTime())->format('Y-m-d H:i:s');
+        if ($season) {
+            error_log("[SeasonChecker][$now] Active season: ID={$season['Id']}, Name={$season['SeasonName']}, Start={$season['StartDate']}, End={$season['EndDate']}");
+        } else {
+            error_log("[SeasonChecker][$now] No active season for current time window");
+        }
+        return $season;
+        
+    } catch (Exception $e) {
+        error_log("Error checking and updating season: " . $e->getMessage());
+        // Return current season even if check failed
+        return getCurrentSeason();
+    }
+}
+
+/**
+ * Update season log for user when spinning
+ * Creates record if not exists, updates if exists
+ * 
+ * @param int $userJID User JID
+ * @param int $spinCount Number of spins
+ * @param int $seasonId Season ID (optional, will use current if not provided)
+ * @return bool Success
+ */
+function updateSeasonLog($userJID, $spinCount, $seasonId = null) {
+    try {
+        $db = ConnectionManager::getAccountDB();
+        
+        // Get season ID if not provided
+        if ($seasonId === null) {
+            $season = getCurrentSeason();
+            if (!$season) {
+                error_log("No active season found, skipping season log update");
+                return false;
+            }
+            $seasonId = $season['Id'];
+        }
+        
+        // Get username
+        $userStmt = $db->prepare("SELECT StrUserID FROM TB_User WHERE JID = ?");
+        $userStmt->execute([$userJID]);
+        $user = $userStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$user || empty($user['StrUserID'])) {
+            error_log("User not found for JID: $userJID");
+            return false;
+        }
+        
+        $username = $user['StrUserID'];
+        
+        // Check if record exists
+        $checkStmt = $db->prepare("
+            SELECT Id, TotalSpins 
+            FROM LuckyWheelSeasonLog 
+            WHERE SeasonId = ? AND UserJID = ?
+        ");
+        $checkStmt->execute([$seasonId, $userJID]);
+        $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($existing) {
+            // Update existing record
+            $updateStmt = $db->prepare("
+                UPDATE LuckyWheelSeasonLog 
+                SET TotalSpins = TotalSpins + ?,
+                    LastSpinDate = GETDATE(),
+                    UpdatedDate = GETDATE()
+                WHERE Id = ?
+            ");
+            $updateStmt->execute([$spinCount, $existing['Id']]);
+        } else {
+            // Insert new record
+            $insertStmt = $db->prepare("
+                INSERT INTO LuckyWheelSeasonLog 
+                (SeasonId, UserJID, Username, TotalSpins, LastSpinDate)
+                VALUES (?, ?, ?, ?, GETDATE())
+            ");
+            $insertStmt->execute([$seasonId, $userJID, $username, $spinCount]);
+        }
+        
+        return true;
+        
+    } catch (Exception $e) {
+        error_log("Error updating season log: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Get leaderboard for a season (top 5)
+ * 
+ * @param int $seasonId Season ID (optional, will use current if not provided)
+ * @param int $limit Limit number of results (default 5)
+ * @return array Leaderboard data with rank
+ */
+function getLeaderboard($seasonId = null, $limit = 5) {
+    try {
+        $db = ConnectionManager::getAccountDB();
+        
+        // Get season ID if not provided
+        if ($seasonId === null) {
+            $season = getCurrentSeason();
+            if (!$season) {
+                return [];
+            }
+            $seasonId = $season['Id'];
+        }
+        
+        // SQL Server doesn't allow parameter in TOP clause, use dynamic SQL or subquery
+        $limit = intval($limit);
+        $stmt = $db->prepare("
+            SELECT TOP ($limit)
+                UserJID,
+                Username,
+                TotalSpins,
+                LastSpinDate,
+                ROW_NUMBER() OVER (ORDER BY TotalSpins DESC, LastSpinDate ASC) as Rank
+            FROM LuckyWheelSeasonLog
+            WHERE SeasonId = ?
+            ORDER BY TotalSpins DESC, LastSpinDate ASC
+        ");
+        
+        $stmt->execute([$seasonId]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Convert Rank to integer
+        foreach ($results as &$result) {
+            $result['Rank'] = intval($result['Rank']);
+        }
+        
+        return $results;
+        
+    } catch (Exception $e) {
+        error_log("Error getting leaderboard: " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Get season history (last N seasons)
+ * 
+ * @param int $limit Number of seasons to return (default 3)
+ * @return array Seasons with top 5 leaderboard for each
+ */
+function getSeasonHistory($limit = 3) {
+    try {
+        $db = ConnectionManager::getAccountDB();
+        
+        // SQL Server doesn't allow parameter in TOP clause, use dynamic SQL
+        $limit = intval($limit);
+        $stmt = $db->prepare("
+            SELECT TOP ($limit)
+                Id,
+                SeasonName,
+                SeasonType,
+                StartDate,
+                EndDate,
+                Status
+            FROM LuckyWheelSeasons
+            WHERE EndDate < GETDATE()
+            ORDER BY StartDate DESC
+        ");
+        
+        $stmt->execute();
+        $seasons = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Get top 5 for each season
+        foreach ($seasons as &$season) {
+            $season['top_5'] = getLeaderboard($season['Id'], 5);
+            
+            // Get total participants
+            $countStmt = $db->prepare("
+                SELECT COUNT(*) as total_participants,
+                       SUM(TotalSpins) as total_spins
+                FROM LuckyWheelSeasonLog
+                WHERE SeasonId = ?
+            ");
+            $countStmt->execute([$season['Id']]);
+            $stats = $countStmt->fetch(PDO::FETCH_ASSOC);
+            
+            $season['total_participants'] = intval($stats['total_participants'] ?? 0);
+            $season['total_spins'] = intval($stats['total_spins'] ?? 0);
+        }
+        
+        return $seasons;
+        
+    } catch (Exception $e) {
+        error_log("Error getting season history: " . $e->getMessage());
+        return [];
     }
 }
 

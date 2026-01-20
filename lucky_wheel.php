@@ -1011,6 +1011,113 @@ try {
         }
         
         /* Rules Section */
+        .leaderboard-section {
+            margin-top: 30px;
+            width: 100%;
+        }
+        
+        .leaderboard-box {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #e8c088;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(232, 192, 136, 0.3);
+        }
+        
+        .leaderboard-title {
+            color: #e8c088;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .leaderboard-title i {
+            color: #ffd700;
+        }
+        
+        .leaderboard-list {
+            margin-top: 15px;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: rgba(30, 35, 60, 0.6);
+            border-radius: 8px;
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .leaderboard-item:hover {
+            background: rgba(30, 35, 60, 0.8);
+            transform: translateX(5px);
+        }
+        
+        .leaderboard-item.rank-1 {
+            border-left-color: #ffd700;
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), rgba(30, 35, 60, 0.6));
+        }
+        
+        .leaderboard-item.rank-2 {
+            border-left-color: #c0c0c0;
+            background: linear-gradient(90deg, rgba(192, 192, 192, 0.2), rgba(30, 35, 60, 0.6));
+        }
+        
+        .leaderboard-item.rank-3 {
+            border-left-color: #cd7f32;
+            background: linear-gradient(90deg, rgba(205, 127, 50, 0.2), rgba(30, 35, 60, 0.6));
+        }
+        
+        .leaderboard-rank {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e8c088;
+            min-width: 40px;
+        }
+        
+        .leaderboard-rank.rank-1::before {
+            content: '🥇';
+            margin-right: 5px;
+        }
+        
+        .leaderboard-rank.rank-2::before {
+            content: '🥈';
+            margin-right: 5px;
+        }
+        
+        .leaderboard-rank.rank-3::before {
+            content: '🥉';
+            margin-right: 5px;
+        }
+        
+        .leaderboard-username {
+            flex: 1;
+            color: #87ceeb;
+            font-weight: 500;
+            margin-left: 15px;
+        }
+        
+        .leaderboard-spins {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .leaderboard-season {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(232, 192, 136, 0.3);
+            color: #87ceeb;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
         .rules-section {
             margin: 30px 0;
             width: 100%;
@@ -1140,6 +1247,23 @@ try {
             .silk-balance {
                 font-size: 16px;
                 padding: 10px 18px;
+            }
+            
+            .leaderboard-section {
+                margin-top: 20px;
+            }
+            
+            .leaderboard-box {
+                padding: 15px;
+            }
+            
+            .leaderboard-title {
+                font-size: 18px;
+            }
+            
+            .leaderboard-item {
+                padding: 10px;
+                font-size: 0.9rem;
             }
             
             .rules-section {
@@ -1372,6 +1496,26 @@ try {
                             </ul>
                         </div>
                     </div>
+                    
+                    <!-- Leaderboard Section -->
+                    <div class="leaderboard-section">
+                        <div class="leaderboard-box">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <h3 class="leaderboard-title">
+                                    <i class="fas fa-trophy"></i>
+                                    Bảng Xếp Hạng
+                                </h3>
+                                <button class="btn-view-history" onclick="showSeasonHistory()" style="padding: 6px 12px; font-size: 0.85rem; background: rgba(232, 192, 136, 0.2); border: 1px solid #e8c088; color: #e8c088; border-radius: 4px; cursor: pointer;">
+                                    <i class="fas fa-history"></i> Xem Lịch Sử
+                                </button>
+                            </div>
+                            <div id="leaderboardContent">
+                                <div class="loading">
+                                    <i class="fas fa-spinner fa-spin"></i> Đang tải...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Info Panels -->
@@ -1446,6 +1590,10 @@ try {
             loadItems();
             loadPendingRewards();
             loadAccumulatedRewards();
+            loadLeaderboard();
+            
+            // Auto-refresh leaderboard every 60s
+            setInterval(loadLeaderboard, 60000);
         });
         
         // Load config
@@ -1945,6 +2093,180 @@ try {
         }
         
         // Load accumulated rewards
+        // Load leaderboard
+        function loadLeaderboard() {
+            $.ajax({
+                url: '/api/lucky_wheel/get_leaderboard.php',
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        displayLeaderboard(response.data);
+                    } else {
+                        $('#leaderboardContent').html('<div style="text-align: center; color: #87ceeb; padding: 20px;">Không có dữ liệu</div>');
+                    }
+                },
+                error: function() {
+                    $('#leaderboardContent').html('<div style="text-align: center; color: #87ceeb; padding: 20px;">Lỗi tải dữ liệu</div>');
+                }
+            });
+        }
+        
+        // Display leaderboard
+        function displayLeaderboard(data) {
+            const leaderboard = data.leaderboard || [];
+            const season = data.season;
+            
+            // Handle no season
+            if (!season) {
+                $('#leaderboardContent').html('<div style="text-align: center; color: #87ceeb; padding: 20px;">Chưa có mùa hiện tại</div>');
+                return;
+            }
+            
+            // Handle no leaderboard data
+            if (leaderboard.length === 0) {
+                $('#leaderboardContent').html(`
+                    <div style="text-align: center; color: #87ceeb; padding: 20px;">
+                        Mùa: ${escapeHtml(season.name)}<br>
+                        Chưa có dữ liệu BXH
+                    </div>
+                `);
+                return;
+            }
+            
+            let html = `
+                <div class="leaderboard-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #e8c088;">
+                    <span>Mùa hiện tại: ${escapeHtml(season.name)}</span>
+                </div>
+                <div class="leaderboard-list" style="color: #87ceeb;">
+                    <div class="leaderboard-item" style="font-weight: 700; border-bottom: 1px solid #444;">
+                        <span class="leaderboard-rank" style="min-width: 40px;">STT</span>
+                        <span class="leaderboard-username" style="flex: 1;">USERNAME</span>
+                        <span class="leaderboard-spins" style="min-width: 120px; text-align: right;">TỔNG LƯỢT QUAY</span>
+                    </div>
+            `;
+            
+            leaderboard.forEach(function(player, index) {
+                const rankClass = 'rank-' + player.rank;
+                html += `
+                    <div class="leaderboard-item ${rankClass}">
+                        <span class="leaderboard-rank">${index + 1}</span>
+                        <span class="leaderboard-username">${escapeHtml(player.username)}</span>
+                        <span class="leaderboard-spins" style="text-align: right;">${player.total_spins.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            
+            html += `
+                </div>
+            `;
+            
+            $('#leaderboardContent').html(html);
+        }
+        
+        // Show season history modal
+        function showSeasonHistory() {
+            $.ajax({
+                url: '/api/lucky_wheel/get_season_history.php',
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        displaySeasonHistory(response.data);
+                    } else {
+                        alert('Lỗi: ' + (response.error || 'Không thể tải lịch sử'));
+                    }
+                },
+                error: function() {
+                    alert('Lỗi kết nối');
+                }
+            });
+        }
+        
+        // Display season history modal
+        function displaySeasonHistory(seasons) {
+            let html = `
+                <div id="seasonHistoryModal" class="modal" style="display: block;">
+                    <div class="modal-content" style="max-width: 800px;">
+                        <div class="modal-header">
+                            <h2><i class="fas fa-history"></i> Lịch Sử Bảng Xếp Hạng</h2>
+                            <span class="close" onclick="closeSeasonHistory()">&times;</span>
+                        </div>
+                        <div class="modal-body">
+            `;
+            
+            if (seasons && seasons.length > 0) {
+                seasons.forEach(function(season) {
+                    html += `
+                        <div style="background: rgba(30, 35, 60, 0.8); border: 1px solid #444; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                            <h4 style="color: #e8c088; margin-bottom: 10px;">
+                                ${escapeHtml(season.season_name)}
+                                <span style="font-size: 0.85rem; color: #87ceeb; margin-left: 10px;">
+                                    (${season.season_type === 'WEEK' ? 'Tuần' : 'Ngày'})
+                                </span>
+                            </h4>
+                            <div style="color: #87ceeb; font-size: 0.9rem; margin-bottom: 15px;">
+                                <div>Bắt đầu: ${new Date(season.start_date).toLocaleString('vi-VN')}</div>
+                                <div>Kết thúc: ${season.end_date ? new Date(season.end_date).toLocaleString('vi-VN') : 'Chưa xác định'}</div>
+                                <div>Tổng người tham gia: ${season.total_participants} | Tổng lượt quay: ${season.total_spins}</div>
+                            </div>
+                            <h5 style="color: #ffd700; margin: 15px 0 10px 0;">Top 5:</h5>
+                            <div style="display: grid; gap: 8px;">
+                    `;
+                    
+                    if (season.top_5 && season.top_5.length > 0) {
+                        season.top_5.forEach(function(player, index) {
+                            html += `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(20, 25, 40, 0.6); border-radius: 4px;">
+                                    <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
+                                        <span style="color: #e8c088; font-weight: bold; min-width: 30px;">${index + 1}</span>
+                                        <span style="color: #87ceeb;">${escapeHtml(player.username)}</span>
+                                    </div>
+                                    <div style="color: #ffd700; font-weight: bold; min-width: 80px; text-align: right;">${player.total_spins.toLocaleString()}</div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        html += '<div style="text-align: center; color: #87ceeb; padding: 10px;">Chưa có dữ liệu</div>';
+                    }
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                html += '<div style="text-align: center; color: #87ceeb; padding: 20px;">Chưa có lịch sử</div>';
+            }
+            
+            html += `
+                        </div>
+                        <div class="modal-footer">
+                            <button class="modal-close-btn" onclick="closeSeasonHistory()">ĐÓNG</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            $('body').append(html);
+        }
+        
+        function closeSeasonHistory() {
+            $('#seasonHistoryModal').remove();
+        }
+        
+        // Escape HTML helper
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+        
         function loadAccumulatedRewards() {
             console.log('Loading accumulated rewards...');
             
