@@ -22,10 +22,18 @@ try {
     // Format results
     $results = [];
     foreach ($wins as $win) {
+        // Provide ISO-8601 timestamp for reliable client-side parsing (timezone-aware)
+        $wonDateIso = null;
+        try {
+            $wonDateIso = (new DateTime($win['WonDate']))->format(DATE_ATOM);
+        } catch (Exception $e) {
+            $wonDateIso = null;
+        }
         $results[] = [
             'username' => $win['Username'],
             'item_name' => $win['ItemName'],
-            'won_date' => $win['WonDate']
+            'won_date' => $win['WonDate'],
+            'won_date_iso' => $wonDateIso
         ];
     }
     

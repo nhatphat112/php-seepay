@@ -535,10 +535,9 @@ $rareWins = getRecentRareWins(20);
                         // Duplicate items for seamless loop
                         $duplicatedWins = array_merge($rareWins, $rareWins);
                         foreach ($duplicatedWins as $win): 
-                            // Format time ago
+                            // Format time ago using full current datetime for accurate seconds/minutes
                             $wonDate = new DateTime($win['WonDate']);
-                            // Use date-only "today" to avoid hour/minute affecting the diff output.
-                            $now = new DateTime('today');
+                            $now = new DateTime();
                             $diff = $now->diff($wonDate);
                             
                             $timeAgo = '';
@@ -1537,7 +1536,7 @@ $rareWins = getRecentRareWins(20);
                         const items = [...response.data, ...response.data];
                         
                         items.forEach(function(win) {
-                            const timeAgo = formatTimeAgo(win.won_date);
+                            const timeAgo = formatTimeAgo(win.won_date_iso || win.won_date);
                             const item = $('<div>')
                                 .addClass('ticker-item')
                                 .html(
@@ -1565,8 +1564,12 @@ $rareWins = getRecentRareWins(20);
             if (!dateString) return '';
             
             const now = new Date();
-            const date = new Date(dateString);
+            // Prefer ISO-8601 from API. If server returns "YYYY-MM-DD HH:mm:ss.mmm",
+            // normalize to "YYYY-MM-DDTHH:mm:ss.mmm" to improve parsing reliability.
+            const normalized = typeof dateString === 'string' ? dateString.replace(' ', 'T') : dateString;
+            const date = new Date(normalized);
             const diffMs = now - date;
+            const diffSecs = Math.floor(diffMs / 1000);
             const diffMins = Math.floor(diffMs / 60000);
             const diffHours = Math.floor(diffMs / 3600000);
             const diffDays = Math.floor(diffMs / 86400000);
@@ -1604,7 +1607,7 @@ $rareWins = getRecentRareWins(20);
         // Auto-refresh ticker every 60 seconds (optional)
         $(document).ready(function() {
             // Auto-refresh every 60 seconds
-            setInterval(refreshLuckyWheelTicker, 60000);
+            setInterval(refreshLuckyWheelTicker, 180000);
         });
         
         // Smooth scroll for anchor links
