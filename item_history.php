@@ -266,7 +266,7 @@ $user_role = getUserRole();
         
         .item-table th {
             padding: 12px;
-            text-align: left;
+            text-align: center;
             font-weight: 600;
             color: #1e90ff;
             border-bottom: 2px solid #1e90ff;
