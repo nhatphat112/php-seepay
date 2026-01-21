@@ -142,6 +142,19 @@ try {
             throw new Exception('Phần thưởng đã được nhận bởi người khác hoặc đã hết hạn');
         }
         
+        // Log item history after successful claim
+        logItemHistory(
+            $userJID,
+            $username,
+            $reward['ItemName'],
+            $reward['ItemCode'],
+            intval($reward['Quantity']),
+            'lucky_wheel',
+            $charName,
+            $rewardId, // RewardId
+            null // AccumulatedLogId (not applicable)
+        );
+        
         $accountDb->commit();
         
         echo json_encode([

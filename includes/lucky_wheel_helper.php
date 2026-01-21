@@ -1093,4 +1093,61 @@ function getSeasonHistory($limit = 3) {
     }
 }
 
+/**
+ * Log item history when user receives items from lucky wheel
+ * 
+ * This function records item receipt history with:
+ * - Item name and quantity
+ * - Source (lucky_wheel or accumulated_reward)
+ * - Receive time
+ * - User information
+ * - Character name
+ * 
+ * @param int $userJID User JID
+ * @param string $username Username
+ * @param string $itemName Item name
+ * @param string $itemCode Item code
+ * @param int $quantity Quantity received
+ * @param string $source Source type: 'lucky_wheel' or 'accumulated_reward'
+ * @param string $charName Character name (optional)
+ * @param int $rewardId Reward ID from LuckyWheelRewards (optional, for lucky_wheel source)
+ * @param int $accumulatedLogId Log ID from LuckyWheelAccumulatedLog (optional, for accumulated_reward source)
+ * @return bool Success status
+ */
+function logItemHistory($userJID, $username, $itemName, $itemCode, $quantity, $source, $charName = null, $rewardId = null, $accumulatedLogId = null) {
+    try {
+        $db = ConnectionManager::getAccountDB();
+        
+        // Validate source
+        if (!in_array($source, ['lucky_wheel', 'accumulated_reward'])) {
+            error_log("Invalid source for item history: $source");
+            return false;
+        }
+        
+        $stmt = $db->prepare("
+            INSERT INTO LuckyWheelItemHistory 
+            (UserJID, Username, ItemName, ItemCode, Quantity, Source, CharName, RewardId, AccumulatedLogId, ReceivedDate)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE())
+        ");
+        
+        $stmt->execute([
+            $userJID,
+            $username,
+            $itemName,
+            $itemCode,
+            $quantity,
+            $source,
+            $charName,
+            $rewardId,
+            $accumulatedLogId
+        ]);
+        
+        return true;
+        
+    } catch (Exception $e) {
+        error_log("Error logging item history: " . $e->getMessage());
+        return false;
+    }
+}
+
 ?>

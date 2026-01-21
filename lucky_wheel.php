@@ -1424,6 +1424,7 @@ try {
                 <li><a href="payment.php"><i class="fas fa-coins"></i> Nạp Tiền</a></li>
                 <li><a href="tichnap.php"><i class="fas fa-gift"></i> Nạp Tích Lũy</a></li>
                 <li><a href="lucky_wheel.php" class="active"><i class="fas fa-dharmachakra"></i> Vòng Quay May Mắn</a></li>
+                <li><a href="item_history.php"><i class="fas fa-box-open"></i> Lịch Sử Nhận Vật Phẩm</a></li>
                 <li><a href="ranking.php"><i class="fas fa-trophy"></i> Bảng Xếp Hạng</a></li>
                 <li><a href="transaction_history.php"><i class="fas fa-history"></i> Lịch Sử Giao Dịch</a></li>
                 <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Đăng Xuất</a></li>
@@ -1545,6 +1546,16 @@ try {
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Item History -->
+                    <div class="info-panel rewards-panel">
+                        <h3><i class="fas fa-history"></i> Lịch Sử Nhận Vật Phẩm</h3>
+                        <div id="itemHistory" style="max-height: 600px; overflow-y: auto; padding-right: 10px;">
+                            <div class="loading">
+                                <i class="fas fa-spinner fa-spin"></i> Đang tải...
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1593,6 +1604,7 @@ try {
             loadPendingRewards();
             loadAccumulatedRewards();
             loadLeaderboard();
+            loadItemHistory();
             
             // Auto-refresh leaderboard every 60s
             setInterval(loadLeaderboard, 60000);
@@ -2372,8 +2384,9 @@ try {
                 success: function(response) {
                     if (response.success) {
                         alert('Đã nhận phần thưởng thành công!');
-                        // Reload accumulated rewards to update list
+                        // Reload accumulated rewards and history to update list
                         loadAccumulatedRewards();
+                        loadItemHistory();
                     } else {
                         alert('Lỗi: ' + (response.error || 'Không thể nhận phần thưởng'));
                         btn.disabled = false;
@@ -2426,8 +2439,9 @@ try {
                             $('#spinStatus').text('');
                         }, 3000);
                         
-                        // Reload rewards list
+                        // Reload rewards list and history
                         loadPendingRewards();
+                        loadItemHistory();
                     } else {
                         alert('Lỗi: ' + response.error);
                         btn.prop('disabled', false).removeClass('claiming').text('Nhận');
@@ -2487,6 +2501,84 @@ try {
         // Number format
         function number_format(number) {
             return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // Load item history
+        function loadItemHistory(page = 1) {
+            const container = $('#itemHistory');
+            
+            $.ajax({
+                url: '/api/lucky_wheel/get_item_history.php',
+                method: 'GET',
+                data: {
+                    page: page,
+                    limit: 20
+                },
+                dataType: 'json',
+                success: function(response) {
+                    container.empty();
+                    
+                    if (response.success && response.data.items.length > 0) {
+                        const items = response.data.items;
+                        
+                        items.forEach(function(item) {
+                            const receivedDate = new Date(item.received_date);
+                            const timeStr = receivedDate.toLocaleString('vi-VN', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+                            
+                            const sourceBadge = item.source === 'lucky_wheel' 
+                                ? '<span style="color: #ffd700; font-size: 0.85rem;">Vòng Quay</span>'
+                                : '<span style="color: #87ceeb; font-size: 0.85rem;">Tích Lũy</span>';
+                            
+                            const itemHtml = `
+                                <div class="won-item" style="margin-bottom: 12px;">
+                                    <div class="won-item-dot"></div>
+                                    <div style="flex: 1;">
+                                        <div style="color: #fff; font-weight: bold; margin-bottom: 5px;">
+                                            ${escapeHtml(item.item_name)} x${item.quantity}
+                                        </div>
+                                        <div style="display: flex; gap: 15px; font-size: 0.9rem; color: #87ceeb;">
+                                            <span>${sourceBadge}</span>
+                                            ${item.char_name ? '<span>NV: ' + escapeHtml(item.char_name) + '</span>' : ''}
+                                            <span>${timeStr}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            container.append(itemHtml);
+                        });
+                        
+                        // Add pagination if needed
+                        const pagination = response.data.pagination;
+                        if (pagination.total_pages > 1) {
+                            let paginationHtml = '<div style="text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255, 200, 0, 0.3);">';
+                            
+                            if (pagination.page > 1) {
+                                paginationHtml += `<button onclick="loadItemHistory(${pagination.page - 1})" style="background: rgba(255, 200, 0, 0.2); border: 1px solid #ffd700; color: #ffd700; padding: 5px 15px; border-radius: 5px; cursor: pointer; margin-right: 10px;">Trước</button>`;
+                            }
+                            
+                            paginationHtml += `<span style="color: #87ceeb;">Trang ${pagination.page}/${pagination.total_pages}</span>`;
+                            
+                            if (pagination.page < pagination.total_pages) {
+                                paginationHtml += `<button onclick="loadItemHistory(${pagination.page + 1})" style="background: rgba(255, 200, 0, 0.2); border: 1px solid #ffd700; color: #ffd700; padding: 5px 15px; border-radius: 5px; cursor: pointer; margin-left: 10px;">Sau</button>`;
+                            }
+                            
+                            paginationHtml += '</div>';
+                            container.append(paginationHtml);
+                        }
+                    } else {
+                        container.html('<div class="empty-state">Chưa có lịch sử nhận vật phẩm</div>');
+                    }
+                },
+                error: function() {
+                    container.html('<div class="empty-state">Lỗi tải dữ liệu</div>');
+                }
+            });
         }
         
         // Close modal when clicking outside
