@@ -20,6 +20,14 @@ session_start();
 
 require_once __DIR__ . '/../../../admin/auth_check.php';
 
+// Editing season is disabled permanently (requirement: only create and delete seasons)
+http_response_code(400);
+echo json_encode([
+    'success' => false,
+    'error' => 'Chức năng chỉnh sửa mùa đã bị vô hiệu hoá. Vui lòng xoá mùa cũ và tạo mùa mới.'
+], JSON_UNESCAPED_UNICODE);
+exit;
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode([

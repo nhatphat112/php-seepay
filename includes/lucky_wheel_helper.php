@@ -666,6 +666,37 @@ function getAccumulatedSpinItems($includeInactive = false) {
 /**
  * Get user's total spins
  */
+/**
+ * Get user's total spins for the current active season.
+ * This is used for accumulated rewards, making them season-based.
+ */
+function getUserTotalSpinsForCurrentSeason($userJID) {
+    try {
+        $db = ConnectionManager::getAccountDB();
+        
+        $currentSeason = getCurrentSeason();
+        if (!$currentSeason) {
+            return 0; // No active season, no spins.
+        }
+        
+        $stmt = $db->prepare("
+            SELECT ISNULL(TotalSpins, 0) as TotalSpins
+            FROM LuckyWheelSeasonLog
+            WHERE UserJID = ? AND SeasonId = ?
+        ");
+        $stmt->execute([$userJID, $currentSeason['Id']]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return intval($result['TotalSpins'] ?? 0);
+    } catch (Exception $e) {
+        error_log("Error getting user total spins for current season: " . $e->getMessage());
+        return 0;
+    }
+}
+
+/**
+ * Get user's LIFETIME total spins (legacy)
+ */
 function getUserTotalSpins($userJID) {
     try {
         $db = ConnectionManager::getAccountDB();
@@ -693,7 +724,7 @@ function getAvailableAccumulatedRewards($userJID) {
     try {
         $db = ConnectionManager::getAccountDB();
         
-        $totalSpins = getUserTotalSpins($userJID);
+        $totalSpins = getUserTotalSpinsForCurrentSeason($userJID);
         
         // Get all active accumulated items from table
         $items = getAccumulatedSpinItems(false);

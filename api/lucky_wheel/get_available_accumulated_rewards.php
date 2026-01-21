@@ -30,8 +30,8 @@ try {
     // Get available rewards
     $rewards = getAvailableAccumulatedRewards($userJID);
     
-    // Get total spins for display
-    $totalSpins = getUserTotalSpins($userJID);
+    // Get total spins for display (season-based)
+    $totalSpins = getUserTotalSpinsForCurrentSeason($userJID);
     
     echo json_encode([
         'success' => true,

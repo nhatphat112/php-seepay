@@ -364,6 +364,7 @@ try {
         
         .wheel-section {
             display: flex;
+            justify-content: center;
             gap: 30px;
             margin-top: 40px;
             flex-wrap: wrap;
@@ -1498,6 +1499,12 @@ try {
                     </div>
                     
                     <!-- Leaderboard Section -->
+              
+                </div>
+                
+                <!-- Info Panels -->
+                <div class="info-panels">
+                    <!-- Accumulated Rewards -->
                     <div class="leaderboard-section">
                         <div class="leaderboard-box">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -1516,11 +1523,6 @@ try {
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Info Panels -->
-                <div class="info-panels">
-                    <!-- Accumulated Rewards -->
                     <div class="info-panel rewards-panel">
                         <h3><i class="fas fa-gift"></i> Phần Thưởng Tích Lũy</h3>
                         <div id="totalSpinsDisplay" class="total-spins-display">

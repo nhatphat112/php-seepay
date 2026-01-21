@@ -1296,6 +1296,35 @@ require_once __DIR__ . '/auth_check.php';
             });
         }
         
+        // Delete season
+        function deleteSeason(seasonId, seasonName) {
+            if (!confirm(`Xác nhận xóa mùa \"${seasonName}\"?\nMọi dữ liệu tích lũy liên quan sẽ bị xóa.`)) {
+                return;
+            }
+            $.ajax({
+                url: '/api/cms/lucky_wheel/delete_season.php',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ id: seasonId }),
+                success: function(response) {
+                    if (response.success) {
+                        showAlert('success', response.message);
+                        loadSeasons();
+                    } else {
+                        showAlert('error', response.error || 'Có lỗi xảy ra');
+                    }
+                },
+                error: function(xhr) {
+                    if (xhr.status === 429) {
+                        showAlert('error', 'Quá nhiều yêu cầu, vui lòng thử lại sau');
+                        return;
+                    }
+                    const response = xhr.responseJSON;
+                    showAlert('error', response?.error || 'Có lỗi xảy ra');
+                }
+            });
+        }
+
         // Delete accumulated item
         function deleteAccumulatedItem(itemId, itemName) {
             if (!confirm(`Xác nhận xóa vật phẩm mốc quay "${itemName}"?`)) {
@@ -1479,9 +1508,10 @@ require_once __DIR__ . '/auth_check.php';
                 const actions = [];
                 // Only allow editing when feature is disabled to avoid runtime conflicts
                 if (!featureEnabled) {
-                    actions.push(`<button class="btn btn-sm" onclick="editSeason(${season.Id})" style="padding: 5px 10px; font-size: 0.85rem;"><i class="fas fa-edit"></i> Sửa</button>`);
+                    
                 }
-                actions.push(`<button class="btn btn-sm btn-primary" onclick="viewSeasonDetail(${season.Id})" style="padding: 5px 10px; font-size: 0.85rem;"><i class="fas fa-eye"></i> Chi Tiết</button>`);
+                actions.push(`<button class=\"btn btn-sm btn-primary\" onclick=\"viewSeasonDetail(${season.Id})\" style=\"padding: 5px 10px; font-size: 0.85rem;\"><i class=\"fas fa-eye\"></i> Chi Tiết</button>`);
+                actions.push(`<button class=\"btn btn-sm btn-danger\" onclick=\"deleteSeason(${season.Id}, '${escapeHtml(season.SeasonName)}')\" style=\"padding: 5px 10px; font-size: 0.85rem;\"><i class=\"fas fa-trash\"></i> Xóa</button>`);
                 
                 const row = `
                     <tr>
