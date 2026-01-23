@@ -1527,7 +1527,7 @@ try {
                     <div class="info-panel rewards-panel">
                         <h3><i class="fas fa-gift"></i> Phần Thưởng Tích Lũy</h3>
                         <div id="totalSpinsDisplay" class="total-spins-display">
-                            <div class="total-spins-label">Tổng số vòng quay</div>
+                            <div class="total-spins-label">Bạn đã quay</div>
                             <div class="total-spins-value" id="totalSpinsValue">0</div>
                         </div>
                         <div id="accumulatedRewards">
