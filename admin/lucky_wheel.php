@@ -621,9 +621,14 @@ require_once __DIR__ . '/auth_check.php';
                         <h3 style="color: #e8c088; margin: 0;">
                             <i class="fas fa-gift"></i> Vật Phẩm Mốc Quay (Quay Tích Lũy)
                         </h3>
-                        <button class="btn btn-primary" onclick="openAddAccumulatedItemModal()">
-                            <i class="fas fa-plus"></i> Thêm Vật Phẩm Mốc Quay
-                        </button>
+                        <div style="display: flex; gap: 10px;">
+                            <button type="button" class="btn btn-secondary" onclick="resetAccumulatedItems()" id="btnResetAccumulated" title="Clone toàn bộ quà hiện có (ID mới) rồi xóa bản ghi cũ">
+                                <i class="fas fa-sync-alt"></i> Reset Quà
+                            </button>
+                            <button class="btn btn-primary" onclick="openAddAccumulatedItemModal()">
+                                <i class="fas fa-plus"></i> Thêm Vật Phẩm Mốc Quay
+                            </button>
+                        </div>
                     </div>
                     
                     <!-- Loading -->
@@ -1347,6 +1352,35 @@ require_once __DIR__ . '/auth_check.php';
                 error: function(xhr) {
                     const response = xhr.responseJSON;
                     showAlert('error', response?.error || 'Có lỗi xảy ra');
+                }
+            });
+        }
+
+        // Reset accumulated items: clone tất cả quà (ID mới), xóa bản ghi cũ (ID 1-10 → mới 11-20)
+        function resetAccumulatedItems() {
+            if (!confirm('Reset quà: clone toàn bộ vật phẩm mốc quay hiện có (ID mới), sau đó xóa các bản ghi cũ.\n\nVí dụ: 10 item id 1-10 sẽ thành id 11-20, id 1-10 bị xóa.\n\nTiếp tục?')) {
+                return;
+            }
+            const $btn = $('#btnResetAccumulated');
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang xử lý...');
+            $.ajax({
+                url: '/api/cms/lucky_wheel/reset_accumulated_items.php',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({}),
+                success: function(response) {
+                    $btn.prop('disabled', false).html('<i class="fas fa-sync-alt"></i> Reset Quà');
+                    if (response.success) {
+                        showAlert('success', response.message);
+                        loadAccumulatedItems();
+                    } else {
+                        showAlert('error', response.error || 'Có lỗi xảy ra');
+                    }
+                },
+                error: function(xhr) {
+                    $btn.prop('disabled', false).html('<i class="fas fa-sync-alt"></i> Reset Quà');
+                    const response = xhr.responseJSON;
+                    showAlert('error', response?.error || response?.message || 'Có lỗi xảy ra');
                 }
             });
         }
